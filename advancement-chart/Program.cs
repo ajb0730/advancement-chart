@@ -14,13 +14,16 @@ namespace advancement_chart
 
         static void Main(string[] args)
         {
+			string outputFilename = @"./TroopAdvancementChart.xlsx";
             foreach (string arg in args)
             {
-                LoadFile(arg);
+                if(!LoadFile(arg))
+				{
+					outputFilename = arg;
+				}
             }
-
             var report = new TroopReport(scouts);
-            report.Run(@"/Users/andrew/src/TroopAdvancementChart.xlsx");
+            report.Run(outputFilename);
         }
 
         static bool LoadFile(string fileName)
@@ -110,5 +113,4 @@ namespace advancement_chart
             return result;
         }
     }
-
 }
