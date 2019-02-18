@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "advancement-chart", "advancement-chart\advancement-chart.csproj", "{99D5997A-0C60-4A5F-AC0A-FF10BEF6818C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "advancement-chart.tests", "advancement-chart.tests\advancement-chart.tests.csproj", "{EDAF1023-CB07-499D-94BE-DD590196A843}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99D5997A-0C60-4A5F-AC0A-FF10BEF6818C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99D5997A-0C60-4A5F-AC0A-FF10BEF6818C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99D5997A-0C60-4A5F-AC0A-FF10BEF6818C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99D5997A-0C60-4A5F-AC0A-FF10BEF6818C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDAF1023-CB07-499D-94BE-DD590196A843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDAF1023-CB07-499D-94BE-DD590196A843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDAF1023-CB07-499D-94BE-DD590196A843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDAF1023-CB07-499D-94BE-DD590196A843}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
