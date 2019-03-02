@@ -23,7 +23,9 @@ namespace advancementchart.Model.Ranks
             Requirements.Add(new RankRequirement(name: "4a", description: "Tie square knot, two half-hitches, and taughtline hitch", rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "4b", description: "Whip and fuse rope", rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "5", description: "Demonstrate pocktknife safety", rank: this, handbookPages: ""));
-            Requirements.Add(new RankRequirement(name: "6", description: "Complete abuse packet with parent & earn cyber chip", rank: this, handbookPages: ""));
+            Requirements.Add(new RankRequirement(name: "6", description: "Personal protection", rank: this, handbookPages: ""));
+            Requirements.Add(new RankRequirement(name: "6a", description: "Complete abuse packet with parent", rank: this, handbookPages: ""));
+            Requirements.Add(new RankRequirement(name: "6b", description: "Earn cyber chip", rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "7", description: "Scoutmaster conference", rank: this, handbookPages: ""));
             FillColor = ColorTranslator.FromHtml("#CC9900");
         }

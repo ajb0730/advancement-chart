@@ -502,30 +502,34 @@ namespace advancementchart.Reports
                 {
                     scout.AllocateMeritBadges();
 
-                    taCell.Row++;
-                    taCell.ColumnNumber = 1;
-                    ta.Cells[taCell].Value = $"{scout.FirstName} {scout.LastName}";
+                    //if (!scout.FirstClass.Earned)
+                    //{
+                        taCell.Row++;
+                        taCell.ColumnNumber = 1;
+                        ta.Cells[taCell].Value = $"{scout.FirstName} {scout.LastName}";
 
-                    taLastRow = taCell.Row;
+                        taLastRow = taCell.Row;
 
-                    if(((taCell.Row - taHeaderRow) %2) > 0)
-                    {
-                        ta.Row(taCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                        ta.Row(taCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                    }
+                        if (((taCell.Row - taHeaderRow) % 2) > 0)
+                        {
+                            ta.Row(taCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            ta.Row(taCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                        }
 
-                    if (!taFrozen)
-                    {
-                        ta.View.FreezePanes(taCell.Row, taCell.ColumnNumber + 1);
-                        taFrozen = true;
-                    }
+                        if (!taFrozen)
+                        {
+                            ta.View.FreezePanes(taCell.Row, taCell.ColumnNumber + 1);
+                            taFrozen = true;
+                        }
 
-                    taCell = AddContent(ta, taCell, scout.Scout);
-                    taCell = AddContent(ta, taCell, scout.Tenderfoot);
-                    taCell = AddContent(ta, taCell, scout.SecondClass);
-                    taCell = AddContent(ta, taCell, scout.FirstClass);
+                        taCell = AddContent(ta, taCell, scout.Scout);
+                        taCell = AddContent(ta, taCell, scout.Tenderfoot);
+                        taCell = AddContent(ta, taCell, scout.SecondClass);
+                        taCell = AddContent(ta, taCell, scout.FirstClass);
+                    //}
+                    //else
 
-                    if (scout.FirstClass.Earned)
+                    if(scout.FirstClass.Earned)
                     {
                         saCell.Row++;
                         saCell.ColumnNumber = 1;
@@ -559,6 +563,7 @@ namespace advancementchart.Reports
                 }
 
                 CellAddress cell = new CellAddress("A1");
+                bool resize = true;
                 foreach(var pair in MeritBadge.BsaMeritBadgeIds)
                 {
                     if(cell.Row > 10)
@@ -566,10 +571,14 @@ namespace advancementchart.Reports
                         mb.Cells[$"{cell.Column}1:{CellAddress.ColumnIndexToName(cell.ColumnNumber + 1)}10"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick);
                         cell.ColumnNumber += 2;
                         cell.Row = 1;
+                        resize = true;
                     }
                     mb.Cells[cell].Value = pair.Value;
+                    if (resize) { mb.Column(cell.ColumnNumber).Width = 3.43; }
                     cell.ColumnNumber++;
                     mb.Cells[cell].Value = $"{pair.Key}{(MeritBadge.eagleRequired.Contains(pair.Key) ? "*" :"")}";
+                    if (resize) { mb.Column(cell.ColumnNumber).Width = 23.93; }
+                    resize = false;
                     cell.ColumnNumber--;
                     cell.Row++;
                 }
@@ -589,6 +598,8 @@ namespace advancementchart.Reports
                     ta.Cells[$"{a}:{b}"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
                     ta.Cells[$"{a}:{b}"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick, Color.Black);
                 }
+                ta.Row(taHeaderRow).Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
+
                 sa.DefaultColWidth = 0.1;
                 sa.Calculate();
                 sa.Cells[sa.Dimension.Address].AutoFitColumns();
@@ -603,9 +614,11 @@ namespace advancementchart.Reports
                     sa.Cells[$"{a}:{b}"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
                     sa.Cells[$"{a}:{b}"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick, Color.Black);
                 }
-                mb.DefaultColWidth = 0.1;
+                sa.Row(saHeaderRow).Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
+
+                /*mb.DefaultColWidth = 0.1;
                 mb.Calculate();
-                mb.Cells[mb.Dimension.Address].AutoFitColumns();
+                mb.Cells[mb.Dimension.Address].AutoFitColumns();*/
 
                 package.Save();
             }

@@ -20,7 +20,7 @@ namespace advancement_chart
             }
 
             var report = new TroopReport(scouts);
-            report.Run(@"/Users/andrew/src/TroopAdvancementChart.xlsx");
+            report.Run(@"./TroopAdvancementChart.xlsx");
         }
 
         static bool LoadFile(string fileName)
@@ -28,6 +28,7 @@ namespace advancement_chart
             bool result = false;
             if (File.Exists(fileName))
             {
+                Console.WriteLine($"Reading data from {fileName}.");
                 TextReader txtReader = new StreamReader(fileName);
                 var csvReader = new CsvReader(txtReader);
                 csvReader.Read();
@@ -44,65 +45,74 @@ namespace advancement_chart
                         string lastName = csvReader.GetField(index: 3);
                         scout = new TroopMember(memberId: id, firstName: firstName, middleName: middleName, lastName: lastName);
                         scouts.Add(scout);
+                        Console.WriteLine($"Adding record for {firstName} {lastName}.");
                     }
 
                     string type = csvReader.GetField(index: 4);
                     string subtype = csvReader.GetField(index: 5);
                     string version = csvReader.GetField(index: 6);
                     DateTime date = csvReader.GetField<DateTime>(index: 7);
-                    switch (type)
+                    try
                     {
-                        case "Rank":
-                            switch (subtype)
-                            {
-                                case "Scout":
-                                    scout.Scout.DateEarned = date;
-                                    break;
-                                case "Tenderfoot":
-                                    scout.Tenderfoot.DateEarned = date;
-                                    break;
-                                case "Second Class":
-                                    scout.SecondClass.DateEarned = date;
-                                    break;
-                                case "First Class":
-                                    scout.FirstClass.DateEarned = date;
-                                    break;
-                                case "Star Scout":
-                                    scout.Star.DateEarned = date;
-                                    break;
-                                case "Life Scout":
-                                    scout.Life.DateEarned = date;
-                                    break;
-                                case "Eagle Scout":
-                                    scout.Eagle.DateEarned = date;
-                                    break;
-                            }
-                            break;
-                        case "Merit Badge":
-                            MeritBadge badge = new MeritBadge(name: subtype, description: version, earned: date);
-                            scout.Add(badge);
-                            break;
-                        case "Scout Rank Requirement":
-                            scout.Scout.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
-                        case "Tenderfoot Rank Requirement":
-                            scout.Tenderfoot.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
-                        case "Second Class Rank Requirement":
-                            scout.SecondClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
-                        case "First Class Rank Requirement":
-                            scout.FirstClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
-                        case "Star Scout Rank Requirement":
-                            scout.Star.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
-                        case "Life Scout Rank Requirement":
-                            scout.Life.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
-                        case "Eagle Scout Rank Requirement":
-                            scout.Eagle.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                            break;
+                        switch (type)
+                        {
+                            case "Rank":
+                                switch (subtype)
+                                {
+                                    case "Scout":
+                                        scout.Scout.DateEarned = date;
+                                        break;
+                                    case "Tenderfoot":
+                                        scout.Tenderfoot.DateEarned = date;
+                                        break;
+                                    case "Second Class":
+                                        scout.SecondClass.DateEarned = date;
+                                        break;
+                                    case "First Class":
+                                        scout.FirstClass.DateEarned = date;
+                                        break;
+                                    case "Star Scout":
+                                        scout.Star.DateEarned = date;
+                                        break;
+                                    case "Life Scout":
+                                        scout.Life.DateEarned = date;
+                                        break;
+                                    case "Eagle Scout":
+                                        scout.Eagle.DateEarned = date;
+                                        break;
+                                }
+                                break;
+                            case "Merit Badge":
+                                MeritBadge badge = new MeritBadge(name: subtype, description: version, earned: date);
+                                scout.Add(badge);
+                                break;
+                            case "Scout Rank Requirement":
+                                scout.Scout.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                            case "Tenderfoot Rank Requirement":
+                                scout.Tenderfoot.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                            case "Second Class Rank Requirement":
+                                scout.SecondClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                            case "First Class Rank Requirement":
+                                scout.FirstClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                            case "Star Scout Rank Requirement":
+                                scout.Star.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                            case "Life Scout Rank Requirement":
+                                scout.Life.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                            case "Eagle Scout Rank Requirement":
+                                scout.Eagle.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                break;
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date}");
+                        Console.Error.WriteLine($"{e}");
                     }
                 }
                 result = true;
