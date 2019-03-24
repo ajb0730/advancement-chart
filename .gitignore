@@ -1,6 +1,8 @@
 # Autosave files
 *~
 
+**/*.xlsx
+
 # build
 [Oo]bj/
 [Bb]in/
