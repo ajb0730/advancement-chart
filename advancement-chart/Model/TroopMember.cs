@@ -112,5 +112,25 @@ namespace advancementchart.Model
                 }
             }
         }
+
+        public Dictionary<CurriculumGroup,List<RankRequirement>> GetRequirementsByGroup()
+        {
+            List<RankRequirement> requirements = new List<RankRequirement>();
+            requirements.AddRange(Scout.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+            requirements.AddRange(Tenderfoot.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+            requirements.AddRange(SecondClass.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+            requirements.AddRange(FirstClass.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+
+            Dictionary<CurriculumGroup, List<RankRequirement>> groups = new Dictionary<CurriculumGroup, List<RankRequirement>>();
+            foreach (var requirement in requirements)
+            {
+                if (!groups.ContainsKey(requirement.Group.Value))
+                {
+                    groups.Add(requirement.Group.Value, new List<RankRequirement>());
+                }
+                groups[requirement.Group.Value].Add(requirement);
+            }
+            return groups;
+        }
     }
 }

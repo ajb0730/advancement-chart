@@ -7,7 +7,9 @@ namespace advancementchart.Model
     {
         protected RankRequirement()
             : base()
-        { }
+        {
+            Group = null;
+        }
 
         public RankRequirement(string name, string description, Rank rank, string version = "2016", string handbookPages = "", DateTime? earned = null, CurriculumGroup? curriculumGroup = null)
             : base(name, description, version)
@@ -22,15 +24,12 @@ namespace advancementchart.Model
             {
                 HandbookPages = handbookPages;
             }
-            if (DateEarned != null)
-            {
-                DateEarned = earned;
-            }
+            DateEarned = earned;
             Group = curriculumGroup;
         }
 
         public Rank Rank { get; protected set; }
-        public virtual DateTime? DateEarned { get; set; }
+        public DateTime? DateEarned { get; set; }
         public string HandbookPages { get; protected set; }
         public CurriculumGroup? Group { get; protected set; }
 

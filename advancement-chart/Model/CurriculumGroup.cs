@@ -3,6 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace advancementchart.Model
 {
+    public static class CurriculumGroupExtensions
+    {
+        public static string GetDisplayName(this CurriculumGroup value)
+        {
+            System.Reflection.FieldInfo fieldInfo = value.GetType().GetField(value.ToString());
+            DisplayAttribute[] descriptionAttributes = fieldInfo.GetCustomAttributes(typeof(DisplayAttribute), false) as DisplayAttribute[];
+            if (descriptionAttributes == null) return string.Empty;
+            return (descriptionAttributes.Length > 0) ? descriptionAttributes[0].Name : value.ToString();
+        }
+    }
+
     public enum CurriculumGroup
     {
         [Display(Name="Camping I")]
