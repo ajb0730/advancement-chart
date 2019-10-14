@@ -20,19 +20,35 @@ namespace advancementchart.Model
             MeritBadges = new List<MeritBadge>();
         }
 
-        public TroopMember(string memberId, string firstName, string middleName, string lastName)
+        public TroopMember(string memberId, string firstName, string middleName, string lastName, string patrol = "Unassigned")
             : this()
         {
             BsaMemberId = memberId;
             FirstName = firstName;
             MiddleName = middleName;
             LastName = lastName;
+            Patrol = patrol;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is TroopMember)
+            {
+                return ((TroopMember)obj).BsaMemberId == this.BsaMemberId;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return BsaMemberId.GetHashCode();
         }
 
         public string BsaMemberId { get; protected set; }
         public string FirstName { get; protected set; }
         public string MiddleName { get; protected set; }
         public string LastName { get; protected set; }
+        public string Patrol { get; set; }
 
         public Scout Scout { get; protected set; }
         public Tenderfoot Tenderfoot { get; protected set; }

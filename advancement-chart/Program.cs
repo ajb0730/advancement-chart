@@ -18,7 +18,11 @@ namespace advancement_chart
             {
                 LoadFile(arg);
             }
-
+            //
+            // Download the "Scout" backup report from Scoutbook and rename
+            // the file "scouts.csv"
+            //
+            LoadPatrolLookup("./scouts.csv");
             {
                 var report = new TroopReport(scouts);
                 report.Run(@"./TroopAdvancementChart.xlsx");
@@ -26,6 +30,36 @@ namespace advancement_chart
             {
                 var report = new IndividualReport(scouts);
                 report.Run(@"./IndividualReport.xlsx");
+            }
+        }
+
+        private static void LoadPatrolLookup(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                using (TextReader txtReader = new StreamReader(fileName))
+                using (var csvReader = new CsvReader(txtReader))
+                {
+                    csvReader.Read();
+                    csvReader.ReadHeader();
+
+                    int memberIdIndex = csvReader.GetFieldIndex(name: "BSA Member ID");
+                    int patrolNameIndex = csvReader.GetFieldIndex(name: "Patrol Name");
+
+                    while (csvReader.Read())
+                    {
+                        string id = csvReader.GetField(memberIdIndex);
+                        string patrol = csvReader.GetField(patrolNameIndex);
+                        if (!string.IsNullOrWhiteSpace(patrol))
+                        {
+                            TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
+                            if (scout != null)
+                            {
+                                scout.Patrol = patrol;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -93,7 +127,7 @@ namespace advancement_chart
                                 scout.Add(badge);
                                 break;
                             case "Scout Rank Requirement":
-                                if(!string.IsNullOrWhiteSpace(subtype) && scout.Scout.Requirements.Any(req => req.Name == subtype))
+                                if (!string.IsNullOrWhiteSpace(subtype) && scout.Scout.Requirements.Any(req => req.Name == subtype))
                                     scout.Scout.Requirements.First(req => req.Name == subtype).DateEarned = date;
                                 break;
                             case "Tenderfoot Rank Requirement":
@@ -122,7 +156,7 @@ namespace advancement_chart
                                 break;
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date}");
                         Console.Error.WriteLine($"{e}");
