@@ -498,23 +498,15 @@ namespace advancementchart.Reports
                 int taLastRow = taHeaderRow;
                 int saLastRow = saHeaderRow;
 
-                foreach (var scout in Scouts.OrderBy(s => s.Scout.DateEarned.HasValue ? s.Scout.DateEarned : DateTime.Now).ThenBy(s => s.LastName).ThenBy(s => s.FirstName))
-                {
-                    scout.AllocateMeritBadges();
+                string patrol = string.Empty;
 
-                    //if (!scout.FirstClass.Earned)
-                    //{
+                foreach (var patrolScouts in Scouts.GroupBy(s => s.Patrol, s => s, (p, s) => s).OrderBy(s => s.Min(a => a.Scout.DateEarned.HasValue ? a.Scout.DateEarned : DateTime.Now)))
+                {
+                    foreach (var scout in patrolScouts.OrderBy(s => s.Scout.DateEarned.HasValue ? s.Scout.DateEarned : DateTime.Now).ThenBy(s => s.LastName).ThenBy(s => s.FirstName))
+                    {
                         taCell.Row++;
                         taCell.ColumnNumber = 1;
-                        ta.Cells[taCell].Value = $"{scout.FirstName} {scout.LastName}";
-
                         taLastRow = taCell.Row;
-
-                        if (((taCell.Row - taHeaderRow) % 2) > 0)
-                        {
-                            ta.Row(taCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                            ta.Row(taCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                        }
 
                         if (!taFrozen)
                         {
@@ -522,41 +514,68 @@ namespace advancementchart.Reports
                             taFrozen = true;
                         }
 
+                        if (((taCell.Row - taHeaderRow) % 2) > 0)
+                        {
+                            ta.Row(taCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            ta.Row(taCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                        }
+
+                        if (patrol != scout.Patrol && !string.IsNullOrWhiteSpace(scout.Patrol))
+                        {
+                            ta.Cells[taCell].Value = scout.Patrol;
+                            ta.Cells[taCell].Style.Font.Bold = true;
+                            patrol = scout.Patrol;
+                            taCell.Row++;
+                            taCell.ColumnNumber = 1;
+                            if (((taCell.Row - taHeaderRow) % 2) > 0)
+                            {
+                                ta.Row(taCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                ta.Row(taCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                            }
+                        }
+
+                        scout.AllocateMeritBadges();
+
+                        //if (!scout.FirstClass.Earned)
+                        //{
+                        ta.Cells[taCell].Value = $"   {scout.FirstName} {scout.LastName}";
+
                         taCell = AddContent(ta, taCell, scout.Scout);
                         taCell = AddContent(ta, taCell, scout.Tenderfoot);
                         taCell = AddContent(ta, taCell, scout.SecondClass);
                         taCell = AddContent(ta, taCell, scout.FirstClass);
-                    //}
-                    //else
+                        //}
+                        //else
 
-                    if(scout.FirstClass.Earned)
-                    {
-                        saCell.Row++;
-                        saCell.ColumnNumber = 1;
-                        sa.Cells[saCell].Value = $"{scout.FirstName} {scout.LastName}";
-
-                        saLastRow = saCell.Row;
-
-                        if(((saCell.Row - saHeaderRow)%2)> 0)
+                        if (scout.FirstClass.Earned)
                         {
-                            sa.Row(saCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                            sa.Row(saCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                        }
+                            saCell.Row++;
+                            saCell.ColumnNumber = 1;
+                            sa.Cells[saCell].Value = $"{scout.FirstName} {scout.LastName}";
 
-                        if (!saFrozen)
-                        {
-                            sa.View.FreezePanes(saCell.Row, saCell.ColumnNumber + 1);
-                            saFrozen = true;
-                        }
+                            saLastRow = saCell.Row;
 
-                        saCell = AddContent(sa, saCell, scout.Star);
-                        saCell = AddContent(sa, saCell, scout.Life);
-                        saCell = AddContent(sa, saCell, scout.Eagle);
-                        for(int i = 0; i < 3; i++)
-                        {
-                            if(scout.EaglePalms.Count > i)
+                            if (((saCell.Row - saHeaderRow) % 2) > 0)
                             {
-                                saCell = AddContent(sa, saCell, scout.EaglePalms[i]);
+                                sa.Row(saCell.Row).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                sa.Row(saCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                            }
+
+                            if (!saFrozen)
+                            {
+                                sa.View.FreezePanes(saCell.Row, saCell.ColumnNumber + 1);
+                                saFrozen = true;
+                            }
+
+                            saCell = AddContent(sa, saCell, scout.Star);
+                            saCell = AddContent(sa, saCell, scout.Life);
+                            saCell = AddContent(sa, saCell, scout.Eagle);
+                            for (int i = 0; i < 3; i++)
+                            {
+                                if (scout.EaglePalms.Count > i)
+                                {
+                                    saCell = AddContent(sa, saCell, scout.EaglePalms[i]);
+                                }
                             }
                         }
                     }
