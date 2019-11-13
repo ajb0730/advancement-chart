@@ -17,7 +17,7 @@ namespace advancementchart.Model.Ranks
             Requirements.Add(new RankRequirement(name: "3a", description: "Demonstrate square knot", rank: this, handbookPages: "365,145", curriculumGroup: CurriculumGroup.KnotsAndLashings1));
             Requirements.Add(new RankRequirement(name: "3b", description: "Demonstrate two half-hitches", rank: this, handbookPages: "366,369", curriculumGroup: CurriculumGroup.KnotsAndLashings1));
             Requirements.Add(new RankRequirement(name: "3c", description: "Demonstrate taughtline hitch", rank: this, handbookPages: "367,369", curriculumGroup: CurriculumGroup.KnotsAndLashings1));
-            Requirements.Add(new RankRequirement(name: "3d", description: "Demonstrate proper case, sharpening, use of woods tools", rank: this, handbookPages: "380-381,386", curriculumGroup: CurriculumGroup.TotinChip));
+            Requirements.Add(new RankRequirement(name: "3d", description: "Demonstrate proper care, sharpening, use of woods tools", rank: this, handbookPages: "380-381,386", curriculumGroup: CurriculumGroup.TotinChip));
             Requirements.Add(new RankRequirement(name: "4a", description: "Demonstrate First Aid skills", rank: this, handbookPages: "120-141", curriculumGroup: CurriculumGroup.FirstAidBasics1));
             Requirements.Add(new RankRequirement(name: "4b", description: "Describe and identify poisonous plants and treatment", rank: this, handbookPages: "127,191-192", curriculumGroup: CurriculumGroup.FirstAidBasics1));
             Requirements.Add(new RankRequirement(name: "4c", description: "Tell how to prevent occurences of 4a & 4b", rank: this, handbookPages: "125", curriculumGroup: CurriculumGroup.FirstAidBasics1));
