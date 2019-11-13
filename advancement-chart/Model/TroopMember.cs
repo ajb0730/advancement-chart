@@ -48,6 +48,8 @@ namespace advancementchart.Model
         public string FirstName { get; protected set; }
         public string MiddleName { get; protected set; }
         public string LastName { get; protected set; }
+        public string NickName { get; set; }
+        public string DisplayName => $"{(string.IsNullOrWhiteSpace(NickName) ? FirstName : NickName)} {LastName}";
         public string Patrol { get; set; }
 
         public Scout Scout { get; protected set; }

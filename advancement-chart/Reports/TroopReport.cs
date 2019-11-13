@@ -538,7 +538,7 @@ namespace advancementchart.Reports
 
                         //if (!scout.FirstClass.Earned)
                         //{
-                        ta.Cells[taCell].Value = $"   {scout.FirstName} {scout.LastName}";
+                        ta.Cells[taCell].Value = $"   {scout.DisplayName}";
 
                         taCell = AddContent(ta, taCell, scout.Scout);
                         taCell = AddContent(ta, taCell, scout.Tenderfoot);
@@ -551,7 +551,7 @@ namespace advancementchart.Reports
                         {
                             saCell.Row++;
                             saCell.ColumnNumber = 1;
-                            sa.Cells[saCell].Value = $"{scout.FirstName} {scout.LastName}";
+                            sa.Cells[saCell].Value = scout.DisplayName;
 
                             saLastRow = saCell.Row;
 

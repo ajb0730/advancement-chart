@@ -44,16 +44,22 @@ namespace advancement_chart
                     csvReader.ReadHeader();
 
                     int memberIdIndex = csvReader.GetFieldIndex(name: "BSA Member ID");
+                    int nicknameIndex = csvReader.GetFieldIndex(name: "Nickname");
                     int patrolNameIndex = csvReader.GetFieldIndex(name: "Patrol Name");
 
                     while (csvReader.Read())
                     {
                         string id = csvReader.GetField(memberIdIndex);
-                        string patrol = csvReader.GetField(patrolNameIndex);
-                        if (!string.IsNullOrWhiteSpace(patrol))
+                        TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
+                        if (scout != null)
                         {
-                            TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
-                            if (scout != null)
+                            string nickname = csvReader.GetField(nicknameIndex);
+                            if (!string.IsNullOrWhiteSpace(nickname))
+                            {
+                                scout.NickName = nickname;
+                            }
+                            string patrol = csvReader.GetField(patrolNameIndex);
+                            if (!string.IsNullOrWhiteSpace(patrol))
                             {
                                 scout.Patrol = patrol;
                             }

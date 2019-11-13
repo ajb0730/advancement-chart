@@ -114,7 +114,7 @@ namespace advancementchart.Reports
                 {
                     foreach (TroopMember scout in incomplete[key].OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {
-                        excelWorksheet.Cells[cell].Value = $"{scout.FirstName} {scout.LastName.First()}*";
+                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {scout.LastName.First()}*";
                         cell.Row += 1;
                     }
                 }
@@ -122,7 +122,7 @@ namespace advancementchart.Reports
                 {
                     foreach (TroopMember scout in notStarted[key].OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {
-                        excelWorksheet.Cells[cell].Value = $"{scout.FirstName} {scout.LastName.First()}";
+                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {scout.LastName.First()}";
                         cell.Row += 1;
                     }
                 }
@@ -152,9 +152,9 @@ namespace advancementchart.Reports
 
         private void RunScoutReport(TroopMember scout, ExcelPackage package)
         {
-            var wks = package.Workbook.Worksheets.Add($"{scout.FirstName} {scout.LastName.First()}");
+            var wks = package.Workbook.Worksheets.Add($"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {scout.LastName.First()}");
             CellAddress cell = new CellAddress("A1");
-            wks.Cells[cell].Value = $"{scout.FirstName} {scout.LastName}";
+            wks.Cells[cell].Value = scout.DisplayName;
 
             Dictionary<CurriculumGroup, List<RankRequirement>> groups = scout.GetRequirementsByGroup();
             foreach (CurriculumGroup key in groups.Keys
