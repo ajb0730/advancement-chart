@@ -20,19 +20,37 @@ namespace advancementchart.Model
             MeritBadges = new List<MeritBadge>();
         }
 
-        public TroopMember(string memberId, string firstName, string middleName, string lastName)
+        public TroopMember(string memberId, string firstName, string middleName, string lastName, string patrol = "Unassigned")
             : this()
         {
             BsaMemberId = memberId;
             FirstName = firstName;
             MiddleName = middleName;
             LastName = lastName;
+            Patrol = patrol;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is TroopMember)
+            {
+                return ((TroopMember)obj).BsaMemberId == this.BsaMemberId;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return BsaMemberId.GetHashCode();
         }
 
         public string BsaMemberId { get; protected set; }
         public string FirstName { get; protected set; }
         public string MiddleName { get; protected set; }
         public string LastName { get; protected set; }
+        public string NickName { get; set; }
+        public string DisplayName => $"{(string.IsNullOrWhiteSpace(NickName) ? FirstName : NickName)} {LastName}";
+        public string Patrol { get; set; }
 
         public Scout Scout { get; protected set; }
         public Tenderfoot Tenderfoot { get; protected set; }
@@ -111,6 +129,26 @@ namespace advancementchart.Model
                     }
                 }
             }
+        }
+
+        public Dictionary<CurriculumGroup,List<RankRequirement>> GetRequirementsByGroup()
+        {
+            List<RankRequirement> requirements = new List<RankRequirement>();
+            requirements.AddRange(Scout.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+            requirements.AddRange(Tenderfoot.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+            requirements.AddRange(SecondClass.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+            requirements.AddRange(FirstClass.Requirements.Where(r => r is RankRequirement && r.Group.HasValue));
+
+            Dictionary<CurriculumGroup, List<RankRequirement>> groups = new Dictionary<CurriculumGroup, List<RankRequirement>>();
+            foreach (var requirement in requirements)
+            {
+                if (!groups.ContainsKey(requirement.Group.Value))
+                {
+                    groups.Add(requirement.Group.Value, new List<RankRequirement>());
+                }
+                groups[requirement.Group.Value].Add(requirement);
+            }
+            return groups;
         }
     }
 }

@@ -8,10 +8,12 @@ namespace advancementchart.Model
     {
         protected MeritBadgeRequirement()
             : base()
-        { }
+        {
+            MeritBadges = new List<MeritBadge>();
+        }
 
         public MeritBadgeRequirement(string name, string description, Rank rank, int required, int total, string version = "2016", string handbookPages = "", DateTime? earned = null)
-            : base(name, description, rank, version, handbookPages, earned)
+            : base(name, description, rank, version, handbookPages, earned, null)
         {
             if(total <= 0)
             {
@@ -32,7 +34,7 @@ namespace advancementchart.Model
 
         public List<MeritBadge> MeritBadges { get; protected set; }
 
-        public override DateTime? DateEarned => MeritBadges.Count == Total ? MeritBadges.Max(mb => mb.DateEarned) : null;
+        public new DateTime? DateEarned => MeritBadges.Count == Total ? MeritBadges.Max(mb => mb.DateEarned) : null;
 
         public override bool Earned => /*Rank.Earned ||*/ MeritBadges.Count == Total;
 

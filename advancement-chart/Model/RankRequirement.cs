@@ -7,9 +7,11 @@ namespace advancementchart.Model
     {
         protected RankRequirement()
             : base()
-        { }
+        {
+            Group = null;
+        }
 
-        public RankRequirement(string name, string description, Rank rank, string version = "2016", string handbookPages = "", DateTime? earned = null)
+        public RankRequirement(string name, string description, Rank rank, string version = "2016", string handbookPages = "", DateTime? earned = null, CurriculumGroup? curriculumGroup = null)
             : base(name, description, version)
         {
             if(Version != rank.Version)
@@ -18,13 +20,18 @@ namespace advancementchart.Model
             }
 
             Rank = rank;
-            HandbookPages = handbookPages;
+            if (!string.IsNullOrWhiteSpace(handbookPages))
+            {
+                HandbookPages = handbookPages;
+            }
             DateEarned = earned;
+            Group = curriculumGroup;
         }
 
         public Rank Rank { get; protected set; }
-        public virtual DateTime? DateEarned { get; set; }
+        public DateTime? DateEarned { get; set; }
         public string HandbookPages { get; protected set; }
+        public CurriculumGroup? Group { get; protected set; }
 
         public virtual bool Earned => Rank.Earned || DateEarned.HasValue;
     }
