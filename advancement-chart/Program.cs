@@ -14,7 +14,6 @@ namespace advancement_chart
 
         static void Main(string[] args)
         {
-			string outputFilename = @"./TroopAdvancementChart.xlsx";
             foreach (string arg in args)
             {
                 LoadFile(arg);
