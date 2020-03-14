@@ -137,6 +137,6 @@ reallyclean: clean
 
 ## AUTHOR
 
-[Andrew Barnett](mailto:andrew@ajbarnett.com)
+[Andrew Barnett](https://github.com/ajb0730)
 
 vim: tw=80
