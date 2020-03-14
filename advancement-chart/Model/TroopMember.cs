@@ -51,6 +51,7 @@ namespace advancementchart.Model
         public string NickName { get; set; }
         public string DisplayName => $"{(string.IsNullOrWhiteSpace(NickName) ? FirstName : NickName)} {LastName}";
         public string Patrol { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         public Scout Scout { get; protected set; }
         public Tenderfoot Tenderfoot { get; protected set; }
