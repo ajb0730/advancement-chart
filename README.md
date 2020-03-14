@@ -107,6 +107,34 @@ troop_A__scouts.csv troop_B__scouts.csv >> scouts.csv`. Notice the use
 of `> scouts.csv` for the first line, and `>> scouts.csv` for all-but-the-first.
 1. Repeat these steps for the `troop_#####__advancement.csv` files.
 
+### Using a Makefile
+
+If you know what a Makefile is, the following may be helpful:
+
+```make
+TROOPA=###_B
+TROOPB=###_G
+
+all: IndividualReport.xlsx TroopAdvancementChart.xlsx EagleReport.xlsx
+	cp $^ ~/Dropbox/Scouts/Troop\ Committee/
+	touch $@
+
+consolidated.csv: troop_${TROOPA}__advancement.csv troop_${TROOPB}__advancement.csv
+	(head -n 1 $<; tail -q -n +2 $^) > $@	
+
+scouts.csv: troop_${TROOPA}__scouts.csv troop_${TROOPB}__scouts.csv
+	(head -n 1 $<; tail -q -n +2 $^) > $@	
+
+IndividualReport.xlsx TroopAdvancementChart.xlsx EagleReport.xlsx: consolidated.csv scouts.csv
+	advancement-chart $^
+
+clean:
+	rm -f scouts.csv consolidated.csv all troop_${TROOPA}__advancement.csv troop_${TROOPB}__advancement.csv
+
+reallyclean: clean
+	rm -f troop_${TROOPA}__scouts.csv troop_${TROOPB}_scouts.csv
+```
+
 ## AUTHOR
 
 [Andrew Barnett](mailto:andrew@ajbarnett.com)
