@@ -64,6 +64,49 @@ by 1 pages tall` (this may require you to select `Excel` from the drop-down).
 1. Proceed to print, then highlighting a new rank + patrol and repeating the
 `Set Print Area` and hitting Command-P.
 
+### Simplify the command-line
+
+#### MacOS
+
+Set up a helper script in `/usr/local/sbin/advancement-chart` with the following
+content:
+
+```sh
+#!/usr/bin/env bash
+
+if [ ! -f "${1}" ]; then
+	echo
+	echo "USAGE: ${0} export-file.csv"
+	echo
+	exit 1
+fi
+dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/netcoreapp2.0/advancement-chart.dll ${1}
+```
+
+Don't forget to set that script as executable: `chmod 755 /usr/local/sbin/advancement-chart`
+
+Now you should be able to run the program as just `advancement-chart`, without
+the extra `dotnet /path/to/advancement-chart...` stuff.
+
+### Showing multiple Scouts BSA Troops on the same Advancement chart
+
+Why? Our Boy and Girl Troops are closely linked (and thus competitive with each
+other), so we want Scouts from both Troops to be on one chart.
+
+You will need to combine the files from two (or more) Troops into a single file.
+This is fairly easy, the only trick is you will need to remove the first line of
+the second (and third, etc) file.
+
+1. Follow the usual steps to download the `troop_A__scouts.csv` and
+`troop_B__scouts.csv` files (one for each Troop).
+1. Take the first line from one of the files (arbitrarily choosing "A" in this
+example): `head -n 1 troop_A__scouts.csv > scouts.csv` (this assumes you're
+in a Terminal on MacOS, or similar environment).
+1. Then take all-but-the-first lines from all of the files: `tail -q -n +2
+troop_A__scouts.csv troop_B__scouts.csv >> scouts.csv`. Notice the use
+of `> scouts.csv` for the first line, and `>> scouts.csv` for all-but-the-first.
+1. Repeat these steps for the `troop_#####__advancement.csv` files.
+
 ## AUTHOR
 
 [Andrew Barnett](mailto:andrew@ajbarnett.com)
