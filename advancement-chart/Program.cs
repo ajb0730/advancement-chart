@@ -31,6 +31,10 @@ namespace advancement_chart
                 var report = new IndividualReport(scouts);
                 report.Run(@"./IndividualReport.xlsx");
             }
+            {
+                var report = new EagleReport(scouts);
+                report.Run(@"./EagleReport.xlsx");
+            }
         }
 
         private static void LoadPatrolLookup(string fileName)
@@ -46,6 +50,7 @@ namespace advancement_chart
                     int memberIdIndex = csvReader.GetFieldIndex(name: "BSA Member ID");
                     int nicknameIndex = csvReader.GetFieldIndex(name: "Nickname");
                     int patrolNameIndex = csvReader.GetFieldIndex(name: "Patrol Name");
+                    int dobIndex = csvReader.GetFieldIndex(name: "DOB");
 
                     while (csvReader.Read())
                     {
@@ -62,6 +67,15 @@ namespace advancement_chart
                             if (!string.IsNullOrWhiteSpace(patrol))
                             {
                                 scout.Patrol = patrol;
+                            }
+                            string dob = csvReader.GetField(dobIndex);
+                            if(!string.IsNullOrWhiteSpace(dob))
+                            {
+                                DateTime dobDate;
+                                if(DateTime.TryParse(dob, out dobDate))
+                                {
+                                    scout.DateOfBirth = dobDate;
+                                }
                             }
                         }
                     }
