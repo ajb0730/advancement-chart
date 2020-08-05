@@ -5,6 +5,7 @@ using System.Linq;
 using advancementchart.Model;
 using advancementchart.Reports;
 using CsvHelper;
+using System.Globalization;
 
 namespace advancement_chart
 {
@@ -42,7 +43,7 @@ namespace advancement_chart
             if (File.Exists(fileName))
             {
                 using (TextReader txtReader = new StreamReader(fileName))
-                using (var csvReader = new CsvReader(txtReader))
+                using (var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture))
                 {
                     csvReader.Read();
                     csvReader.ReadHeader();
@@ -90,7 +91,7 @@ namespace advancement_chart
             {
                 Console.WriteLine($"Reading data from {fileName}.");
                 TextReader txtReader = new StreamReader(fileName);
-                var csvReader = new CsvReader(txtReader);
+                var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture);
                 csvReader.Read();
                 csvReader.ReadHeader();
 

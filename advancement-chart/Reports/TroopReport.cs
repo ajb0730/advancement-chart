@@ -605,7 +605,7 @@ namespace advancementchart.Reports
 
                 ta.DefaultColWidth = 0.1;
                 ta.Calculate();
-                ta.Cells[ta.Dimension.Address].AutoFitColumns();
+                ta.Cells[ta.Dimension.Address].AutoFitColumns(10);
                 ta.Cells[ta.Dimension.Address].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick, Color.Black);
                 foreach(var tuple in taLines)
                 {
@@ -621,7 +621,7 @@ namespace advancementchart.Reports
 
                 sa.DefaultColWidth = 0.1;
                 sa.Calculate();
-                sa.Cells[sa.Dimension.Address].AutoFitColumns();
+                sa.Cells[sa.Dimension.Address].AutoFitColumns(10);
                 sa.Cells[sa.Dimension.Address].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick, Color.Black);
                 foreach (var tuple in saLines)
                 {

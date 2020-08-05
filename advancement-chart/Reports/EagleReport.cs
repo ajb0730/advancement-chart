@@ -17,6 +17,25 @@ namespace advancementchart.Reports
 
         public List<TroopMember> Scouts { get; set; }
 
+        private CellAddress AddRank(ExcelWorksheet wks, CellAddress cell, Rank rank, DateTime lastStartDate)
+        {
+            wks.Cells[cell].Value = $"{rank.Name} Board of Review:";
+            wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            cell.ColumnNumber++;
+            if(rank.Earned && rank.DateEarned <= lastStartDate)
+            {
+                wks.Cells[cell].Value = $"{rank.DateEarned.Value.ToShortDateString()}";
+            }
+            else
+            {
+                wks.Cells[cell].Value = $"on or before {lastStartDate.ToShortDateString()}";
+                wks.Cells[cell].Style.Font.Bold = true;
+            }
+            cell.ColumnNumber = 1;
+            cell.Row++;
+            return cell;
+        }
+
         private CellAddress AddMeritBadge(ExcelWorksheet wks, CellAddress cell, List<MeritBadge> badges, string meritBadge)
         {
             //cell.ColumnNumber++;
@@ -120,6 +139,13 @@ namespace advancementchart.Reports
                     cell.Row++;
                     cell.Row++;
 
+                    cell = this.AddRank(wks, cell, scout.FirstClass, doneBy.AddMonths(-(4 + 6 + 6)));
+                    cell = this.AddRank(wks, cell, scout.Star, doneBy.AddMonths(-(6 + 6)));
+                    cell = this.AddRank(wks, cell, scout.Life, doneBy.AddMonths(-6));
+
+                    cell.Row++;
+                    cell.Row++;
+
                     EagleMeritBadgeRequirement req = scout.Eagle.Requirements.Where(r => r is EagleMeritBadgeRequirement).First() as EagleMeritBadgeRequirement;
                     var required = req.MeritBadges.Where(mb => mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                     var elective = req.MeritBadges.Where(mb => !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
@@ -160,7 +186,7 @@ namespace advancementchart.Reports
                         cell.ColumnNumber = 1;
                     }
                     wks.Calculate();
-                    wks.Cells[wks.Dimension.Address].AutoFitColumns();
+                    wks.Cells[wks.Dimension.Address].AutoFitColumns(10);
                 }
                 package.Save();
             }

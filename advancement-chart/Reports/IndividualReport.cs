@@ -131,7 +131,7 @@ namespace advancementchart.Reports
             excelWorksheet.Calculate();
             try
             {
-                excelWorksheet.Cells[excelWorksheet.Dimension.Address].AutoFitColumns();
+                excelWorksheet.Cells[excelWorksheet.Dimension.Address].AutoFitColumns(10);
             }
             catch(NullReferenceException)
             {
@@ -228,7 +228,7 @@ namespace advancementchart.Reports
             }
 
             wks.Calculate();
-            wks.Cells[wks.Dimension.Address].AutoFitColumns();
+            wks.Cells[wks.Dimension.Address].AutoFitColumns(10);
         }
     }
 }
