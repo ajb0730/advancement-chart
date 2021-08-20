@@ -18,7 +18,7 @@ namespace advancementchart.Reports
 
         public List<TroopMember> Scouts { get; set; }
 
-        private CellAddress AddHeader(ExcelWorksheet wks, CellAddress cell, Rank rank)
+        protected CellAddress AddHeader(ExcelWorksheet wks, CellAddress cell, Rank rank)
         {
             CellAddress rangeStart = new CellAddress(cell);
             rangeStart.ColumnNumber++;
@@ -27,7 +27,7 @@ namespace advancementchart.Reports
             foreach (var req in rank.Requirements)
             {
                 cell.ColumnNumber++;
-                if(req is EagleMeritBadgeRequirement)
+                if (req is EagleMeritBadgeRequirement)
                 {
                     var mbReq = req as EagleMeritBadgeRequirement;
 
@@ -167,7 +167,7 @@ namespace advancementchart.Reports
 
                     CellAddress desc = new CellAddress(cell);
                     desc.Row--;
-                    for(int i = 0; i < mbReq.Required; i++)
+                    for (int i = 0; i < mbReq.Required; i++)
                     {
                         wks.Cells[desc].Value = "Eagle Required Merit Badge";
                         wks.Cells[desc].Style.TextRotation = 90;
@@ -234,7 +234,7 @@ namespace advancementchart.Reports
             return cell;
         }
 
-        private CellAddress AddContent(ExcelWorksheet wks, CellAddress cell, Rank rank)
+        protected CellAddress AddContent(ExcelWorksheet wks, CellAddress cell, Rank rank)
         {
             foreach (var req in rank.Requirements)
             {
@@ -251,7 +251,7 @@ namespace advancementchart.Reports
 
                     cell.ColumnNumber++;
                     var selected = required.Where(mb => mb.Name == "First Aid");
-                    if(selected.Any())
+                    if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
                         wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -259,7 +259,7 @@ namespace advancementchart.Reports
 
                     cell.ColumnNumber++;
                     selected = required.Where(mb => mb.Name == "Citizenship in the Community");
-                    if(selected.Any())
+                    if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
                         wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -311,7 +311,7 @@ namespace advancementchart.Reports
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
                         wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        if(selected.Count() > 1)
+                        if (selected.Count() > 1)
                         {
                             elective.Add(selected.Last());
                             elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
@@ -348,7 +348,7 @@ namespace advancementchart.Reports
                         if (selected.Count() > 1)
                         {
                             elective.Add(selected.Last());
-                            if(selected.Count() > 2)
+                            if (selected.Count() > 2)
                             {
                                 elective.Add(selected.SkipLast(1).Last());
                             }
@@ -415,7 +415,7 @@ namespace advancementchart.Reports
                 }
             }
             cell.ColumnNumber++;
-            if(rank.Earned)
+            if (rank.Earned)
             {
                 wks.Cells[cell].Value = rank.DateEarned.Value.ToString("M/yy");
                 wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
@@ -425,6 +425,8 @@ namespace advancementchart.Reports
 
         public void Run(string outputFilename)
         {
+            Console.WriteLine("Running Troop Report");
+
             if (File.Exists(outputFilename))
                 File.Delete(outputFilename);
             var fi = new FileInfo(outputFilename);
@@ -442,19 +444,19 @@ namespace advancementchart.Reports
                 int start = taCell.ColumnNumber;
                 taCell = AddHeader(ta, taCell, new Scout());
                 int end = taCell.ColumnNumber;
-                taLines.Add(new Tuple<int, int>(start+1, end));
+                taLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 taCell = AddHeader(ta, taCell, new Tenderfoot());
                 end = taCell.ColumnNumber;
-                taLines.Add(new Tuple<int, int>(start+1, end));
+                taLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 taCell = AddHeader(ta, taCell, new SecondClass());
                 end = taCell.ColumnNumber;
-                taLines.Add(new Tuple<int, int>(start+1, end));
+                taLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 taCell = AddHeader(ta, taCell, new FirstClass());
                 end = taCell.ColumnNumber;
-                taLines.Add(new Tuple<int, int>(start+1, end));
+                taLines.Add(new Tuple<int, int>(start + 1, end));
 
                 CellAddress saCell = new CellAddress("A1");
                 var sa = package.Workbook.Worksheets.Add("Scout Advancement");
@@ -465,27 +467,27 @@ namespace advancementchart.Reports
                 start = saCell.ColumnNumber;
                 saCell = AddHeader(sa, saCell, new Star());
                 end = saCell.ColumnNumber;
-                saLines.Add(new Tuple<int, int>(start+1, end));
+                saLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 saCell = AddHeader(sa, saCell, new Life());
                 end = saCell.ColumnNumber;
-                saLines.Add(new Tuple<int, int>(start+1, end));
+                saLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 saCell = AddHeader(sa, saCell, new Eagle());
                 end = saCell.ColumnNumber;
-                saLines.Add(new Tuple<int, int>(start+1, end));
+                saLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 saCell = AddHeader(sa, saCell, new Palm(Palm.PalmType.Bronze));
                 end = saCell.ColumnNumber;
-                saLines.Add(new Tuple<int, int>(start+1, end));
+                saLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 saCell = AddHeader(sa, saCell, new Palm(Palm.PalmType.Gold));
                 end = saCell.ColumnNumber;
-                saLines.Add(new Tuple<int, int>(start+1, end));
+                saLines.Add(new Tuple<int, int>(start + 1, end));
                 start = end;
                 saCell = AddHeader(sa, saCell, new Palm(Palm.PalmType.Silver));
                 end = saCell.ColumnNumber;
-                saLines.Add(new Tuple<int, int>(start+1, end));
+                saLines.Add(new Tuple<int, int>(start + 1, end));
 
                 var mb = package.Workbook.Worksheets.Add("Merit Badges");
 
@@ -583,9 +585,9 @@ namespace advancementchart.Reports
 
                 CellAddress cell = new CellAddress("A1");
                 bool resize = true;
-                foreach(var pair in MeritBadge.BsaMeritBadgeIds)
+                foreach (var pair in MeritBadge.BsaMeritBadgeIds)
                 {
-                    if(cell.Row > 10)
+                    if (cell.Row > 10)
                     {
                         mb.Cells[$"{cell.Column}1:{CellAddress.ColumnIndexToName(cell.ColumnNumber + 1)}10"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick);
                         cell.ColumnNumber += 2;
@@ -595,7 +597,7 @@ namespace advancementchart.Reports
                     mb.Cells[cell].Value = pair.Value;
                     if (resize) { mb.Column(cell.ColumnNumber).Width = 3.43; }
                     cell.ColumnNumber++;
-                    mb.Cells[cell].Value = $"{pair.Key}{(MeritBadge.eagleRequired.Contains(pair.Key) ? "*" :"")}";
+                    mb.Cells[cell].Value = $"{pair.Key}{(MeritBadge.eagleRequired.Contains(pair.Key) ? "*" : "")}";
                     if (resize) { mb.Column(cell.ColumnNumber).Width = 23.93; }
                     resize = false;
                     cell.ColumnNumber--;
@@ -607,7 +609,7 @@ namespace advancementchart.Reports
                 ta.Calculate();
                 ta.Cells[ta.Dimension.Address].AutoFitColumns(10);
                 ta.Cells[ta.Dimension.Address].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick, Color.Black);
-                foreach(var tuple in taLines)
+                foreach (var tuple in taLines)
                 {
                     CellAddress a = new CellAddress(tuple.Item1, 1);
                     CellAddress b = new CellAddress(tuple.Item2, taLastRow);
