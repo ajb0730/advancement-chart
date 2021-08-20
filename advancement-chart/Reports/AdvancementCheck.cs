@@ -15,6 +15,7 @@ namespace advancementchart.Reports
 
         public void Run(string outputFileName)
         {
+            Console.WriteLine("Running Advancement Check");
             foreach (var scout in this.Scouts)
             {
                 // Eagle implies Life implies Star implies 1C implies 2C implies Tenderfoot implies Scout

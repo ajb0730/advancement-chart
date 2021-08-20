@@ -18,6 +18,8 @@ namespace advancementchart.Reports
 
         public void Run(string outputFileName)
         {
+            Console.WriteLine("Running Individual Report");
+
             if (File.Exists(outputFileName))
                 File.Delete(outputFileName);
             var fi = new FileInfo(outputFileName);
@@ -42,14 +44,16 @@ namespace advancementchart.Reports
                     // Skip Scouts that have already earned First Class
                     if (!scout.FirstClass.Earned)
                     {
+                        Console.WriteLine("    Running Scout Report for {0}", scout.DisplayName);
                         RunScoutReport(scout, package);
                     }
                 }
 
+                Console.WriteLine("    Writing Group Worksheet");
                 WriteGroupWorksheet(numberIncomplete, numberNotStarted, wks);
 
                 // Output Patrol Summaries
-                if(patrols.Keys.Count > 1)
+                if (patrols.Keys.Count > 1)
                 {
                     foreach (string patrolName in patrols.Keys)
                     {
@@ -89,8 +93,8 @@ namespace advancementchart.Reports
         }
 
         private void WriteGroupWorksheet(
-            Dictionary<CurriculumGroup,List<TroopMember>> incomplete,
-            Dictionary<CurriculumGroup,List<TroopMember>> notStarted,
+            Dictionary<CurriculumGroup, List<TroopMember>> incomplete,
+            Dictionary<CurriculumGroup, List<TroopMember>> notStarted,
             ExcelWorksheet excelWorksheet)
         {
             List<CurriculumGroup> groups = new List<CurriculumGroup>();
@@ -133,7 +137,7 @@ namespace advancementchart.Reports
             {
                 excelWorksheet.Cells[excelWorksheet.Dimension.Address].AutoFitColumns(10);
             }
-            catch(NullReferenceException)
+            catch (NullReferenceException)
             {
                 Console.Error.WriteLine($"{excelWorksheet.Name} failed to fit columns");
             }

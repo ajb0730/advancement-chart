@@ -22,7 +22,7 @@ namespace advancementchart.Reports
             wks.Cells[cell].Value = $"{rank.Name} Board of Review:";
             wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             cell.ColumnNumber++;
-            if(rank.Earned && rank.DateEarned <= lastStartDate)
+            if (rank.Earned && rank.DateEarned <= lastStartDate)
             {
                 wks.Cells[cell].Value = $"{rank.DateEarned.Value.ToShortDateString()}";
             }
@@ -97,6 +97,8 @@ namespace advancementchart.Reports
 
         public void Run(string outputFileName)
         {
+            Console.WriteLine("Running Eagle Report");
+
             if (File.Exists(outputFileName))
                 File.Delete(outputFileName);
 
