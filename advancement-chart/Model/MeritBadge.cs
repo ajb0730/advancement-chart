@@ -184,8 +184,9 @@ namespace advancementchart.Model
             {"Digital Technology", "154"},
             {"Mining in Society", "155"},
             {"Moviemaking", "156"},
-            {"Animation", "157"},
-            {"Signs, Signals, and Codes", "158"}
+            {"Signs, Signals, and Codes", "157"},
+            {"Animation", "158"},
+            {"Exploration", "158"}
         };
 
         protected MeritBadge()
@@ -195,7 +196,7 @@ namespace advancementchart.Model
         public MeritBadge(string name, string description, DateTime? earned = null)
             : base(name, description)
         {
-            if(!BsaMeritBadgeIds.ContainsKey(name))
+            if (!BsaMeritBadgeIds.ContainsKey(name))
             {
                 throw new ArgumentException(message: $"Merit Badge name '{name}' not found.");
             }

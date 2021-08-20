@@ -36,6 +36,10 @@ namespace advancement_chart
                 var report = new EagleReport(scouts);
                 report.Run(@"./EagleReport.xlsx");
             }
+            {
+                var report = new AdvancementCheck(scouts);
+                report.Run(@"");
+            }
         }
 
         private static void LoadPatrolLookup(string fileName)
@@ -70,10 +74,10 @@ namespace advancement_chart
                                 scout.Patrol = patrol;
                             }
                             string dob = csvReader.GetField(dobIndex);
-                            if(!string.IsNullOrWhiteSpace(dob))
+                            if (!string.IsNullOrWhiteSpace(dob))
                             {
                                 DateTime dobDate;
-                                if(DateTime.TryParse(dob, out dobDate))
+                                if (DateTime.TryParse(dob, out dobDate))
                                 {
                                     scout.DateOfBirth = dobDate;
                                 }
