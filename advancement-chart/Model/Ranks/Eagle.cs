@@ -5,6 +5,7 @@ namespace advancementchart.Model.Ranks
 {
     public class Eagle : Rank
     {
+
         protected Eagle()
             : base()
         { }
@@ -12,7 +13,7 @@ namespace advancementchart.Model.Ranks
         public Eagle(DateTime? earned = null)
             : base(name: "Eagle", description: "", earned: earned, version: "2016")
         {
-            Requirements.Add(new RankRequirement(name: "1", description: "Be active 6 months since earning Life Scout", rank: this, handbookPages: ""));
+            Requirements.Add(new RankRequirement(name: "1", description: "Be active 6 months since earning Life Scout", rank: this, handbookPages: "", timeRequirementMonths: 6));
             Requirements.Add(new RankRequirement(name: "2", description: "Demonstrate Scout spirit while Life Scout", rank: this, handbookPages: ""));
             Requirements.Add(new EagleMeritBadgeRequirement(name: "3", description: "Earn 10 more merit badges, including 5 Eagle-required", rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "4", description: "Hold leadership position at least 6 months while Life Scout", rank: this, handbookPages: ""));

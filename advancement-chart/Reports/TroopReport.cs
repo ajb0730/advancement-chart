@@ -241,8 +241,8 @@ namespace advancementchart.Reports
                 if (req is EagleMeritBadgeRequirement)
                 {
                     var mbReq = req as EagleMeritBadgeRequirement;
-                    var required = mbReq.MeritBadges.Where(mb => mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                    var elective = mbReq.MeritBadges.Where(mb => !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                    var required = mbReq.MeritBadges.Where(mb => mb.Earned && mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                    var elective = mbReq.MeritBadges.Where(mb => mb.Earned && !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
 
                     // Order is: First Aid, Cit Comm, Cit Nation, Cit World, 
                     //           Comm, Cooking, Pers Fitness, EPrep or Lifesaving
@@ -385,8 +385,8 @@ namespace advancementchart.Reports
                 else if (req is MeritBadgeRequirement)
                 {
                     var mbReq = req as MeritBadgeRequirement;
-                    var required = mbReq.MeritBadges.Where(mb => mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                    var elective = mbReq.MeritBadges.Where(mb => !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                    var required = mbReq.MeritBadges.Where(mb => mb.Earned && mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                    var elective = mbReq.MeritBadges.Where(mb => mb.Earned && !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                     for (int i = 0; i < mbReq.Required; i++)
                     {
                         cell.ColumnNumber++;
@@ -597,7 +597,7 @@ namespace advancementchart.Reports
                     mb.Cells[cell].Value = pair.Value;
                     if (resize) { mb.Column(cell.ColumnNumber).Width = 3.43; }
                     cell.ColumnNumber++;
-                    mb.Cells[cell].Value = $"{pair.Key}{(MeritBadge.eagleRequired.Contains(pair.Key) ? "*" : "")}";
+                    mb.Cells[cell].Value = $"{pair.Key}{(MeritBadge.GetEagleRequired().Contains(pair.Key) ? "*" : "")}";
                     if (resize) { mb.Column(cell.ColumnNumber).Width = 23.93; }
                     resize = false;
                     cell.ColumnNumber--;

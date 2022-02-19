@@ -45,7 +45,14 @@ namespace advancementchart.Reports
             cell.ColumnNumber++;
             if (selected.Any())
             {
-                wks.Cells[cell].Value = $"Earned {selected.First().DateEarned.Value.ToShortDateString()}";
+                if (selected.First().Earned)
+                {
+                    wks.Cells[cell].Value = $"Earned {selected.First().DateEarned.Value.ToShortDateString()}";
+                }
+                else
+                {
+                    wks.Cells[cell].Value = $"Started";
+                }
             }
             else
             {
@@ -66,8 +73,16 @@ namespace advancementchart.Reports
             cell.ColumnNumber++;
             if (selected.Any())
             {
-                var earned = selected.OrderBy(b => b.DateEarned).ThenBy(b => b.BsaId).First();
-                wks.Cells[cell].Value = $"Earned {earned.Name} on {earned.DateEarned.Value.ToShortDateString()}";
+                var earnedList = selected.Where(b => b.Earned).OrderBy(b => b.DateEarned).ThenBy(b => b.BsaId);
+                if (earnedList.Any())
+                {
+                    var earned = earnedList.First();
+                    wks.Cells[cell].Value = $"Earned {earned.Name} on {earned.DateEarned.Value.ToShortDateString()}";
+                }
+                else
+                {
+                    wks.Cells[cell].Value = $"Started {String.Join(", ", selected.OrderBy(b => b.BsaId).Select(b => b.Name))}";
+                }
             }
             else
             {
@@ -103,7 +118,7 @@ namespace advancementchart.Reports
                 File.Delete(outputFileName);
 
 
-            List<TroopMember> scouts = this.Scouts.Where(m => m.FirstClass.Earned).ToList();
+            List<TroopMember> scouts = this.Scouts.Where(m => m.FirstClass.Earned && !m.Eagle.Earned).ToList();
             if (!scouts.Any())
             {
                 return;
@@ -135,6 +150,7 @@ namespace advancementchart.Reports
                     wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                     cell.ColumnNumber++;
                     DateTime doneBy = scout.DateOfBirth.AddYears(18).AddDays(-1);
+                    Console.WriteLine($"{scout.DisplayName} = {scout.DateOfBirth.ToShortDateString()} {doneBy.ToShortDateString()}");
                     wks.Cells[cell].Value = $"{doneBy.ToShortDateString()}";
                     wks.Cells[cell].Style.Font.Bold = true;
                     cell.ColumnNumber = 1;

@@ -1,30 +1,128 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace advancementchart.Model
 {
+    public static class MeritBadgeExtensions
+    {
+        public static IEnumerable<MeritBadge> GetEagleEquivalents(this IEnumerable<MeritBadge> list, string badgeName)
+        {
+            if (badgeName == "Emergency Preparedness")
+            {
+                return list.Where(x => x.Name == "Lifesaving");
+            }
+            else if (badgeName == "Lifesaving")
+            {
+                return list.Where(x => x.Name == "Emergency Preparedness");
+            }
+            else if (badgeName == "Environmental Science")
+            {
+                return list.Where(x => x.Name == "Sustainability");
+            }
+            else if (badgeName == "Sustainability")
+            {
+                return list.Where(x => x.Name == "Environmental Science");
+            }
+            else if (badgeName == "Swimming")
+            {
+                return list.Where(x => x.Name == "Hiking" || x.Name == "Cycling");
+            }
+            else if (badgeName == "Hiking")
+            {
+                return list.Where(x => x.Name == "Swimming" || x.Name == "Cycling");
+            }
+            else if (badgeName == "Cycling")
+            {
+                return list.Where(x => x.Name == "Swimming" || x.Name == "Hiking");
+            }
+            else
+            {
+                return list.Where(x => false);
+            }
+        }
+    }
+
     public class MeritBadge : BaseEntity
     {
-        static public readonly HashSet<string> eagleRequired = new HashSet<string>()
+
+        static public string[] GetEagleEquivalents(string badgeName)
         {
-            "Camping",
-            "Citizenship in the Community",
-            "Citizenship in the Nation",
-            "Citizenship in the World",
-            "Communication",
-            "Cooking",
-            "Lifesaving",
-            "Emergency Preparedness",
-            "Environmental Science",
-            "Sustainability",
-            "Family Life",
-            "First Aid",
-            "Personal Fitness",
-            "Personal Management",
-            "Swimming",
-            "Hiking",
-            "Cycling"
-        };
+            if (badgeName == "Environmental Science")
+            {
+                return new string[] { "Sustainability" };
+            }
+            else if (badgeName == "Sustainability")
+            {
+                return new string[] { "Environmental Science" };
+            }
+            else if (badgeName == "Lifesaving")
+            {
+                return new string[] { "Emergency Preparedness" };
+            }
+            else if (badgeName == "Emergency Preparedness")
+            {
+                return new string[] { "Lifesaving" };
+            }
+            else if (badgeName == "Swimming")
+            {
+                return new string[] { "Hiking", "Cycling" };
+            }
+            else if (badgeName == "Hiking")
+            {
+                return new string[] { "Swimming", "Cycling" };
+            }
+            else if (badgeName == "Cycling")
+            {
+                return new string[] { "Swimming", "Hiking" };
+            }
+
+            return new string[] { };
+        }
+
+        static public bool IsMultiple(string badgeName)
+        {
+            return badgeName == "Lifesaving" ||
+                badgeName == "Emergency Preparedness" ||
+                badgeName == "Environmental Science" ||
+                badgeName == "Sustainability" ||
+                badgeName == "Swimming" ||
+                badgeName == "Hiking" ||
+                badgeName == "Cycling";
+        }
+
+        static public bool IsMultiple(MeritBadge badge)
+        {
+            return IsMultiple(badge.Name);
+        }
+
+        static public HashSet<string> GetEagleRequired()
+        {
+            HashSet<string> eagleRequired = new HashSet<string>(){
+                "Camping",
+                "Citizenship in the Community",
+                "Citizenship in the Nation",
+                "Citizenship in the World",
+                "Communication",
+                "Cooking",
+                "Lifesaving",
+                "Emergency Preparedness",
+                "Environmental Science",
+                "Sustainability",
+                "Family Life",
+                "First Aid",
+                "Personal Fitness",
+                "Personal Management",
+                "Swimming",
+                "Hiking",
+                "Cycling"
+            };
+            if (DateTime.Now >= EagleMeritBadgeRequirement.CitSocietyCutover)
+            {
+                eagleRequired.Add("Citizenship in Society");
+            }
+            return eagleRequired;
+        }
 
         static public readonly Dictionary<string, string> BsaMeritBadgeIds = new Dictionary<string, string>()
         {
@@ -163,7 +261,7 @@ namespace advancementchart.Model
             {"Climbing", "133"},
             {"Entrepreneurship", "134"},
             {"Snow Sports", "135"},
-            {"Fly-Fishing", "136"},
+            {"Fly Fishing", "136"},
             {"Composite Materials", "137"},
             {"Scuba Diving", "138"},
             {"Carpentry", "139"},
@@ -186,7 +284,9 @@ namespace advancementchart.Model
             {"Moviemaking", "156"},
             {"Signs, Signals, and Codes", "157"},
             {"Animation", "158"},
-            {"Exploration", "158"}
+            {"Exploration", "159"},
+            {"Citizenship in Society", "160"},
+            {"Healthcare Professions", "161"}
         };
 
         protected MeritBadge()
@@ -204,8 +304,9 @@ namespace advancementchart.Model
         }
 
         public DateTime? DateEarned { get; protected set; }
-        public bool EagleRequired => eagleRequired.Contains(Name);
+        public bool EagleRequired => GetEagleRequired().Contains(Name);
         public string BsaId => BsaMeritBadgeIds[Name];
+        public bool Started { get; set; }
 
         public bool Earned => DateEarned.HasValue;
     }

@@ -13,7 +13,7 @@ namespace advancementchart.Model.Ranks
         public Life(DateTime? earned = null)
             : base(name: "Life", description: "", earned: earned, version: "2016")
         {
-            Requirements.Add(new RankRequirement(name: "1", description: "Be active 6 months since earning Star Scout", rank: this, handbookPages: ""));
+            Requirements.Add(new RankRequirement(name: "1", description: "Be active 6 months since earning Star Scout", rank: this, handbookPages: "", timeRequirementMonths: 6));
             Requirements.Add(new RankRequirement(name: "2", description: "Demonstrate Scout spirit while Star Scout", rank: this, handbookPages: ""));
             Requirements.Add(new MeritBadgeRequirement(name: "3", description: "Earn 5 more merit badges, including 3 Eagle-required", total: 5, required: 3, rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "4", description: "Participate in 6 hours of service, at least 3 conservation related, while Star Scout", rank: this, handbookPages: ""));

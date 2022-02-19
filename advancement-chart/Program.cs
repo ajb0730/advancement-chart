@@ -6,6 +6,7 @@ using advancementchart.Model;
 using advancementchart.Reports;
 using CsvHelper;
 using System.Globalization;
+using advancementchart.Model.Ranks;
 
 namespace advancement_chart
 {
@@ -15,9 +16,11 @@ namespace advancement_chart
 
         static void Main(string[] args)
         {
+            DateTime maxDate = DateTime.MinValue;
             foreach (string arg in args)
             {
-                LoadFile(arg);
+                var fileMaxDate = LoadFile(arg);
+                maxDate = fileMaxDate > maxDate ? fileMaxDate : maxDate;
             }
             //
             // Download the "Scout" backup report from Scoutbook and rename
@@ -43,6 +46,10 @@ namespace advancement_chart
             {
                 var report = new AdvancementCheck(scouts);
                 report.Run(@"");
+            }
+            {
+                var report = new AdvancementReport(scouts, maxDate);
+                report.Run(@"./AdvancementReport.txt");
             }
         }
 
@@ -92,9 +99,10 @@ namespace advancement_chart
             }
         }
 
-        static bool LoadFile(string fileName)
+        static DateTime LoadFile(string fileName)
         {
-            bool result = false;
+            DateTime result = DateTime.MinValue;
+
             if (File.Exists(fileName))
             {
                 Console.WriteLine($"Reading data from {fileName}.");
@@ -121,6 +129,7 @@ namespace advancement_chart
                     string subtype = csvReader.GetField(index: 5);
                     string version = csvReader.GetField(index: 6);
                     DateTime date = csvReader.GetField<DateTime>(index: 7);
+                    result = date > result ? date : result;
                     try
                     {
                         switch (type)
@@ -148,6 +157,23 @@ namespace advancement_chart
                                         break;
                                     case "Eagle Scout":
                                         scout.Eagle.DateEarned = date;
+                                        break;
+                                }
+                                break;
+                            case "Award":
+                                switch (subtype)
+                                {
+                                    case "Eagle Palm Pin #1 (Bronze)":
+                                    case "Eagle Palm Pin #4 (Bronze)":
+                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Bronze, date));
+                                        break;
+                                    case "Eagle Palm Pin #2 (Gold)":
+                                    case "Eagle Palm Pin #5 (Gold)":
+                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Gold, date));
+                                        break;
+                                    case "Eagle Palm Pin #3 (Silver)":
+                                    case "Eagle Palm Pin #6 (Silver)":
+                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Silver, date));
                                         break;
                                 }
                                 break;
@@ -183,15 +209,52 @@ namespace advancement_chart
                                 if (!string.IsNullOrWhiteSpace(subtype) && scout.Eagle.Requirements.Any(req => req.Name == subtype))
                                     scout.Eagle.Requirements.First(req => req.Name == subtype).DateEarned = date;
                                 break;
+                            case "Merit Badge Requirement":
+                                var badgeName = subtype.Substring(0, subtype.IndexOf("#") - 1).Trim();
+                                scout.AddPartial(badgeName, version);
+                                break;
+                            case "Award Requirement":
+                                var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
+                                var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim();
+                                // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
+                                if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
+                                {
+                                    Palm palm = null;
+                                    switch (palmName)
+                                    {
+                                        case "Eagle Palm Pin #1 (Bronze)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Bronze, 1);
+                                            break;
+                                        case "Eagle Palm Pin #2 (Gold)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Gold, 1);
+                                            break;
+                                        case "Eagle Palm Pin #3 (Silver)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Silver, 1);
+                                            break;
+                                        case "Eagle Palm Pin #4 (Bronze)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Bronze, 2);
+                                            break;
+                                        case "Eagle Palm Pin #5 (Gold)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Gold, 2);
+                                            break;
+                                        case "Eagle Palm Pin #6 (Silver)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Silver, 2);
+                                            break;
+                                    }
+                                    if (null != palm)
+                                    {
+                                        palm.Requirements.First(x => x.Name == requirementNumber).DateEarned = date;
+                                    }
+                                }
+                                break;
                         }
                     }
                     catch (Exception e)
                     {
-                        Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date}");
+                        Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date.ToShortDateString()}");
                         Console.Error.WriteLine($"{e}");
                     }
                 }
-                result = true;
             }
             return result;
         }
