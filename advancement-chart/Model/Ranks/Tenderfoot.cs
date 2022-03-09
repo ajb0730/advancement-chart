@@ -20,7 +20,7 @@ namespace advancementchart.Model.Ranks
             Requirements.Add(new RankRequirement(name: "3d", description: "Demonstrate proper care, sharpening, use of woods tools", rank: this, handbookPages: "380-381,386", curriculumGroup: CurriculumGroup.TotinChip));
             Requirements.Add(new RankRequirement(name: "4a", description: "Demonstrate First Aid skills", rank: this, handbookPages: "120-141", curriculumGroup: CurriculumGroup.FirstAidBasics1));
             Requirements.Add(new RankRequirement(name: "4b", description: "Describe and identify poisonous plants and treatment", rank: this, handbookPages: "127,191-192", curriculumGroup: CurriculumGroup.FirstAidBasics1));
-            Requirements.Add(new RankRequirement(name: "4c", description: "Tell how to prevent occurences of 4a & 4b", rank: this, handbookPages: "125", curriculumGroup: CurriculumGroup.FirstAidBasics1));
+            Requirements.Add(new RankRequirement(name: "4c", description: "Tell how to prevent occurrences of 4a & 4b", rank: this, handbookPages: "125", curriculumGroup: CurriculumGroup.FirstAidBasics1));
             Requirements.Add(new RankRequirement(name: "4d", description: "Assemble personal first aid kit", rank: this, handbookPages: "108", curriculumGroup: CurriculumGroup.FirstAidBasics1));
             Requirements.Add(new RankRequirement(name: "5a", description: "Explain buddy system", rank: this, handbookPages: "29,160-161,172,404", curriculumGroup: CurriculumGroup.FormingThePatrol));
             Requirements.Add(new RankRequirement(name: "5b", description: "Describe what to do if you get lost", rank: this, handbookPages: "253-255", curriculumGroup: CurriculumGroup.Camping1));

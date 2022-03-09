@@ -49,7 +49,7 @@ namespace advancement_chart
             }
             {
                 var report = new AdvancementReport(scouts, maxDate);
-                report.Run(@"./AdvancementReport.txt");
+                report.Run(@"./AdvancementReport.docx");
             }
         }
 
