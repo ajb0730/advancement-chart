@@ -26,6 +26,21 @@ namespace advancementchart.Model.Ranks
             Requirements.Add(new MeritBadgeRequirement(name: "4", description: "Earn 5 more merit badges", total: 5, required: 0, rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "5", description: "Scoutmaster conference", rank: this, handbookPages: ""));
         }
+        override public void SwitchVersion(string version) {
+            this.Version = version;
+            if (Requirements.Any())
+            {
+                Requirements.Clear();
+            }
+            switch (version)
+            {
+                case "2016":
+                    break;
+                default:
+                    throw new ArgumentException($"Version {version} not recognized");
+            }
+        }
+
 
         public PalmType Type { get; protected set; }
 

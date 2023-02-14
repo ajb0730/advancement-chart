@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace advancementchart.Model
 {
-    public class EagleMeritBadgeRequirement : MeritBadgeRequirement
+    public  class EagleMeritBadgeRequirement : MeritBadgeRequirement
     {
         public static readonly DateTime CitSocietyCutover = new DateTime(2022, 7, 1);
 

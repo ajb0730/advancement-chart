@@ -174,6 +174,7 @@ namespace advancementchart.Reports
                     cell = this.AddMeritBadge(wks, cell, required, "Citizenship in the Community");
                     cell = this.AddMeritBadge(wks, cell, required, "Citizenship in the Nation");
                     cell = this.AddMeritBadge(wks, cell, required, "Citizenship in the World");
+                    cell = this.AddMeritBadge(wks, cell, required, "Citizenship in Society");
                     cell = this.AddMeritBadge(wks, cell, required, "Communication");
                     cell = this.AddMeritBadge(wks, cell, required, "Cooking");
                     cell = this.AddMeritBadge(wks, cell, required, "Personal Fitness");

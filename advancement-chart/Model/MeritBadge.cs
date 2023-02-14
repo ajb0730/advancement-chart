@@ -294,7 +294,7 @@ namespace advancementchart.Model
         { }
 
         public MeritBadge(string name, string description, DateTime? earned = null)
-            : base(name, description)
+            : base(name, "", description)
         {
             if (!BsaMeritBadgeIds.ContainsKey(name))
             {

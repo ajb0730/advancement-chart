@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace advancementchart.Model
 {
-    public class MeritBadgeRequirement : RankRequirement
+    public  class MeritBadgeRequirement : RankRequirement
     {
         protected MeritBadgeRequirement()
             : base()
@@ -13,7 +13,7 @@ namespace advancementchart.Model
         }
 
         public MeritBadgeRequirement(string name, string description, Rank rank, int required, int total, string version = "2016", string handbookPages = "", DateTime? earned = null)
-            : base(name, description, rank, version, handbookPages, earned, null)
+            : base(name, "", description, rank, version, handbookPages, earned, null)
         {
             if (total <= 0)
             {
