@@ -16,6 +16,8 @@ namespace advancement_chart
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Hello!");
+            
             DateTime maxDate = DateTime.MinValue;
             foreach (string arg in args)
             {
@@ -138,24 +140,31 @@ namespace advancement_chart
                                 switch (subtype)
                                 {
                                     case "Scout":
+                                        scout.Scout.SwitchVersion(version);
                                         scout.Scout.DateEarned = date;
                                         break;
                                     case "Tenderfoot":
+                                        scout.Tenderfoot.SwitchVersion(version);
                                         scout.Tenderfoot.DateEarned = date;
                                         break;
                                     case "Second Class":
+                                        scout.SecondClass.SwitchVersion(version);
                                         scout.SecondClass.DateEarned = date;
                                         break;
                                     case "First Class":
+                                        scout.FirstClass.SwitchVersion(version);
                                         scout.FirstClass.DateEarned = date;
                                         break;
                                     case "Star Scout":
+                                        scout.Star.SwitchVersion(version);
                                         scout.Star.DateEarned = date;
                                         break;
                                     case "Life Scout":
+                                        scout.Life.SwitchVersion(version);
                                         scout.Life.DateEarned = date;
                                         break;
                                     case "Eagle Scout":
+                                        scout.Eagle.SwitchVersion(version);
                                         scout.Eagle.DateEarned = date;
                                         break;
                                 }

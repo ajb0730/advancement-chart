@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace advancementchart.Model
 {
-    public class Rank : VersionedEntity
+    public abstract class Rank : VersionedEntity
     {
         protected Rank()
             : base()
@@ -16,6 +16,7 @@ namespace advancementchart.Model
             DateEarned = earned;
             Requirements = new List<RankRequirement>();
             FillColor = Color.White;
+            this.SwitchVersion(version);
         }
 
         public DateTime? DateEarned { get; set; }
@@ -24,5 +25,8 @@ namespace advancementchart.Model
         public bool Earned => DateEarned.HasValue;
 
         public Color FillColor { get; protected set; }
+
+        public abstract void SwitchVersion(string version);
+
     }
 }
