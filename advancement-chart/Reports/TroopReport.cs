@@ -58,6 +58,14 @@ namespace advancementchart.Reports
                         wks.Cells[desc].Style.Font.Bold = true;
                         desc.ColumnNumber++;
                     }
+		    {
+                        wks.Cells[desc].Value = "Citizenship in Society";
+                        wks.Cells[desc].Style.TextRotation = 90;
+                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
+                        wks.Cells[desc].Style.Font.Bold = true;
+                        desc.ColumnNumber++;
+                    }
                     {
                         wks.Cells[desc].Value = "Citizenship in the World";
                         wks.Cells[desc].Style.TextRotation = 90;
@@ -244,7 +252,7 @@ namespace advancementchart.Reports
                     var required = mbReq.MeritBadges.Where(mb => mb.Earned && mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                     var elective = mbReq.MeritBadges.Where(mb => mb.Earned && !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
 
-                    // Order is: First Aid, Cit Comm, Cit Nation, Cit World, 
+                    // Order is: First Aid, Cit Comm, Cit Nation, Cit Society, Cit World, 
                     //           Comm, Cooking, Pers Fitness, EPrep or Lifesaving
                     //           Envi Sci or Sustainability, Pers Mgmt
                     //           Swimming or Hiking or Cycling, Camping, Fam Life
@@ -267,6 +275,14 @@ namespace advancementchart.Reports
 
                     cell.ColumnNumber++;
                     selected = required.Where(mb => mb.Name == "Citizenship in the Nation");
+                    if (selected.Any())
+                    {
+                        wks.Cells[cell].Value = selected.First().BsaId;
+                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    }
+
+                    cell.ColumnNumber++;
+                    selected = required.Where(mb => mb.Name == "Citizenship in Society");
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;

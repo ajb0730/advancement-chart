@@ -1,5 +1,5 @@
 all : EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx AdvancementReport.docx
-	cp -f $^ /Users/andrew/Dropbox/Scouts/Troop\ Committee/
+	cp -f $^ $$HOME/Dropbox/Scouts/Troop\ Committee/
 
 scouts-merged.csv : troop_201_B__scouts.csv troop_201_G__scouts.csv
 	head -n 1 $< > $@
@@ -29,7 +29,7 @@ advancement.csv : troop_201_B__advancement.csv troop_201_G__advancement.csv
 	for i in $^; do tail -n +2 $$i >> $@; done
 
 EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx AdvancementReport.docx : advancement.csv scouts.csv
-	dotnet /Users/andrew/src/advancement-chart/advancement-chart/bin/Debug/netcoreapp3.1/advancement-chart.dll $<
+	dotnet $$HOME/src/advancement-chart/advancement-chart/bin/Debug/net7.0/advancement-chart.dll $<
 	cp -f $^ ~/Dropbox/Scouts/Troop\ Committee/
 
 clean :
