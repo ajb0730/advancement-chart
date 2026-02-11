@@ -116,13 +116,53 @@ namespace advancementchart.Reports
                     wks.Column(col).Width = CheckboxColumnWidth;
                 }
 
-                // Set comments column width
-                wks.Column(CommentsColumn).Width = CommentsColumnWidth;
-
                 // Auto-fit the name column
                 if (wks.Dimension != null)
                 {
                     wks.Column(1).AutoFit(10);
+                }
+
+                // Dynamically size comments column to fill the page
+                if (wks.Dimension != null)
+                {
+                    int lastDataRow = row - 1;
+                    double totalHeightPt = 0;
+                    for (int r = 1; r <= lastDataRow; r++)
+                    {
+                        totalHeightPt += wks.Row(r).Height;
+                    }
+
+                    // Printable area (US Letter portrait, margins in inches -> points)
+                    double printableWidthPt = (8.5 - (double)wks.PrinterSettings.LeftMargin
+                                                   - (double)wks.PrinterSettings.RightMargin) * 72.0;
+                    double printableHeightPt = (11.0 - (double)wks.PrinterSettings.TopMargin
+                                                    - (double)wks.PrinterSettings.BottomMargin) * 72.0;
+
+                    // Target width to fill page (match aspect ratio)
+                    double targetWidthPt = Math.Max(printableWidthPt,
+                        totalHeightPt * printableWidthPt / printableHeightPt);
+
+                    // Convert to pixels (96 DPI: 1 pt = 4/3 px)
+                    // Excel column width: pixel_width = width_units * MaxDigitWidth + Padding
+                    // MaxDigitWidth ~= 7 (Calibri 11pt), Padding ~= 5 per column
+                    const double maxDigitWidth = 7.0;
+                    const double colPadding = 5.0;
+                    double targetWidthPx = targetWidthPt * 96.0 / 72.0;
+
+                    // Sum current column widths (excluding comments) in pixels
+                    double otherWidthPx = 0;
+                    for (int col = 1; col < CommentsColumn; col++)
+                    {
+                        otherWidthPx += wks.Column(col).Width * maxDigitWidth + colPadding;
+                    }
+
+                    double commentsWidthPx = targetWidthPx - otherWidthPx - colPadding;
+                    double commentsWidth = Math.Max(CommentsColumnWidth, commentsWidthPx / maxDigitWidth);
+                    wks.Column(CommentsColumn).Width = commentsWidth;
+                }
+                else
+                {
+                    wks.Column(CommentsColumn).Width = CommentsColumnWidth;
                 }
 
                 // Freeze the header row and name column

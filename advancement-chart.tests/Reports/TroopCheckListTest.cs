@@ -223,5 +223,56 @@ namespace advancement_chart.tests.Reports
             report.Run(_tempFile);
             Assert.True(File.Exists(_tempFile));
         }
+
+        [Fact]
+        public void Run_CommentsColumnWidthVariesWithScoutCount()
+        {
+            // With few scouts, comments column should be wider than with many scouts
+            var fewScouts = new List<TroopMember>();
+            for (int i = 0; i < 3; i++)
+            {
+                var s = TestFixtures.CreateScout(id: i.ToString(), first: $"Scout{i}", last: $"Last{i}");
+                s.Patrol = "Alpha";
+                fewScouts.Add(s);
+            }
+
+            var manyScouts = new List<TroopMember>();
+            for (int i = 0; i < 35; i++)
+            {
+                var s = TestFixtures.CreateScout(id: i.ToString(), first: $"Scout{i}", last: $"Last{i}");
+                s.Patrol = "Alpha";
+                manyScouts.Add(s);
+            }
+
+            var tempFile2 = Path.Combine(Path.GetTempPath(), $"TroopCheckList_{Guid.NewGuid()}.xlsx");
+            try
+            {
+                new TroopCheckList(fewScouts).Run(_tempFile);
+                new TroopCheckList(manyScouts).Run(tempFile2);
+
+                double fewWidth, manyWidth;
+                using (var pkg = new ExcelPackage(new FileInfo(_tempFile)))
+                {
+                    fewWidth = pkg.Workbook.Worksheets["Troop Checklist"].Column(12).Width;
+                }
+                using (var pkg = new ExcelPackage(new FileInfo(tempFile2)))
+                {
+                    manyWidth = pkg.Workbook.Worksheets["Troop Checklist"].Column(12).Width;
+                }
+
+                // Both should be at least the minimum
+                Assert.True(fewWidth >= 20, $"Few-scout comments width ({fewWidth}) should be >= 20");
+                Assert.True(manyWidth >= 20, $"Many-scout comments width ({manyWidth}) should be >= 20");
+
+                // More scouts = taller content = wider target = wider comments column
+                Assert.True(manyWidth > fewWidth,
+                    $"Many-scout comments width ({manyWidth}) should be greater than few-scout width ({fewWidth})");
+            }
+            finally
+            {
+                if (File.Exists(tempFile2))
+                    File.Delete(tempFile2);
+            }
+        }
     }
 }
