@@ -380,5 +380,80 @@ namespace advancement_chart.tests
 
             Assert.Empty(errWriter.ToString());
         }
+
+        [Fact]
+        public void LoadPatrolLookup_FutureDob_WarnsButStillSets()
+        {
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
+
+            string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
+                          "123,Johnny,Hawks,2030-01-01";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadPatrolLookup(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(new DateTime(2030, 1, 1), _scouts[0].DateOfBirth);
+            Assert.Contains("Suspicious DOB", errWriter.ToString());
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_AncientDob_WarnsButStillSets()
+        {
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
+
+            string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
+                          "123,Johnny,Hawks,1980-01-01";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadPatrolLookup(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(new DateTime(1980, 1, 1), _scouts[0].DateOfBirth);
+            Assert.Contains("Suspicious DOB", errWriter.ToString());
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_ValidDob_NoWarning()
+        {
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
+
+            string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
+                          "123,Johnny,Hawks,2010-06-15";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadPatrolLookup(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(new DateTime(2010, 6, 15), _scouts[0].DateOfBirth);
+            Assert.DoesNotContain("Suspicious", errWriter.ToString());
+        }
     }
 }
