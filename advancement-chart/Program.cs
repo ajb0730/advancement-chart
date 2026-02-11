@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using advancementchart.Model;
 using advancementchart.Reports;
 using CsvHelper;
 using System.Globalization;
 using advancementchart.Model.Ranks;
 
+[assembly: InternalsVisibleTo("advancement-chart.tests")]
+
 namespace advancement_chart
 {
     class Program
     {
-        static readonly List<TroopMember> scouts = new List<TroopMember>();
+        internal static readonly List<TroopMember> scouts = new List<TroopMember>();
 
         static void Main(string[] args)
         {
@@ -53,7 +56,7 @@ namespace advancement_chart
             }
         }
 
-        private static void LoadPatrolLookup(string fileName)
+        internal static void LoadPatrolLookup(string fileName)
         {
             if (File.Exists(fileName))
             {
@@ -99,160 +102,162 @@ namespace advancement_chart
             }
         }
 
-        static DateTime LoadFile(string fileName)
+        internal static DateTime LoadFile(string fileName)
         {
             DateTime result = DateTime.MinValue;
 
             if (File.Exists(fileName))
             {
                 Console.WriteLine($"Reading data from {fileName}.");
-                TextReader txtReader = new StreamReader(fileName);
-                var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture);
-                csvReader.Read();
-                csvReader.ReadHeader();
-
-                while (csvReader.Read())
+                using (TextReader txtReader = new StreamReader(fileName))
+                using (var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture))
                 {
-                    string id = csvReader.GetField(index: 0);
-                    TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
-                    if (null == scout)
-                    {
-                        string firstName = csvReader.GetField(index: 1);
-                        string middleName = csvReader.GetField(index: 2);
-                        string lastName = csvReader.GetField(index: 3);
-                        scout = new TroopMember(memberId: id, firstName: firstName, middleName: middleName, lastName: lastName);
-                        scouts.Add(scout);
-                        Console.WriteLine($"Adding record for {firstName} {lastName}.");
-                    }
+                    csvReader.Read();
+                    csvReader.ReadHeader();
 
-                    string type = csvReader.GetField(index: 4);
-                    string subtype = csvReader.GetField(index: 5);
-                    string version = csvReader.GetField(index: 6);
-                    DateTime date = csvReader.GetField<DateTime>(index: 7);
-                    result = date > result ? date : result;
-                    try
+                    while (csvReader.Read())
                     {
-                        switch (type)
+                        string id = csvReader.GetField(index: 0);
+                        TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
+                        if (null == scout)
                         {
-                            case "Rank":
-                                switch (subtype)
-                                {
-                                    case "Scout":
-                                        scout.Scout.DateEarned = date;
-                                        break;
-                                    case "Tenderfoot":
-                                        scout.Tenderfoot.DateEarned = date;
-                                        break;
-                                    case "Second Class":
-                                        scout.SecondClass.DateEarned = date;
-                                        break;
-                                    case "First Class":
-                                        scout.FirstClass.DateEarned = date;
-                                        break;
-                                    case "Star Scout":
-                                        scout.Star.DateEarned = date;
-                                        break;
-                                    case "Life Scout":
-                                        scout.Life.DateEarned = date;
-                                        break;
-                                    case "Eagle Scout":
-                                        scout.Eagle.DateEarned = date;
-                                        break;
-                                }
-                                break;
-                            case "Award":
-                                switch (subtype)
-                                {
-                                    case "Eagle Palm Pin #1 (Bronze)":
-                                    case "Eagle Palm Pin #4 (Bronze)":
-                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Bronze, date));
-                                        break;
-                                    case "Eagle Palm Pin #2 (Gold)":
-                                    case "Eagle Palm Pin #5 (Gold)":
-                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Gold, date));
-                                        break;
-                                    case "Eagle Palm Pin #3 (Silver)":
-                                    case "Eagle Palm Pin #6 (Silver)":
-                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Silver, date));
-                                        break;
-                                }
-                                break;
-                            case "Merit Badge":
-                                MeritBadge badge = new MeritBadge(name: subtype, description: version, earned: date);
-                                scout.Add(badge);
-                                break;
-                            case "Scout Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.Scout.Requirements.Any(req => req.Name == subtype))
-                                    scout.Scout.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "Tenderfoot Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.Tenderfoot.Requirements.Any(req => req.Name == subtype))
-                                    scout.Tenderfoot.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "Second Class Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.SecondClass.Requirements.Any(req => req.Name == subtype))
-                                    scout.SecondClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "First Class Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.FirstClass.Requirements.Any(req => req.Name == subtype))
-                                    scout.FirstClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "Star Scout Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.Star.Requirements.Any(req => req.Name == subtype))
-                                    scout.Star.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "Life Scout Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.Life.Requirements.Any(req => req.Name == subtype))
-                                    scout.Life.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "Eagle Scout Rank Requirement":
-                                if (!string.IsNullOrWhiteSpace(subtype) && scout.Eagle.Requirements.Any(req => req.Name == subtype))
-                                    scout.Eagle.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                break;
-                            case "Merit Badge Requirement":
-                                var badgeName = subtype.Substring(0, subtype.IndexOf("#") - 1).Trim();
-                                scout.AddPartial(badgeName, version);
-                                break;
-                            case "Award Requirement":
-                                var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
-                                var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim();
-                                // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
-                                if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
-                                {
-                                    Palm palm = null;
-                                    switch (palmName)
+                            string firstName = csvReader.GetField(index: 1);
+                            string middleName = csvReader.GetField(index: 2);
+                            string lastName = csvReader.GetField(index: 3);
+                            scout = new TroopMember(memberId: id, firstName: firstName, middleName: middleName, lastName: lastName);
+                            scouts.Add(scout);
+                            Console.WriteLine($"Adding record for {firstName} {lastName}.");
+                        }
+
+                        string type = csvReader.GetField(index: 4);
+                        string subtype = csvReader.GetField(index: 5);
+                        string version = csvReader.GetField(index: 6);
+                        DateTime date = csvReader.GetField<DateTime>(index: 7);
+                        result = date > result ? date : result;
+                        try
+                        {
+                            switch (type)
+                            {
+                                case "Rank":
+                                    switch (subtype)
+                                    {
+                                        case "Scout":
+                                            scout.Scout.DateEarned = date;
+                                            break;
+                                        case "Tenderfoot":
+                                            scout.Tenderfoot.DateEarned = date;
+                                            break;
+                                        case "Second Class":
+                                            scout.SecondClass.DateEarned = date;
+                                            break;
+                                        case "First Class":
+                                            scout.FirstClass.DateEarned = date;
+                                            break;
+                                        case "Star Scout":
+                                            scout.Star.DateEarned = date;
+                                            break;
+                                        case "Life Scout":
+                                            scout.Life.DateEarned = date;
+                                            break;
+                                        case "Eagle Scout":
+                                            scout.Eagle.DateEarned = date;
+                                            break;
+                                    }
+                                    break;
+                                case "Award":
+                                    switch (subtype)
                                     {
                                         case "Eagle Palm Pin #1 (Bronze)":
-                                            palm = scout.GetNthPalm(Palm.PalmType.Bronze, 1);
+                                        case "Eagle Palm Pin #4 (Bronze)":
+                                            scout.EaglePalms.Add(new Palm(Palm.PalmType.Bronze, date));
                                             break;
                                         case "Eagle Palm Pin #2 (Gold)":
-                                            palm = scout.GetNthPalm(Palm.PalmType.Gold, 1);
+                                        case "Eagle Palm Pin #5 (Gold)":
+                                            scout.EaglePalms.Add(new Palm(Palm.PalmType.Gold, date));
                                             break;
                                         case "Eagle Palm Pin #3 (Silver)":
-                                            palm = scout.GetNthPalm(Palm.PalmType.Silver, 1);
-                                            break;
-                                        case "Eagle Palm Pin #4 (Bronze)":
-                                            palm = scout.GetNthPalm(Palm.PalmType.Bronze, 2);
-                                            break;
-                                        case "Eagle Palm Pin #5 (Gold)":
-                                            palm = scout.GetNthPalm(Palm.PalmType.Gold, 2);
-                                            break;
                                         case "Eagle Palm Pin #6 (Silver)":
-                                            palm = scout.GetNthPalm(Palm.PalmType.Silver, 2);
+                                            scout.EaglePalms.Add(new Palm(Palm.PalmType.Silver, date));
                                             break;
                                     }
-                                    if (null != palm)
+                                    break;
+                                case "Merit Badge":
+                                    MeritBadge badge = new MeritBadge(name: subtype, description: version, earned: date);
+                                    scout.Add(badge);
+                                    break;
+                                case "Scout Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Scout.Requirements.Any(req => req.Name == subtype))
+                                        scout.Scout.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "Tenderfoot Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Tenderfoot.Requirements.Any(req => req.Name == subtype))
+                                        scout.Tenderfoot.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "Second Class Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.SecondClass.Requirements.Any(req => req.Name == subtype))
+                                        scout.SecondClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "First Class Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.FirstClass.Requirements.Any(req => req.Name == subtype))
+                                        scout.FirstClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "Star Scout Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Star.Requirements.Any(req => req.Name == subtype))
+                                        scout.Star.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "Life Scout Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Life.Requirements.Any(req => req.Name == subtype))
+                                        scout.Life.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "Eagle Scout Rank Requirement":
+                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Eagle.Requirements.Any(req => req.Name == subtype))
+                                        scout.Eagle.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                    break;
+                                case "Merit Badge Requirement":
+                                    var badgeName = subtype.Substring(0, subtype.IndexOf("#") - 1).Trim();
+                                    scout.AddPartial(badgeName, version);
+                                    break;
+                                case "Award Requirement":
+                                    var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
+                                    var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim();
+                                    // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
+                                    if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
                                     {
-                                        palm.Requirements.First(x => x.Name == requirementNumber).DateEarned = date;
+                                        Palm palm = null;
+                                        switch (palmName)
+                                        {
+                                            case "Eagle Palm Pin #1 (Bronze)":
+                                                palm = scout.GetNthPalm(Palm.PalmType.Bronze, 1);
+                                                break;
+                                            case "Eagle Palm Pin #2 (Gold)":
+                                                palm = scout.GetNthPalm(Palm.PalmType.Gold, 1);
+                                                break;
+                                            case "Eagle Palm Pin #3 (Silver)":
+                                                palm = scout.GetNthPalm(Palm.PalmType.Silver, 1);
+                                                break;
+                                            case "Eagle Palm Pin #4 (Bronze)":
+                                                palm = scout.GetNthPalm(Palm.PalmType.Bronze, 2);
+                                                break;
+                                            case "Eagle Palm Pin #5 (Gold)":
+                                                palm = scout.GetNthPalm(Palm.PalmType.Gold, 2);
+                                                break;
+                                            case "Eagle Palm Pin #6 (Silver)":
+                                                palm = scout.GetNthPalm(Palm.PalmType.Silver, 2);
+                                                break;
+                                        }
+                                        if (null != palm)
+                                        {
+                                            palm.Requirements.First(x => x.Name == requirementNumber).DateEarned = date;
+                                        }
                                     }
-                                }
-                                break;
+                                    break;
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date.ToShortDateString()}");
-                        Console.Error.WriteLine($"{e}");
+                        catch (Exception e)
+                        {
+                            Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date.ToShortDateString()}");
+                            Console.Error.WriteLine($"{e}");
+                        }
                     }
                 }
             }
