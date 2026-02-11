@@ -32,6 +32,7 @@ namespace advancementchart.Reports
             using (var package = new ExcelPackage(fi))
             {
                 var wks = package.Workbook.Worksheets.Add("Troop Checklist");
+                wks.Cells.Style.Font.Size += 2;
 
                 wks.PrinterSettings.Orientation = eOrientation.Landscape;
                 wks.PrinterSettings.FitToPage = true;
