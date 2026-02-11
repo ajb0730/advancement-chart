@@ -128,17 +128,91 @@ namespace advancement_chart.tests.Reports
             {
                 var wks = package.Workbook.Worksheets["Troop Checklist"];
 
-                // Scout is on row 2 (row 1 is patrol header)
-                // Column B (2) should have thin borders
-                var border = wks.Cells[2, 2].Style.Border;
+                // Row 1 is header, row 2 is patrol header, row 3 is scout
+                // Column B (2) should have thin borders on scout row
+                var border = wks.Cells[3, 2].Style.Border;
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Top.Style);
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Bottom.Style);
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Left.Style);
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Right.Style);
 
                 // Column Z (26) should also have borders (verifying many checkbox columns exist)
-                var farBorder = wks.Cells[2, 26].Style.Border;
+                var farBorder = wks.Cells[3, 26].Style.Border;
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, farBorder.Top.Style);
+            }
+        }
+
+        [Fact]
+        public void Run_HasHeaderRow()
+        {
+            var scout = TestFixtures.CreateScout();
+            var report = new TroopCheckList(new List<TroopMember> { scout });
+            report.Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var wks = package.Workbook.Worksheets["Troop Checklist"];
+
+                // Header row should be 4x default height
+                Assert.Equal(wks.DefaultRowHeight * 4, wks.Row(1).Height);
+
+                // Header checkbox cells should have left, bottom, right borders but not top
+                var border = wks.Cells[1, 2].Style.Border;
+                Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Left.Style);
+                Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Bottom.Style);
+                Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Right.Style);
+                Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.None, border.Top.Style);
+            }
+        }
+
+        [Fact]
+        public void Run_FiltersInactivePatrol()
+        {
+            var active = TestFixtures.CreateScout(id: "1", first: "Alice", last: "Smith");
+            active.Patrol = "Eagles";
+            var inactive = TestFixtures.CreateScout(id: "2", first: "Bob", last: "Jones");
+            inactive.Patrol = "Inactive";
+
+            var report = new TroopCheckList(new List<TroopMember> { active, inactive });
+            report.Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var wks = package.Workbook.Worksheets["Troop Checklist"];
+                bool foundActive = false;
+                bool foundInactive = false;
+                for (int row = 1; row <= 20; row++)
+                {
+                    var val = wks.Cells[row, 1].Value?.ToString();
+                    if (val != null && val.Contains("Alice")) foundActive = true;
+                    if (val != null && (val.Contains("Bob") || val.Contains("Inactive"))) foundInactive = true;
+                }
+                Assert.True(foundActive, "Active scout should appear");
+                Assert.False(foundInactive, "Inactive scout and patrol should not appear");
+            }
+        }
+
+        [Fact]
+        public void Run_BlankLineBetweenPatrols()
+        {
+            var scout1 = TestFixtures.CreateScout(id: "1", first: "Alice", last: "Smith");
+            scout1.Patrol = "Bears";
+            var scout2 = TestFixtures.CreateScout(id: "2", first: "Bob", last: "Jones");
+            scout2.Patrol = "Eagles";
+
+            var report = new TroopCheckList(new List<TroopMember> { scout1, scout2 });
+            report.Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var wks = package.Workbook.Worksheets["Troop Checklist"];
+
+                // Row 1: header, Row 2: "Bears", Row 3: Alice, Row 4: blank, Row 5: "Eagles", Row 6: Bob
+                Assert.Equal("Bears", wks.Cells[2, 1].Value?.ToString());
+                Assert.Contains("Alice", wks.Cells[3, 1].Value?.ToString());
+                Assert.Null(wks.Cells[4, 1].Value);
+                Assert.Equal("Eagles", wks.Cells[5, 1].Value?.ToString());
+                Assert.Contains("Bob", wks.Cells[6, 1].Value?.ToString());
             }
         }
 
