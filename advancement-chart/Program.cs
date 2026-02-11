@@ -15,21 +15,20 @@ namespace advancement_chart
 {
     class Program
     {
-        internal static readonly List<TroopMember> scouts = new List<TroopMember>();
-
         static void Main(string[] args)
         {
+            var scouts = new List<TroopMember>();
             DateTime maxDate = DateTime.MinValue;
             foreach (string arg in args)
             {
-                var fileMaxDate = LoadFile(arg);
+                var fileMaxDate = LoadFile(arg, scouts);
                 maxDate = fileMaxDate > maxDate ? fileMaxDate : maxDate;
             }
             //
             // Download the "Scout" backup report from Scoutbook and rename
             // the file "scouts.csv"
             //
-            LoadPatrolLookup("./scouts.csv");
+            LoadPatrolLookup("./scouts.csv", scouts);
             {
                 var report = new TroopReport(scouts);
                 report.Run(@"./TroopAdvancementChart.xlsx");
@@ -56,7 +55,7 @@ namespace advancement_chart
             }
         }
 
-        internal static void LoadPatrolLookup(string fileName)
+        internal static void LoadPatrolLookup(string fileName, List<TroopMember> scouts)
         {
             if (File.Exists(fileName))
             {
@@ -102,7 +101,7 @@ namespace advancement_chart
             }
         }
 
-        internal static DateTime LoadFile(string fileName)
+        internal static DateTime LoadFile(string fileName, List<TroopMember> scouts)
         {
             DateTime result = DateTime.MinValue;
 
