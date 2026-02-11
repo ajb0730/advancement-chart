@@ -12,14 +12,6 @@ namespace advancementchart.Reports
 
     public class AdvancementReport : IReport
     {
-        const string EP = "Emergency Preparedness";
-        const string LS = "Lifesaving";
-        const string ES = "Environmental Science";
-        const string SB = "Sustainability";
-        const string SW = "Swimming";
-        const string HK = "Hiking";
-        const string CY = "Cycling";
-
         protected readonly DateTime ReportDataTimestamp = DateTime.MinValue;
 
         public AdvancementReport(List<TroopMember> scouts)
@@ -195,45 +187,7 @@ namespace advancementchart.Reports
                                 {
                                     if (badge.EagleRequired)
                                     {
-                                        bool addMe = true;
-
-                                        // (a) First Aid
-                                        // (b) Citizenship in the Community
-                                        // (c) Citizenship in the Nation
-                                        // (d) Citizenship in the World
-                                        // (e) Communication
-                                        // (f) Cooking
-                                        // (g) Personal Fitness
-                                        // (h) Emergency Preparedness or Lifesaving
-                                        if ((badge.Name == EP && required.Any(mb => mb.Name == LS))
-                                            || (badge.Name == LS && required.Any(mb => mb.Name == EP)))
-                                        {
-                                            addMe = false;
-                                        }
-                                        // (i) Environmental Science or Sustainability
-                                        if ((badge.Name == ES && required.Any(mb => mb.Name == SB))
-                                            || (badge.Name == SB && required.Any(mb => mb.Name == ES)))
-                                        {
-                                            addMe = false;
-                                        }
-                                        // (j) Personal Management
-                                        // (k) Swimming or Hiking or Cycling
-                                        if ((badge.Name == SW && required.Any(mb => mb.Name == HK || mb.Name == CY))
-                                            || (badge.Name == HK && required.Any(mb => mb.Name == SW || mb.Name == CY))
-                                            || (badge.Name == CY && required.Any(mb => mb.Name == SW || mb.Name == HK)))
-                                        {
-                                            addMe = false;
-                                        }
-                                        // (l) Camping
-                                        // (m) Family Life
-                                        if (addMe)
-                                        {
-                                            required.Add(badge);
-                                        }
-                                        else
-                                        {
-                                            elective.Add(badge);
-                                        }
+                                        required.Add(badge);
                                     }
                                     else
                                     {
@@ -261,11 +215,6 @@ namespace advancementchart.Reports
                                     if (required.Any(x => x.Name == badgeName))
                                     {
                                         WriteLine(body: body, line: $"Earned: {badgeName} *", indent: true);
-                                    }
-                                    // Eagle Required earned as an Elective
-                                    else if (elective.Any(x => x.Name == badgeName))
-                                    {
-                                        WriteLine(body: body, line: $"Earned: {badgeName} (as elective)", indent: true);
                                     }
                                     // Single Eagle Required
                                     else if (!isMultiple)
