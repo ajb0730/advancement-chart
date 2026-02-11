@@ -28,7 +28,14 @@ namespace advancement_chart
             // Download the "Scout" backup report from Scoutbook and rename
             // the file "scouts.csv"
             //
-            LoadPatrolLookup("./scouts.csv", scouts);
+            var patrolFile = "./scouts.csv";
+            if (!File.Exists(patrolFile))
+            {
+                Console.Error.WriteLine($"WARNING: Patrol lookup file '{patrolFile}' not found.");
+                Console.Error.WriteLine("Scouts will not have patrol assignments, nicknames, or dates of birth.");
+                Console.Error.WriteLine("Eagle Report deadline calculations will be incorrect.");
+            }
+            LoadPatrolLookup(patrolFile, scouts);
             {
                 var report = new TroopReport(scouts);
                 report.Run(@"./TroopAdvancementChart.xlsx");
