@@ -29,35 +29,11 @@ namespace advancementchart.Model
         {
             if (badge.EagleRequired)
             {
-                // (a) First Aid
-                // (b) Citizenship in the Community
-                // (c) Citizenship in the Nation
-                // (d) Citizenship in the World
-                // (e) Communication
-                // (f) Cooking
-                // (g) Personal Fitness
-                // (h) Emergency Preparedness or Lifesaving
-                if ((badge.Name == "Emergency Preparedness" && MeritBadges.Any(mb => mb.Name == "Lifesaving"))
-                    || (badge.Name == "Lifesaving" && MeritBadges.Any(mb => mb.Name == "Emergency Preparedness")))
+                var equivalents = MeritBadge.GetEagleEquivalents(badge.Name);
+                if (equivalents.Length > 0 && MeritBadges.Any(mb => equivalents.Contains(mb.Name)))
                 {
                     return false;
                 }
-                // (i) Environmental Science or Sustainability
-                if ((badge.Name == "Environmental Science" && MeritBadges.Any(mb => mb.Name == "Sustainability"))
-                    || (badge.Name == "Sustainability" && MeritBadges.Any(mb => mb.Name == "Environmental Science")))
-                {
-                    return false;
-                }
-                // (j) Personal Management
-                // (k) Swimming or Hiking or Cycling
-                if ((badge.Name == "Swimming" && MeritBadges.Any(mb => mb.Name == "Hiking" || mb.Name == "Cycling"))
-                    || (badge.Name == "Hiking" && MeritBadges.Any(mb => mb.Name == "Swimming" || mb.Name == "Cycling"))
-                    || (badge.Name == "Cycling" && MeritBadges.Any(mb => mb.Name == "Swimming" || mb.Name == "Hiking")))
-                {
-                    return false;
-                }
-                // (l) Camping
-                // (m) Family Life
             }
             return base.Add(badge, false);
         }
