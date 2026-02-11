@@ -25,7 +25,7 @@ names or patrols change, or when a Scout joins or leaves the Troop.
 that `troop_#####__advancement.csv` file to your computer.
 1. With the `scouts.csv` and the `troop_#####__advancement.csv` files in the same
 directory, run the `advancement-chart` program: `dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll troop_#####__advancement.csv`.
-1. This will create three files:
+1. This will create the following files:
    1. TroopAdvancementChart.xlsx - this is an Excel workbook with three
    worksheets:
       1. `Troop Advancement` shows rank advancement up to, and including First
@@ -40,6 +40,9 @@ directory, run the `advancement-chart` program: `dotnet /path/to/advancement-cha
    Scout at or above First Class. It shows what merit badges the Scout needs,
    and for the longer badges, the last date the Scout may begin that badge
    (based on birthdate).
+   1. TroopCheckList.xlsx - this is a landscape Excel workbook listing Scouts
+   by Patrol (alphabetically), with empty checkbox columns for use as a
+   printable attendance or activity checklist.
 
 ## TIPS
 
