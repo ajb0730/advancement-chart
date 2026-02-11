@@ -226,6 +226,40 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
+        public void GetNthPalm_ZeroOrdinal_Throws()
+        {
+            var scout = TestFixtures.CreateScoutWithAllRanksEarned();
+            Assert.Throws<ArgumentOutOfRangeException>(() => scout.GetNthPalm(Palm.PalmType.Bronze, 0));
+        }
+
+        [Fact]
+        public void GetNthPalm_NegativeOrdinal_Throws()
+        {
+            var scout = TestFixtures.CreateScoutWithAllRanksEarned();
+            Assert.Throws<ArgumentOutOfRangeException>(() => scout.GetNthPalm(Palm.PalmType.Bronze, -1));
+        }
+
+        [Fact]
+        public void GetNthPalm_EmptyList_CreatesBronze()
+        {
+            var scout = TestFixtures.CreateScoutWithAllRanksEarned();
+            var bronze = scout.GetNthPalm(Palm.PalmType.Bronze, 1);
+            Assert.NotNull(bronze);
+            Assert.Equal(Palm.PalmType.Bronze, bronze.Type);
+            Assert.Single(scout.EaglePalms);
+        }
+
+        [Fact]
+        public void GetNthPalm_EmptyList_GoldReturnsNull()
+        {
+            var scout = TestFixtures.CreateScoutWithAllRanksEarned();
+            // Gold can't be the first palm — must start with Bronze
+            var result = scout.GetNthPalm(Palm.PalmType.Gold, 1);
+            Assert.Null(result);
+            Assert.Empty(scout.EaglePalms);
+        }
+
+        [Fact]
         public void Add_NewBadge_AddsToList()
         {
             var scout = TestFixtures.CreateScout();
