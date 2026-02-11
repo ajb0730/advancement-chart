@@ -53,6 +53,10 @@ namespace advancement_chart
                 report.Run(@"./TroopGuideReport.xlsx");
             }
             {
+                var report = new TroopCheckList(scouts);
+                report.Run(@"./TroopCheckList.xlsx");
+            }
+            {
                 var report = new AdvancementCheck(scouts);
                 report.Run(@"");
             }
