@@ -290,7 +290,7 @@ namespace advancementchart.Reports
                                             var stuffToList = others.Where(x => x.Started).Select(x => x.Name);
                                             if (haveStarted)
                                             {
-                                                stuffToList.Prepend(badgeName);
+                                                stuffToList = stuffToList.Prepend(badgeName);
                                             }
                                             WriteLine(body: body, line: $"Started: {String.Join(" * and ", stuffToList)} *", indent: true);
                                         }
