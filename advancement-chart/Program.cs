@@ -262,7 +262,15 @@ namespace advancement_chart
                                         }
                                         if (null != palm)
                                         {
-                                            palm.Requirements.First(x => x.Name == requirementNumber).DateEarned = date;
+                                            var req = palm.Requirements.FirstOrDefault(x => x.Name == requirementNumber);
+                                            if (req != null)
+                                            {
+                                                req.DateEarned = date;
+                                            }
+                                            else
+                                            {
+                                                warnings.Add($"Unknown requirement '{requirementNumber}' for '{palmName}'");
+                                            }
                                         }
                                     }
                                     break;
