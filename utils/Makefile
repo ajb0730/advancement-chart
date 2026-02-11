@@ -29,7 +29,7 @@ advancement.csv : troop_201_B__advancement.csv troop_201_G__advancement.csv
 	for i in $^; do tail -n +2 $$i >> $@; done
 
 EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx AdvancementReport.docx : advancement.csv scouts.csv
-	dotnet $$HOME/src/advancement-chart/advancement-chart/bin/Debug/net7.0/advancement-chart.dll $<
+	dotnet $$HOME/src/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll $<
 	cp -f $^ ~/Dropbox/Scouts/Troop\ Committee/
 
 clean :
