@@ -99,6 +99,10 @@ namespace advancement_chart
                                 DateTime dobDate;
                                 if (DateTime.TryParse(dob, out dobDate))
                                 {
+                                    if (dobDate.Year < 1990 || dobDate > DateTime.Now)
+                                    {
+                                        Console.Error.WriteLine($"WARNING: Suspicious DOB '{dob}' for {scout.DisplayName}");
+                                    }
                                     scout.DateOfBirth = dobDate;
                                 }
                             }
