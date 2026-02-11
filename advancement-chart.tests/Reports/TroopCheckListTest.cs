@@ -58,7 +58,7 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
-        public void Run_IsLandscape()
+        public void Run_IsPortrait()
         {
             var scout = TestFixtures.CreateScout();
             var report = new TroopCheckList(new List<TroopMember> { scout });
@@ -67,7 +67,7 @@ namespace advancement_chart.tests.Reports
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
                 var wks = package.Workbook.Worksheets["Troop Checklist"];
-                Assert.Equal(eOrientation.Landscape, wks.PrinterSettings.Orientation);
+                Assert.Equal(eOrientation.Portrait, wks.PrinterSettings.Orientation);
             }
         }
 
@@ -153,8 +153,8 @@ namespace advancement_chart.tests.Reports
             {
                 var wks = package.Workbook.Worksheets["Troop Checklist"];
 
-                // Header row should be 8x default height
-                Assert.Equal(wks.DefaultRowHeight * 8, wks.Row(1).Height);
+                // Header row should be 12x default height
+                Assert.Equal(wks.DefaultRowHeight * 12, wks.Row(1).Height);
 
                 // Header checkbox cells should have left, bottom, right borders but not top
                 var border = wks.Cells[1, 2].Style.Border;
