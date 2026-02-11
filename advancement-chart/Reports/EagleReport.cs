@@ -118,7 +118,7 @@ namespace advancementchart.Reports
                 File.Delete(outputFileName);
 
 
-            List<TroopMember> scouts = this.Scouts.Where(m => m.FirstClass.Earned && !m.Eagle.Earned).ToList();
+            List<TroopMember> scouts = this.Scouts.Where(m => m.FirstClass.Earned && !m.Eagle.Earned && !string.Equals(m.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)).ToList();
             if (!scouts.Any())
             {
                 return;

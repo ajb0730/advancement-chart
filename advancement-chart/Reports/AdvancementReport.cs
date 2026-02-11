@@ -146,7 +146,7 @@ namespace advancementchart.Reports
                 }
                 WriteLine(body, string.Empty);
 
-                foreach (var scout in this.Scouts)
+                foreach (var scout in this.Scouts.Where(s => !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)))
                 {
                     scout.AllocateMeritBadges();
 

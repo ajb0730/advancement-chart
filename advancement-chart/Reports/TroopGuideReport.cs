@@ -56,7 +56,7 @@ namespace advancementchart.Reports
 
                 int taLastRow = taHeaderRow;
 
-                foreach (TroopMember scout in Scouts.Where(s => s.FirstClass.Earned == false).OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
+                foreach (TroopMember scout in Scouts.Where(s => s.FirstClass.Earned == false && !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                 {
                     taCell.Row++;
                     taCell.ColumnNumber = 1;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using advancementchart.Model;
 
 namespace advancementchart.Reports
@@ -16,7 +17,7 @@ namespace advancementchart.Reports
         public void Run(string outputFileName)
         {
             Console.WriteLine("Running Advancement Check");
-            foreach (var scout in this.Scouts)
+            foreach (var scout in this.Scouts.Where(s => !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)))
             {
                 // Eagle implies Life implies Star implies 1C implies 2C implies Tenderfoot implies Scout
                 if (scout.Eagle.Earned && !scout.Life.Earned)
