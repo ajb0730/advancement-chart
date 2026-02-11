@@ -1,9 +1,8 @@
-all : EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx AdvancementReport.docx
+all : EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx TroopCheckList.xlsx AdvancementReport.docx
 	cp -f $^ $$HOME/Dropbox/Scouts/Troop\ Committee/
 
-scouts-merged.csv : troop_201_B__scouts.csv troop_201_G__scouts.csv
-	head -n 1 $< > $@
-	for i in $^; do tail -n +2 $$i >> $@; done
+scouts-merged.csv : troop_201_F__scouts.csv
+	cp -f $< $@
 
 scouts.csv : scouts-merged.csv birthdates.csv
 	head -n 1 scouts-merged.csv | tr -d '\r' | awk '{ printf("%s,\"DOB\"\n",$$0); }' > $@
@@ -24,19 +23,18 @@ birthdates.csv : scouts-merged.csv
 	  rm -f one two; \
 	fi
 
-advancement.csv : troop_201_B__advancement.csv troop_201_G__advancement.csv
-	head -n 1 $< > $@
-	for i in $^; do tail -n +2 $$i >> $@; done
+advancement.csv : troop_201_F__advancement.csv
+	cp -f $< $@
 
-EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx AdvancementReport.docx : advancement.csv scouts.csv
+EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx TroopCheckList.xlsx AdvancementReport.docx : advancement.csv scouts.csv
 	dotnet $$HOME/src/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll $<
 	cp -f $^ ~/Dropbox/Scouts/Troop\ Committee/
 
 clean :
-	rm -f advancement.csv troop_201_B__advancement.csv troop_201_G__advancement.csv
+	rm -f advancement.csv troop_201_F__advancement.csv
 
 reallyclean : clean
-	rm -f scouts.csv scouts-merged.csv troop_201_B__scouts.csv troop_201_G__scouts.csv
+	rm -f scouts.csv scouts-merged.csv troop_201_F__scouts.csv
 
 superclean : reallyclean
 	rm -f birthdates.csv
