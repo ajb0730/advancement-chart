@@ -38,13 +38,32 @@ namespace advancementchart.Reports
                 wks.PrinterSettings.FitToWidth = 1;
                 wks.PrinterSettings.FitToHeight = 0;
 
+                // Header row with left/bottom/right borders, 4x height
                 int row = 1;
+                wks.Row(row).Height = wks.DefaultRowHeight * 4;
+                for (int col = 2; col <= 1 + CheckboxColumns; col++)
+                {
+                    wks.Cells[row, col].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    wks.Cells[row, col].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    wks.Cells[row, col].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                }
+                row++;
+
                 int scoutRowCount = 0;
+                bool firstPatrol = true;
 
                 foreach (var patrolScouts in Scouts
+                    .Where(s => !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase))
                     .GroupBy(s => s.Patrol)
                     .OrderBy(g => g.Key))
                 {
+                    // Blank line before each patrol (except the first)
+                    if (!firstPatrol)
+                    {
+                        row++;
+                    }
+                    firstPatrol = false;
+
                     // Patrol header row
                     wks.Cells[row, 1].Value = patrolScouts.Key;
                     wks.Cells[row, 1].Style.Font.Bold = true;
@@ -89,8 +108,8 @@ namespace advancementchart.Reports
                     wks.Column(1).AutoFit(10);
                 }
 
-                // Freeze the name column
-                wks.View.FreezePanes(1, 2);
+                // Freeze the header row and name column
+                wks.View.FreezePanes(2, 2);
 
                 package.Save();
             }
