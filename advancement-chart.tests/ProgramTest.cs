@@ -331,5 +331,54 @@ namespace advancement_chart.tests
             var req = palm.Requirements.First(r => r.Name == "1");
             Assert.Equal(new DateTime(2023, 1, 10), req.DateEarned);
         }
+
+        [Fact]
+        public void LoadFile_MalformedMeritBadgeRequirement_LogsWarningAndContinues()
+        {
+            // "Camping" has no "#" separator, which will cause ArgumentOutOfRangeException from Substring
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge Requirement,Camping,2016,2023-01-15\n" +
+                          "123,John,,Doe,Rank,Scout,2016,2023-02-01";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            // The malformed row should be skipped but Scout rank should still be loaded
+            Assert.Single(_scouts);
+            Assert.True(_scouts[0].Scout.Earned);
+            Assert.Contains("skipped", errWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void LoadFile_ValidData_NoWarnings()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Rank,Scout,2016,2023-01-15";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Empty(errWriter.ToString());
+        }
     }
 }

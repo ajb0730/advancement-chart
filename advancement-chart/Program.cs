@@ -104,6 +104,7 @@ namespace advancement_chart
         internal static DateTime LoadFile(string fileName, List<TroopMember> scouts)
         {
             DateTime result = DateTime.MinValue;
+            var warnings = new List<string>();
 
             if (File.Exists(fileName))
             {
@@ -252,14 +253,27 @@ namespace advancement_chart
                                     break;
                             }
                         }
-                        catch (Exception e)
+                        catch (FormatException e)
                         {
-                            Console.Error.WriteLine($"type: {type} subtype: {subtype} version: {version} date: {date.ToShortDateString()}");
-                            Console.Error.WriteLine($"{e}");
+                            warnings.Add($"Skipped row: type={type} subtype={subtype} version={version} date={date.ToShortDateString()} - {e.Message}");
+                        }
+                        catch (ArgumentException e)
+                        {
+                            warnings.Add($"Invalid data: type={type} subtype={subtype} version={version} date={date.ToShortDateString()} - {e.Message}");
                         }
                     }
                 }
             }
+
+            if (warnings.Count > 0)
+            {
+                Console.Error.WriteLine($"Warning: {warnings.Count} row(s) skipped while loading {fileName}:");
+                foreach (var warning in warnings)
+                {
+                    Console.Error.WriteLine($"  {warning}");
+                }
+            }
+
             return result;
         }
     }
