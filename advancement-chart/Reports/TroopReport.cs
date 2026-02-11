@@ -516,7 +516,7 @@ namespace advancementchart.Reports
 
                 string patrol = string.Empty;
 
-                foreach (var patrolScouts in Scouts.GroupBy(s => s.Patrol, s => s, (p, s) => s).OrderBy(s => s.Min(a => a.Scout.DateEarned.HasValue ? a.Scout.DateEarned : DateTime.Now)))
+                foreach (var patrolScouts in Scouts.Where(s => !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)).GroupBy(s => s.Patrol, s => s, (p, s) => s).OrderBy(s => s.Min(a => a.Scout.DateEarned.HasValue ? a.Scout.DateEarned : DateTime.Now)))
                 {
                     foreach (var scout in patrolScouts.OrderBy(s => s.Scout.DateEarned.HasValue ? s.Scout.DateEarned : DateTime.Now).ThenBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {

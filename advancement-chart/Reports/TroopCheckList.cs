@@ -11,7 +11,7 @@ namespace advancementchart.Reports
 {
     public class TroopCheckList : IReport
     {
-        private const int CheckboxColumns = 25;
+        private const int CheckboxColumns = 10;
         private const double CheckboxColumnWidth = 2.7;
 
         public TroopCheckList(List<TroopMember> scouts)
@@ -32,7 +32,7 @@ namespace advancementchart.Reports
             using (var package = new ExcelPackage(fi))
             {
                 var wks = package.Workbook.Worksheets.Add("Troop Checklist");
-                wks.Cells.Style.Font.Size += 2;
+                wks.Cells.Style.Font.Size += 4;
 
                 wks.PrinterSettings.Orientation = eOrientation.Landscape;
                 wks.PrinterSettings.FitToPage = true;
@@ -41,7 +41,7 @@ namespace advancementchart.Reports
 
                 // Header row with left/bottom/right borders, 4x height
                 int row = 1;
-                wks.Row(row).Height = wks.DefaultRowHeight * 4;
+                wks.Row(row).Height = wks.DefaultRowHeight * 8;
                 for (int col = 2; col <= 1 + CheckboxColumns; col++)
                 {
                     wks.Cells[row, col].Style.Border.Left.Style = ExcelBorderStyle.Thin;

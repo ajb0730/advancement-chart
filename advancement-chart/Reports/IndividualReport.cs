@@ -29,7 +29,7 @@ namespace advancementchart.Reports
                 Dictionary<string, ExcelWorksheet> patrolSheets = new Dictionary<string, ExcelWorksheet>();
 
                 // Figure out Patrols
-                Dictionary<string, List<TroopMember>> patrols = Scouts.GroupBy(s => s.Patrol).ToDictionary(g => g.Key, g => g.ToList());
+                Dictionary<string, List<TroopMember>> patrols = Scouts.Where(s => !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)).GroupBy(s => s.Patrol).ToDictionary(g => g.Key, g => g.ToList());
                 if (patrols.Keys.Count > 1)
                 {
                     foreach (string patrolName in patrols.Keys.OrderBy(s => s))
@@ -39,7 +39,7 @@ namespace advancementchart.Reports
                 }
 
                 // Collect data (and also add individual Scout sheets)
-                foreach (var scout in Scouts)
+                foreach (var scout in Scouts.Where(s => !string.Equals(s.Patrol, "Inactive", StringComparison.OrdinalIgnoreCase)))
                 {
                     // Skip Scouts that have already earned First Class
                     if (!scout.FirstClass.Earned)

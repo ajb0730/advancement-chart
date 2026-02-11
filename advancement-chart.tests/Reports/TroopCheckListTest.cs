@@ -136,8 +136,8 @@ namespace advancement_chart.tests.Reports
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Left.Style);
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, border.Right.Style);
 
-                // Column Z (26) should also have borders (verifying many checkbox columns exist)
-                var farBorder = wks.Cells[3, 26].Style.Border;
+                // Column K (11) should also have borders (last checkbox column)
+                var farBorder = wks.Cells[3, 11].Style.Border;
                 Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thin, farBorder.Top.Style);
             }
         }
@@ -153,8 +153,8 @@ namespace advancement_chart.tests.Reports
             {
                 var wks = package.Workbook.Worksheets["Troop Checklist"];
 
-                // Header row should be 4x default height
-                Assert.Equal(wks.DefaultRowHeight * 4, wks.Row(1).Height);
+                // Header row should be 8x default height
+                Assert.Equal(wks.DefaultRowHeight * 8, wks.Row(1).Height);
 
                 // Header checkbox cells should have left, bottom, right borders but not top
                 var border = wks.Cells[1, 2].Style.Border;
