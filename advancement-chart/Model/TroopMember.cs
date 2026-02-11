@@ -97,6 +97,9 @@ namespace advancementchart.Model
         /// next available.
         public Palm GetNthPalm(Palm.PalmType type, int ordinal = 1)
         {
+            if (ordinal <= 0)
+                throw new ArgumentOutOfRangeException(nameof(ordinal), "Ordinal must be positive.");
+
             var palmsOfType = this.EaglePalms.Where(x => x.Type == type);
             if (palmsOfType.Count() >= ordinal)
             {
@@ -104,12 +107,21 @@ namespace advancementchart.Model
             }
             else if (palmsOfType.Count() == ordinal - 1)
             {
-                Palm lastPalm = this.EaglePalms.Last();
-                if (
-                    (type == Palm.PalmType.Bronze && lastPalm.Type == Palm.PalmType.Silver)
-                    || (type == Palm.PalmType.Gold && lastPalm.Type == Palm.PalmType.Bronze)
-                    || (type == Palm.PalmType.Silver && lastPalm.Type == Palm.PalmType.Gold)
-                )
+                bool canCreate;
+                if (!this.EaglePalms.Any())
+                {
+                    // First palm must be Bronze
+                    canCreate = type == Palm.PalmType.Bronze;
+                }
+                else
+                {
+                    Palm lastPalm = this.EaglePalms.Last();
+                    canCreate =
+                        (type == Palm.PalmType.Bronze && lastPalm.Type == Palm.PalmType.Silver)
+                        || (type == Palm.PalmType.Gold && lastPalm.Type == Palm.PalmType.Bronze)
+                        || (type == Palm.PalmType.Silver && lastPalm.Type == Palm.PalmType.Gold);
+                }
+                if (canCreate)
                 {
                     Palm palm = new Palm(type);
                     this.EaglePalms.Add(palm);
