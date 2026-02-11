@@ -20,4 +20,10 @@
     <PackageReference Include="System.Drawing.Common" Version="6.0.0"/>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.15.0"/>
   </ItemGroup>
+  <!-- Copy libgdiplus native library for EPPlus AutoFitColumns support on macOS -->
+  <Target Name="CopyLibGdiPlus" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <Copy SourceFiles="/opt/homebrew/lib/libgdiplus.dylib"
+          DestinationFolder="$(OutputPath)runtimes/unix/lib/net6.0/"
+          Condition="Exists('/opt/homebrew/lib/libgdiplus.dylib') And !Exists('$(OutputPath)runtimes/unix/lib/net6.0/libgdiplus.dylib')" />
+  </Target>
 </Project>
