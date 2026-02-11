@@ -12,7 +12,9 @@ namespace advancementchart.Reports
     public class TroopCheckList : IReport
     {
         private const int CheckboxColumns = 10;
-        private const double CheckboxColumnWidth = 2.7;
+        private const double CheckboxColumnWidth = 4.05;
+        private const int CommentsColumn = CheckboxColumns + 2;
+        private const double CommentsColumnWidth = 20;
 
         public TroopCheckList(List<TroopMember> scouts)
         {
@@ -34,20 +36,27 @@ namespace advancementchart.Reports
                 var wks = package.Workbook.Worksheets.Add("Troop Checklist");
                 wks.Cells.Style.Font.Size += 4;
 
-                wks.PrinterSettings.Orientation = eOrientation.Landscape;
+                wks.PrinterSettings.Orientation = eOrientation.Portrait;
                 wks.PrinterSettings.FitToPage = true;
                 wks.PrinterSettings.FitToWidth = 1;
                 wks.PrinterSettings.FitToHeight = 0;
 
-                // Header row with left/bottom/right borders, 4x height
+                // Header row with left/bottom/right borders, tall height
                 int row = 1;
-                wks.Row(row).Height = wks.DefaultRowHeight * 8;
+                wks.Row(row).Height = wks.DefaultRowHeight * 12;
                 for (int col = 2; col <= 1 + CheckboxColumns; col++)
                 {
                     wks.Cells[row, col].Style.Border.Left.Style = ExcelBorderStyle.Thin;
                     wks.Cells[row, col].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                     wks.Cells[row, col].Style.Border.Right.Style = ExcelBorderStyle.Thin;
                 }
+                // Comments header
+                wks.Cells[row, CommentsColumn].Value = "Comments";
+                wks.Cells[row, CommentsColumn].Style.Font.Bold = true;
+                wks.Cells[row, CommentsColumn].Style.VerticalAlignment = ExcelVerticalAlignment.Bottom;
+                wks.Cells[row, CommentsColumn].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                wks.Cells[row, CommentsColumn].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                wks.Cells[row, CommentsColumn].Style.Border.Right.Style = ExcelBorderStyle.Thin;
                 row++;
 
                 int scoutRowCount = 0;
@@ -75,12 +84,13 @@ namespace advancementchart.Reports
                         .ThenBy(s => s.FirstName))
                     {
                         wks.Cells[row, 1].Value = scout.DisplayName;
+                        wks.Row(row).Height = wks.DefaultRowHeight * 1.5;
 
                         // Alternating row shading on scout rows
                         if (scoutRowCount % 2 == 1)
                         {
-                            wks.Cells[row, 1, row, 1 + CheckboxColumns].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                            wks.Cells[row, 1, row, 1 + CheckboxColumns].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                            wks.Cells[row, 1, row, CommentsColumn].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            wks.Cells[row, 1, row, CommentsColumn].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                         }
 
                         // Checkbox borders on scout rows
@@ -92,6 +102,9 @@ namespace advancementchart.Reports
                             wks.Cells[row, col].Style.Border.Right.Style = ExcelBorderStyle.Thin;
                         }
 
+                        // Comments column border
+                        wks.Cells[row, CommentsColumn].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
                         scoutRowCount++;
                         row++;
                     }
@@ -102,6 +115,9 @@ namespace advancementchart.Reports
                 {
                     wks.Column(col).Width = CheckboxColumnWidth;
                 }
+
+                // Set comments column width
+                wks.Column(CommentsColumn).Width = CommentsColumnWidth;
 
                 // Auto-fit the name column
                 if (wks.Dimension != null)
