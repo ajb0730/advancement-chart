@@ -200,14 +200,12 @@ namespace advancementchart.Reports
                                 {
                                     if (skip.Any(x => x == badgeName))
                                     {
-                                        // Console.WriteLine($"Skip {badgeName}");
                                         continue;
                                     }
                                     skip.Add(badgeName);
                                     bool haveStarted = mbReq.MeritBadges.Any(x => x.Name == badgeName && !x.Earned);
                                     IEnumerable<MeritBadge> others = mbReq.MeritBadges.GetEagleEquivalents(badgeName);
                                     bool isMultiple = MeritBadge.IsMultiple(badgeName);
-                                    // Console.WriteLine($"{badgeName} isMultiple {isMultiple}");
                                     bool haveEarnedOther = others.Any(x => x.Earned);
                                     bool haveStartedOther = others.Any(x => x.Started);
 
@@ -271,7 +269,6 @@ namespace advancementchart.Reports
                             {
                                 MeritBadgeRequirement mbReq = requirement as MeritBadgeRequirement;
                                 WriteLine(body: body, line: $"=> {mbReq.MeritBadges.Where(x => x.Earned).Count()} of {mbReq.Total} earned.", indent: true);
-                                // Console.WriteLine($"[{scout.DisplayName}] {String.Join(", ", mbReq.MeritBadges.Select(x => x.Name))}");
                                 foreach (var mb in mbReq.MeritBadges.Where(x => x.Earned && x.EagleRequired))
                                 {
                                     WriteLine(body: body, line: $"Earned: {mb.Name} *", indent: true);

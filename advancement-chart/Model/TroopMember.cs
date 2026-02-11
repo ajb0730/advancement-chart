@@ -169,7 +169,6 @@ namespace advancementchart.Model
         {
             if (!MeritBadges.Any(x => x.Name == badge.Name))
             {
-                // Console.WriteLine($"{DisplayName}: Adding {(badge.Earned ? "completed" : "partial")} {badge.Name} to {String.Join(", ", MeritBadges.Select(x => x.Name))}");
                 MeritBadges.Add(badge);
             }
             else
@@ -177,7 +176,6 @@ namespace advancementchart.Model
                 var existing = MeritBadges.First(x => x.Name == badge.Name);
                 if (!existing.Earned && badge.Earned)
                 {
-                    // Console.WriteLine($"{DisplayName}: Removing partial {existing.Name} to add completed {badge.Name} to {String.Join(", ", MeritBadges.Select(x => x.Name))}");
                     MeritBadges.Remove(existing);
                     MeritBadges.Add(badge);
                 }
@@ -188,7 +186,6 @@ namespace advancementchart.Model
         {
             if (!MeritBadges.Any(x => x.Name == badgeName))
             {
-                // Console.WriteLine($"{DisplayName}: Adding partial {badgeName} to {String.Join(", ", MeritBadges.Select(x => x.Name))}");
                 MeritBadge partial = new MeritBadge(name: badgeName, description: version, earned: null);
                 partial.Started = true;
                 this.Add(partial);
@@ -208,22 +205,18 @@ namespace advancementchart.Model
                 if (!Star.MbReq.Earned)
                 {
                     added = Star.MbReq.Add(badge);
-                    // Console.WriteLine($"[{DisplayName}] {badge.Name} was{(added ? "" : " not")} added to Star");
                 }
                 if (!added && !Life.MbReq.Earned)
                 {
                     added = Life.MbReq.Add(badge);
-                    // Console.WriteLine($"[{DisplayName}] {badge.Name} was{(added ? "" : " not")} added to Life");
                 }
                 if (!added && !Star.MbReq.Earned)
                 {
                     added = Star.MbReq.AddAny(badge);
-                    // Console.WriteLine($"[{DisplayName}] {badge.Name} was{(added ? "" : " not")} added to Star as Elective");
                 }
                 if (!added && !Life.MbReq.Earned)
                 {
                     added = Life.MbReq.AddAny(badge);
-                    // Console.WriteLine($"[{DisplayName}] {badge.Name} was{(added ? "" : " not")} added to Life as Elective");
                 }
 
                 bool eagleAdded = false;

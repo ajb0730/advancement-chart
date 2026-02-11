@@ -222,7 +222,6 @@ namespace advancementchart.Reports
                 }
             }
             cell.ColumnNumber++;
-            //wks.Cells[cell].Value = $"{rank.Name} Earned";
             wks.Cells[cell].Value = "Earned";
             wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             wks.Cells[cell].Style.Font.Bold = true;
@@ -425,7 +424,6 @@ namespace advancementchart.Reports
                 else
                 {
                     cell.ColumnNumber++;
-                    //wks.Cells[cell].Value = req.Earned ? "X" : "";
                     wks.Cells[cell].Value = req.Earned ? "●" : "";
                     wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 }
@@ -554,16 +552,12 @@ namespace advancementchart.Reports
 
                         scout.AllocateMeritBadges();
 
-                        //if (!scout.FirstClass.Earned)
-                        //{
                         ta.Cells[taCell].Value = $"   {scout.DisplayName}";
 
                         taCell = AddContent(ta, taCell, scout.Scout);
                         taCell = AddContent(ta, taCell, scout.Tenderfoot);
                         taCell = AddContent(ta, taCell, scout.SecondClass);
                         taCell = AddContent(ta, taCell, scout.FirstClass);
-                        //}
-                        //else
 
                         if (scout.FirstClass.Earned)
                         {
@@ -652,10 +646,6 @@ namespace advancementchart.Reports
                     sa.Cells[$"{a}:{b}"].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thick, Color.Black);
                 }
                 sa.Row(saHeaderRow).Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-
-                /*mb.DefaultColWidth = 0.1;
-                mb.Calculate();
-                mb.Cells[mb.Dimension.Address].AutoFitColumns();*/
 
                 package.Save();
             }
