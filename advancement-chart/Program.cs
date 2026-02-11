@@ -117,22 +117,22 @@ namespace advancement_chart
 
                     while (csvReader.Read())
                     {
-                        string id = csvReader.GetField(index: 0);
+                        string id = csvReader.GetField("BSA Member ID");
                         TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
                         if (null == scout)
                         {
-                            string firstName = csvReader.GetField(index: 1);
-                            string middleName = csvReader.GetField(index: 2);
-                            string lastName = csvReader.GetField(index: 3);
+                            string firstName = csvReader.GetField("First Name");
+                            string middleName = csvReader.GetField("Middle Name");
+                            string lastName = csvReader.GetField("Last Name");
                             scout = new TroopMember(memberId: id, firstName: firstName, middleName: middleName, lastName: lastName);
                             scouts.Add(scout);
                             Console.WriteLine($"Adding record for {firstName} {lastName}.");
                         }
 
-                        string type = csvReader.GetField(index: 4);
-                        string subtype = csvReader.GetField(index: 5);
-                        string version = csvReader.GetField(index: 6);
-                        DateTime date = csvReader.GetField<DateTime>(index: 7);
+                        string type = csvReader.GetField("Advancement Type");
+                        string subtype = csvReader.GetField("Advancement");
+                        string version = csvReader.GetField("Version");
+                        DateTime date = csvReader.GetField<DateTime>("Date Completed");
                         result = date > result ? date : result;
                         try
                         {
