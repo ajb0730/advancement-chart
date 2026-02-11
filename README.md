@@ -11,7 +11,7 @@ Class and a Trail to Eagle report for each Scout at or over First Class.
 1. Make sure you have the code checked out.
 1. Fetch NuGet dependencies; while in the checked-out code directory: `dotnet restore`
 1. Build the code; while in the checked-out code directory: `dotnet build`
-1. Assuming the code built, you would execute it as: `dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/netcoreapp2.0/advancement-chart.dll`
+1. Assuming the code built, you would execute it as: `dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll`
 
 ## RUNNING
 
@@ -24,7 +24,7 @@ names or patrols change, or when a Scout joins or leaves the Troop.
 1. Also on the `Export/Backup` link, choose `Scout Advancement` and download
 that `troop_#####__advancement.csv` file to your computer.
 1. With the `scouts.csv` and the `troop_#####__advancement.csv` files in the same
-directory, run the `advancement-chart` program: `dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/netcoreapp2.0/advancement-chart.dll troop_#####__advancement.csv`.
+directory, run the `advancement-chart` program: `dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll troop_#####__advancement.csv`.
 1. This will create three files:
    1. TroopAdvancementChart.xlsx - this is an Excel workbook with three
    worksheets:
@@ -80,7 +80,7 @@ if [ ! -f "${1}" ]; then
 	echo
 	exit 1
 fi
-dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/netcoreapp2.0/advancement-chart.dll ${1}
+dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll ${1}
 ```
 
 Don't forget to set that script as executable: `chmod 755 /usr/local/sbin/advancement-chart`
