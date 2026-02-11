@@ -12,16 +12,10 @@ namespace advancement_chart.tests
     public class ProgramTest : IDisposable
     {
         private readonly List<string> _tempFiles = new List<string>();
-
-        public ProgramTest()
-        {
-            // Clear the shared scouts list before each test
-            Program.scouts.Clear();
-        }
+        private readonly List<TroopMember> _scouts = new List<TroopMember>();
 
         public void Dispose()
         {
-            Program.scouts.Clear();
             foreach (var f in _tempFiles)
             {
                 if (File.Exists(f))
@@ -40,7 +34,7 @@ namespace advancement_chart.tests
         [Fact]
         public void LoadFile_NonExistentFile_ReturnsMinValue()
         {
-            var result = Program.LoadFile("/nonexistent/path.csv");
+            var result = Program.LoadFile("/nonexistent/path.csv", _scouts);
             Assert.Equal(DateTime.MinValue, result);
         }
 
@@ -51,13 +45,13 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Rank,Scout,2016,2023-01-15";
             var path = CreateTempCsv(csv);
 
-            var maxDate = Program.LoadFile(path);
+            var maxDate = Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts);
-            Assert.Equal("John", Program.scouts[0].FirstName);
-            Assert.Equal("Doe", Program.scouts[0].LastName);
-            Assert.True(Program.scouts[0].Scout.Earned);
-            Assert.Equal(new DateTime(2023, 1, 15), Program.scouts[0].Scout.DateEarned);
+            Assert.Single(_scouts);
+            Assert.Equal("John", _scouts[0].FirstName);
+            Assert.Equal("Doe", _scouts[0].LastName);
+            Assert.True(_scouts[0].Scout.Earned);
+            Assert.Equal(new DateTime(2023, 1, 15), _scouts[0].Scout.DateEarned);
         }
 
         [Fact]
@@ -68,7 +62,7 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Rank,Tenderfoot,2016,2023-06-20";
             var path = CreateTempCsv(csv);
 
-            var maxDate = Program.LoadFile(path);
+            var maxDate = Program.LoadFile(path, _scouts);
 
             Assert.Equal(new DateTime(2023, 6, 20), maxDate);
         }
@@ -86,9 +80,9 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Rank,Eagle Scout,2016,2021-11-01";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            var scout = Program.scouts[0];
+            var scout = _scouts[0];
             Assert.True(scout.Scout.Earned);
             Assert.True(scout.Tenderfoot.Earned);
             Assert.True(scout.SecondClass.Earned);
@@ -105,11 +99,11 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Merit Badge,Camping,2016,2023-03-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts[0].MeritBadges);
-            Assert.Equal("Camping", Program.scouts[0].MeritBadges[0].Name);
-            Assert.True(Program.scouts[0].MeritBadges[0].Earned);
+            Assert.Single(_scouts[0].MeritBadges);
+            Assert.Equal("Camping", _scouts[0].MeritBadges[0].Name);
+            Assert.True(_scouts[0].MeritBadges[0].Earned);
         }
 
         [Fact]
@@ -119,12 +113,12 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Merit Badge Requirement,Camping #1a,2016,2023-01-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts[0].MeritBadges);
-            Assert.Equal("Camping", Program.scouts[0].MeritBadges[0].Name);
-            Assert.True(Program.scouts[0].MeritBadges[0].Started);
-            Assert.False(Program.scouts[0].MeritBadges[0].Earned);
+            Assert.Single(_scouts[0].MeritBadges);
+            Assert.Equal("Camping", _scouts[0].MeritBadges[0].Name);
+            Assert.True(_scouts[0].MeritBadges[0].Started);
+            Assert.False(_scouts[0].MeritBadges[0].Earned);
         }
 
         [Fact]
@@ -134,9 +128,9 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Scout Rank Requirement,1a,2016,2023-01-10";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            var req = Program.scouts[0].Scout.Requirements.First(r => r.Name == "1a");
+            var req = _scouts[0].Scout.Requirements.First(r => r.Name == "1a");
             Assert.Equal(new DateTime(2023, 1, 10), req.DateEarned);
         }
 
@@ -152,9 +146,9 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Eagle Scout Rank Requirement,1,2016,2023-06-10";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            var scout = Program.scouts[0];
+            var scout = _scouts[0];
             Assert.Equal(new DateTime(2023, 1, 10), scout.Tenderfoot.Requirements.First(r => r.Name == "1a").DateEarned);
             Assert.Equal(new DateTime(2023, 2, 10), scout.SecondClass.Requirements.First(r => r.Name == "1a").DateEarned);
             Assert.Equal(new DateTime(2023, 3, 10), scout.FirstClass.Requirements.First(r => r.Name == "1a").DateEarned);
@@ -170,11 +164,11 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Award,Eagle Palm Pin #1 (Bronze),2016,2023-01-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts[0].EaglePalms);
-            Assert.Equal(Palm.PalmType.Bronze, Program.scouts[0].EaglePalms[0].Type);
-            Assert.True(Program.scouts[0].EaglePalms[0].Earned);
+            Assert.Single(_scouts[0].EaglePalms);
+            Assert.Equal(Palm.PalmType.Bronze, _scouts[0].EaglePalms[0].Type);
+            Assert.True(_scouts[0].EaglePalms[0].Earned);
         }
 
         [Fact]
@@ -184,10 +178,10 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Award,Eagle Palm Pin #2 (Gold),2016,2023-01-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts[0].EaglePalms);
-            Assert.Equal(Palm.PalmType.Gold, Program.scouts[0].EaglePalms[0].Type);
+            Assert.Single(_scouts[0].EaglePalms);
+            Assert.Equal(Palm.PalmType.Gold, _scouts[0].EaglePalms[0].Type);
         }
 
         [Fact]
@@ -197,10 +191,10 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Award,Eagle Palm Pin #3 (Silver),2016,2023-01-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts[0].EaglePalms);
-            Assert.Equal(Palm.PalmType.Silver, Program.scouts[0].EaglePalms[0].Type);
+            Assert.Single(_scouts[0].EaglePalms);
+            Assert.Equal(Palm.PalmType.Silver, _scouts[0].EaglePalms[0].Type);
         }
 
         [Fact]
@@ -212,9 +206,9 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Award,Eagle Palm Pin #6 (Silver),2016,2023-07-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Equal(3, Program.scouts[0].EaglePalms.Count);
+            Assert.Equal(3, _scouts[0].EaglePalms.Count);
         }
 
         [Fact]
@@ -225,9 +219,9 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Rank,Tenderfoot,2016,2023-06-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Single(Program.scouts);
+            Assert.Single(_scouts);
         }
 
         [Fact]
@@ -238,32 +232,31 @@ namespace advancement_chart.tests
                           "456,Jane,,Smith,Rank,Scout,2016,2023-02-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            Assert.Equal(2, Program.scouts.Count);
+            Assert.Equal(2, _scouts.Count);
         }
 
         [Fact]
         public void LoadPatrolLookup_SetsNicknameAndPatrol()
         {
-            // First create a scout
-            Program.scouts.Add(new TroopMember("123", "John", "", "Doe"));
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
 
             string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
                           "123,Johnny,Hawks,2008-06-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadPatrolLookup(path);
+            Program.LoadPatrolLookup(path, _scouts);
 
-            Assert.Equal("Johnny", Program.scouts[0].NickName);
-            Assert.Equal("Hawks", Program.scouts[0].Patrol);
-            Assert.Equal(new DateTime(2008, 6, 15), Program.scouts[0].DateOfBirth);
+            Assert.Equal("Johnny", _scouts[0].NickName);
+            Assert.Equal("Hawks", _scouts[0].Patrol);
+            Assert.Equal(new DateTime(2008, 6, 15), _scouts[0].DateOfBirth);
         }
 
         [Fact]
         public void LoadPatrolLookup_NonExistentFile_DoesNotThrow()
         {
-            Program.LoadPatrolLookup("/nonexistent/scouts.csv");
+            Program.LoadPatrolLookup("/nonexistent/scouts.csv", _scouts);
             // Should not throw
         }
 
@@ -272,30 +265,30 @@ namespace advancement_chart.tests
         {
             var scout = new TroopMember("123", "John", "", "Doe");
             scout.NickName = "OriginalNick";
-            Program.scouts.Add(scout);
+            _scouts.Add(scout);
 
             string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
                           "123,,Hawks,2008-06-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadPatrolLookup(path);
+            Program.LoadPatrolLookup(path, _scouts);
 
-            Assert.Equal("OriginalNick", Program.scouts[0].NickName);
+            Assert.Equal("OriginalNick", _scouts[0].NickName);
         }
 
         [Fact]
         public void LoadPatrolLookup_EmptyPatrol_DoesNotOverwrite()
         {
             var scout = new TroopMember("123", "John", "", "Doe", "OriginalPatrol");
-            Program.scouts.Add(scout);
+            _scouts.Add(scout);
 
             string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
                           "123,Johnny,,2008-06-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadPatrolLookup(path);
+            Program.LoadPatrolLookup(path, _scouts);
 
-            Assert.Equal("OriginalPatrol", Program.scouts[0].Patrol);
+            Assert.Equal("OriginalPatrol", _scouts[0].Patrol);
         }
 
         [Fact]
@@ -305,22 +298,22 @@ namespace advancement_chart.tests
                           "999,Nobody,Hawks,2008-06-15";
             var path = CreateTempCsv(csv);
 
-            Program.LoadPatrolLookup(path);
+            Program.LoadPatrolLookup(path, _scouts);
             // Should not throw, just skip unknown scouts
         }
 
         [Fact]
         public void LoadPatrolLookup_InvalidDob_DoesNotSet()
         {
-            Program.scouts.Add(new TroopMember("123", "John", "", "Doe"));
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
 
             string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
                           "123,Johnny,Hawks,not-a-date";
             var path = CreateTempCsv(csv);
 
-            Program.LoadPatrolLookup(path);
+            Program.LoadPatrolLookup(path, _scouts);
 
-            Assert.Equal(default(DateTime), Program.scouts[0].DateOfBirth);
+            Assert.Equal(default(DateTime), _scouts[0].DateOfBirth);
         }
 
         [Fact]
@@ -332,9 +325,9 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Award Requirement,Eagle Palm Pin #1 (Bronze) #1,2016,2023-01-10";
             var path = CreateTempCsv(csv);
 
-            Program.LoadFile(path);
+            Program.LoadFile(path, _scouts);
 
-            var palm = Program.scouts[0].EaglePalms.First(p => p.Type == Palm.PalmType.Bronze);
+            var palm = _scouts[0].EaglePalms.First(p => p.Type == Palm.PalmType.Bronze);
             var req = palm.Requirements.First(r => r.Name == "1");
             Assert.Equal(new DateTime(2023, 1, 10), req.DateEarned);
         }
