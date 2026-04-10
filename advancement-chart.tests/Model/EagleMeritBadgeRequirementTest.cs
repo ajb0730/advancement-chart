@@ -20,9 +20,9 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void Constructor_Required14_AfterCutover()
+        public void Constructor_Required14_DuringCitSocietyWindow()
         {
-            // Current date is past July 2022
+            // Required is 14 while Citizenship in Society is active (2022-07-01 to 2026-12-31)
             var rank = CreateRank();
             var req = new EagleMeritBadgeRequirement("3", "desc", rank);
             Assert.Equal(14, req.Required);
@@ -145,11 +145,11 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void Elective_Is7_AfterCutover()
+        public void Elective_Is7_DuringCitSocietyWindow()
         {
             var rank = CreateRank();
             var req = new EagleMeritBadgeRequirement("3", "desc", rank);
-            // Total=21, Required=14, so Elective=7
+            // Total=21, Required=14 during Cit in Society window (2022-07-01 to 2026-12-31), so Elective=7
             Assert.Equal(7, req.Elective);
         }
     }
