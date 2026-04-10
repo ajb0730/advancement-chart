@@ -234,7 +234,7 @@ namespace advancement_chart
                                     break;
                                 case "Award Requirement":
                                     var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
-                                    var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim();
+                                    var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim().TrimEnd('.');
                                     // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
                                     if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
                                     {

@@ -139,7 +139,7 @@ namespace advancementchart.Model
             {"Hiking", "061"},
             {"Home Repairs", "062"},
             {"Horsemanship", "063"},
-            {"Indian Lore", "064"},
+            {"American Indian Culture", "064"},
             {"Insect Study", "065"},
             {"Journalism", "066"},
             {"Landscape Architecture", "067"},

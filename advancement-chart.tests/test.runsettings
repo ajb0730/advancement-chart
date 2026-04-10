@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <PANGOCAIRO_BACKEND>fontconfig</PANGOCAIRO_BACKEND>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>

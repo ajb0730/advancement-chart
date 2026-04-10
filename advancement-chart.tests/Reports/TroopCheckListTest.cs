@@ -9,6 +9,7 @@ using advancement_chart.tests.Helpers;
 
 namespace advancement_chart.tests.Reports
 {
+    [Collection("ReportTests")]
     public class TroopCheckListTest : IDisposable
     {
         private readonly string _tempFile;
