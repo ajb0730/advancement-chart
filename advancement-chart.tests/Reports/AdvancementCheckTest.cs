@@ -8,6 +8,7 @@ using advancement_chart.tests.Helpers;
 
 namespace advancement_chart.tests.Reports
 {
+    [Collection("ReportTests")]
     public class AdvancementCheckTest
     {
         private string CaptureStdErr(Action action)

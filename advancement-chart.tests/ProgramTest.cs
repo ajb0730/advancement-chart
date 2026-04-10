@@ -9,6 +9,7 @@ using advancement_chart;
 
 namespace advancement_chart.tests
 {
+    [Collection("ReportTests")]
     public class ProgramTest : IDisposable
     {
         private readonly List<string> _tempFiles = new List<string>();

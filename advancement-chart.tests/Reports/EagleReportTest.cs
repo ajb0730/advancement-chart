@@ -10,6 +10,7 @@ using advancement_chart.tests.Helpers;
 
 namespace advancement_chart.tests.Reports
 {
+    [Collection("ReportTests")]
     public class EagleReportTest : IDisposable
     {
         private readonly string _tempFile;
