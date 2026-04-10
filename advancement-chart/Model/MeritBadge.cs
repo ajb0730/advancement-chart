@@ -66,7 +66,8 @@ namespace advancementchart.Model
                 "Hiking",
                 "Cycling"
             };
-            if (DateTime.Now >= EagleMeritBadgeRequirement.CitSocietyCutover)
+            if (DateTime.Now >= EagleMeritBadgeRequirement.CitSocietyCutover
+                && DateTime.Now <= EagleMeritBadgeRequirement.CitSocietyEnd)
             {
                 eagleRequired.Add("Citizenship in Society");
             }
@@ -235,7 +236,11 @@ namespace advancementchart.Model
             {"Animation", "158"},
             {"Exploration", "159"},
             {"Citizenship in Society", "160"},
-            {"Healthcare Professions", "161"}
+            {"Healthcare Professions", "161"},
+            {"Automotive Maintenance", "162"},
+            {"Multisport", "163"},
+            {"Artificial Intelligence", "164"},
+            {"Cybersecurity", "165"}
         };
 
         protected MeritBadge()
