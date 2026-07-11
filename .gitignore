@@ -9,6 +9,16 @@
 packages/
 TestResults/
 
+# Scoutbook data exports and generated reports (contain PII — never commit)
+utils/Troop*_scouts.csv
+utils/Troop*_Advancement_*.csv
+utils/birthdates.csv
+utils/birthdates.csv.bak
+utils/scouts.csv
+utils/scouts-merged.csv
+utils/advancement.csv
+**/AdvancementReport.docx
+
 # globs
 Makefile.in
 *.DS_Store

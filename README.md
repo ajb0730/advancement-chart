@@ -2,8 +2,9 @@
 
 This code will read the Advancement Backup/Export from
 [Scoutbook](https://www.scoutbook.com) and generate an Excel-based advancement
-poster, as well as an Individual Advancement program for each Scout under First
-Class and a Trail to Eagle report for each Scout at or over First Class.
+poster, an Individual Advancement program for each Scout under First Class, a
+Trail to Eagle report for each Scout at or over First Class, a Troop Guide
+report, a printable Troop check list, and a Word-based Advancement report.
 
 ## INSTALLATION
 
@@ -18,14 +19,23 @@ Class and a Trail to Eagle report for each Scout at or over First Class.
 1. As an Admin user of a Scouts BSA Troop on
 [Scoutbook](https://www.scoutbook.com), navigate to the Troop page and click on
 the `Export/Backup` link.
-1. Choose `Scouts` and download the `.csv` file to your computer.  Rename this
-file to `scouts.csv`. This "Scouts" file only needs to be re-downloaded when
-names or patrols change, or when a Scout joins or leaves the Troop.
+1. Choose `Scouts` and download the `.csv` file to your computer. Scoutbook
+names this file after your unit, e.g. `Troop_0201_F_scouts.csv`. This "Scouts"
+file only needs to be re-downloaded when names or patrols change, or when a
+Scout joins or leaves the Troop.
 1. Also on the `Export/Backup` link, choose `Scout Advancement` and download
-that `troop_#####__advancement.csv` file to your computer.
-1. With the `scouts.csv` and the `troop_#####__advancement.csv` files in the same
-directory, run the `advancement-chart` program: `dotnet /path/to/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll troop_#####__advancement.csv`.
-1. This will create the following files:
+that file to your computer. Scoutbook names it after your unit and the export
+date, e.g. `Troop0201F_Advancement_20260711.csv`.
+1. These two exports do **not** contain dates of birth, which the Eagle report
+needs to calculate merit-badge deadlines. Dates of birth are maintained
+separately in `birthdates.csv` (see [below](#generating-the-reports-with-the-utils-makefile)).
+1. The exports also cannot be fed to the program directly: their header rows
+contain spaces after each comma, dates are in `MM/DD/YYYY` format, and the
+program expects a normalized `advancement.csv` alongside a `scouts.csv` that has
+had the dates of birth merged in. The `utils/Makefile` performs all of this
+normalization and merging for you and is the recommended way to run the program;
+see [below](#generating-the-reports-with-the-utils-makefile).
+1. Running the program produces the following files:
    1. TroopAdvancementChart.xlsx - this is an Excel workbook with three
    worksheets:
       1. `Troop Advancement` shows rank advancement up to, and including First
@@ -40,9 +50,13 @@ directory, run the `advancement-chart` program: `dotnet /path/to/advancement-cha
    Scout at or above First Class. It shows what merit badges the Scout needs,
    and for the longer badges, the last date the Scout may begin that badge
    (based on birthdate).
+   1. TroopGuideReport.xlsx - this is an Excel workbook that summarizes each
+   Scout's progress through the Troop Guide curriculum groups.
    1. TroopCheckList.xlsx - this is a landscape Excel workbook listing Scouts
    by Patrol (alphabetically), with empty checkbox columns for use as a
    printable attendance or activity checklist.
+   1. AdvancementReport.docx - this is a Word document summarizing the
+   advancement earned since the most recent completion date in the export.
 
 ## TIPS
 
@@ -91,52 +105,40 @@ Don't forget to set that script as executable: `chmod 755 /usr/local/sbin/advanc
 Now you should be able to run the program as just `advancement-chart`, without
 the extra `dotnet /path/to/advancement-chart...` stuff.
 
-### Showing multiple Scouts BSA Troops on the same Advancement chart
+### Generating the reports with the utils Makefile
 
-Why? Our Boy and Girl Troops are closely linked (and thus competitive with each
-other), so we want Scouts from both Troops to be on one chart.
+The recommended workflow is the `Makefile` in the [`utils/`](utils/) directory.
+It normalizes the raw Scoutbook exports (stripping the spaces the exports put
+around header commas), merges in dates of birth, runs the program, and copies
+the resulting reports to `~/Dropbox/Scouts/Troop Committee/`.
 
-You will need to combine the files from two (or more) Troops into a single file.
-This is fairly easy, the only trick is you will need to remove the first line of
-the second (and third, etc) file.
+1. Download the two Scoutbook exports as described under
+[RUNNING](#running) and place them in `utils/`. By default the Makefile expects
+`Troop_0201_F_scouts.csv` (the Scouts export) and a
+`Troop0201F_Advancement_*.csv` (the Scout Advancement export). Edit the
+filenames at the top of the recipes if your unit's exports are named
+differently.
+1. Maintain dates of birth in `birthdates.csv`. Scoutbook does not export them,
+so they are kept here. Running `make birthdates.csv` (re)builds the roster from
+the current Scouts export while preserving any dates of birth you have already
+entered — new Scouts are added with a blank `DOB` for you to fill in. The Eagle
+report's deadline calculations will be incorrect for any Scout whose `DOB` is
+blank.
+1. Run `make` (or `make all`) to build every report. Intermediate files
+(`scouts-merged.csv`, `scouts.csv`, and `advancement.csv`) are produced along
+the way.
 
-1. Follow the usual steps to download the `troop_A__scouts.csv` and
-`troop_B__scouts.csv` files (one for each Troop).
-1. Take the first line from one of the files (arbitrarily choosing "A" in this
-example): `head -n 1 troop_A__scouts.csv > scouts.csv` (this assumes you're
-in a Terminal on MacOS, or similar environment).
-1. Then take all-but-the-first lines from all of the files: `tail -q -n +2
-troop_A__scouts.csv troop_B__scouts.csv >> scouts.csv`. Notice the use
-of `> scouts.csv` for the first line, and `>> scouts.csv` for all-but-the-first.
-1. Repeat these steps for the `troop_#####__advancement.csv` files.
+Useful targets:
 
-### Using a Makefile
+- `make` / `make all` - build all reports and copy them to Dropbox.
+- `make clean` - remove `advancement.csv` and the advancement export.
+- `make reallyclean` - also remove `scouts.csv`, `scouts-merged.csv`, and the
+  Scouts export.
+- `make superclean` - also remove `birthdates.csv` (this discards your dates of
+  birth — use with care).
 
-If you know what a Makefile is, the following may be helpful:
-
-```make
-TROOPA=###_B
-TROOPB=###_G
-
-all: IndividualReport.xlsx TroopAdvancementChart.xlsx EagleReport.xlsx
-	cp $^ ~/Dropbox/Scouts/Troop\ Committee/
-	touch $@
-
-consolidated.csv: troop_${TROOPA}__advancement.csv troop_${TROOPB}__advancement.csv
-	(head -n 1 $<; tail -q -n +2 $^) > $@	
-
-scouts.csv: troop_${TROOPA}__scouts.csv troop_${TROOPB}__scouts.csv
-	(head -n 1 $<; tail -q -n +2 $^) > $@	
-
-IndividualReport.xlsx TroopAdvancementChart.xlsx EagleReport.xlsx: consolidated.csv scouts.csv
-	advancement-chart $^
-
-clean:
-	rm -f scouts.csv consolidated.csv all troop_${TROOPA}__advancement.csv troop_${TROOPB}__advancement.csv
-
-reallyclean: clean
-	rm -f troop_${TROOPA}__scouts.csv troop_${TROOPB}_scouts.csv
-```
+The raw Scoutbook exports and generated reports contain personally identifiable
+information and are excluded from version control via `.gitignore`.
 
 ## AUTHOR
 
