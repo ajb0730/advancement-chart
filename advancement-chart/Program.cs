@@ -144,137 +144,135 @@ namespace advancement_chart
                             Console.WriteLine($"Adding record for {firstName} {lastName}.");
                         }
 
-                        string type = csvReader.GetField("Advancement Type");
-                        string subtype = csvReader.GetField("Advancement");
-                        string version = csvReader.GetField("Version");
-                        DateTime date = csvReader.GetField<DateTime>("Date Completed");
+                        string type = csvReader.GetField("Advancement Type")?.Trim();
+                        string subtype = csvReader.GetField("Advancement")?.Trim();
+                        string version = csvReader.GetField("Version")?.Trim();
+                        // Rows without a parseable completion date carry no advancement signal we
+                        // can use (and would otherwise throw); skip them rather than crash the load.
+                        if (!csvReader.TryGetField<DateTime>("Date Completed", out DateTime date))
+                        {
+                            continue;
+                        }
                         result = date > result ? date : result;
                         try
                         {
-                            switch (type)
+                            if (type == "Rank")
                             {
-                                case "Rank":
-                                    switch (subtype)
-                                    {
-                                        case "Scout":
-                                            scout.Scout.DateEarned = date;
-                                            break;
-                                        case "Tenderfoot":
-                                            scout.Tenderfoot.DateEarned = date;
-                                            break;
-                                        case "Second Class":
-                                            scout.SecondClass.DateEarned = date;
-                                            break;
-                                        case "First Class":
-                                            scout.FirstClass.DateEarned = date;
-                                            break;
-                                        case "Star Scout":
-                                            scout.Star.DateEarned = date;
-                                            break;
-                                        case "Life Scout":
-                                            scout.Life.DateEarned = date;
-                                            break;
-                                        case "Eagle Scout":
-                                            scout.Eagle.DateEarned = date;
-                                            break;
-                                    }
-                                    break;
-                                case "Award":
-                                    switch (subtype)
+                                // New exports suffix the rank name with " Rank" (e.g. "Scout Rank");
+                                // older exports used the bare name ("Scout"). Cub ranks (Bobcat,
+                                // Tiger, ...) resolve to null and are ignored.
+                                Rank rank = GetRankByName(scout, StripSuffix(subtype, " Rank"));
+                                if (rank != null)
+                                {
+                                    rank.DateEarned = date;
+                                }
+                            }
+                            else if (type == "Merit Badge" || type == "Merit Badges")
+                            {
+                                // New exports suffix the badge name with " MB" and replace commas in
+                                // the name with semicolons (e.g. "Signs; Signals; and Codes MB").
+                                var badgeName = StripSuffix(subtype, " MB").Replace("; ", ", ");
+                                MeritBadge badge = new MeritBadge(name: badgeName, description: version, earned: date);
+                                scout.Add(badge);
+                            }
+                            else if (type == "Award" || type == "Awards")
+                            {
+                                switch (subtype)
+                                {
+                                    case "Eagle Palm Pin #1 (Bronze)":
+                                    case "Eagle Palm Pin #4 (Bronze)":
+                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Bronze, date));
+                                        break;
+                                    case "Eagle Palm Pin #2 (Gold)":
+                                    case "Eagle Palm Pin #5 (Gold)":
+                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Gold, date));
+                                        break;
+                                    case "Eagle Palm Pin #3 (Silver)":
+                                    case "Eagle Palm Pin #6 (Silver)":
+                                        scout.EaglePalms.Add(new Palm(Palm.PalmType.Silver, date));
+                                        break;
+                                }
+                            }
+                            else if (type.EndsWith("Rank Requirement") || type.EndsWith("Rank Requirements"))
+                            {
+                                // New exports move the rank name into the type column and pluralize
+                                // the suffix, e.g. "First Class Rank Requirements" with the
+                                // requirement number ("1a") in the Advancement column. Legacy exports
+                                // used the singular "First Class Rank Requirement". Cub-rank
+                                // requirement rows resolve to a null rank and are ignored.
+                                var rankName = StripSuffix(StripSuffix(type, "Requirements"), "Requirement");
+                                rankName = StripSuffix(rankName, "Rank");
+                                Rank rank = GetRankByName(scout, rankName);
+                                if (rank != null && !string.IsNullOrWhiteSpace(subtype)
+                                    && rank.Requirements.Any(req => req.Name == subtype))
+                                {
+                                    rank.Requirements.First(req => req.Name == subtype).DateEarned = date;
+                                }
+                            }
+                            else if (type == "Merit Badge Requirement")
+                            {
+                                // Legacy format: badge name and requirement number share the
+                                // Advancement column, e.g. "Camping #1a".
+                                var badgeName = subtype.Substring(0, subtype.IndexOf("#") - 1).Trim();
+                                scout.AddPartial(badgeName, version);
+                            }
+                            else if (type.EndsWith("Merit Badge Requirements"))
+                            {
+                                // New format: the badge name lives in the type column and keeps its
+                                // real commas ("Signs, Signals, and Codes Merit Badge Requirements"),
+                                // while the requirement number is in the Advancement column. We only
+                                // need the badge name to mark the badge as started.
+                                var badgeName = StripSuffix(type, "Merit Badge Requirements");
+                                scout.AddPartial(badgeName, version);
+                            }
+                            else if (type == "Award Requirement")
+                            {
+                                // Legacy palm-requirement format: "Eagle Palm Pin #1 (Bronze) #1".
+                                var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
+                                var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim().TrimEnd('.');
+                                // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
+                                if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
+                                {
+                                    Palm palm = null;
+                                    switch (palmName)
                                     {
                                         case "Eagle Palm Pin #1 (Bronze)":
-                                        case "Eagle Palm Pin #4 (Bronze)":
-                                            scout.EaglePalms.Add(new Palm(Palm.PalmType.Bronze, date));
+                                            palm = scout.GetNthPalm(Palm.PalmType.Bronze, 1);
                                             break;
                                         case "Eagle Palm Pin #2 (Gold)":
-                                        case "Eagle Palm Pin #5 (Gold)":
-                                            scout.EaglePalms.Add(new Palm(Palm.PalmType.Gold, date));
+                                            palm = scout.GetNthPalm(Palm.PalmType.Gold, 1);
                                             break;
                                         case "Eagle Palm Pin #3 (Silver)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Silver, 1);
+                                            break;
+                                        case "Eagle Palm Pin #4 (Bronze)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Bronze, 2);
+                                            break;
+                                        case "Eagle Palm Pin #5 (Gold)":
+                                            palm = scout.GetNthPalm(Palm.PalmType.Gold, 2);
+                                            break;
                                         case "Eagle Palm Pin #6 (Silver)":
-                                            scout.EaglePalms.Add(new Palm(Palm.PalmType.Silver, date));
+                                            palm = scout.GetNthPalm(Palm.PalmType.Silver, 2);
                                             break;
                                     }
-                                    break;
-                                case "Merit Badge":
-                                    MeritBadge badge = new MeritBadge(name: subtype, description: version, earned: date);
-                                    scout.Add(badge);
-                                    break;
-                                case "Scout Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Scout.Requirements.Any(req => req.Name == subtype))
-                                        scout.Scout.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "Tenderfoot Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Tenderfoot.Requirements.Any(req => req.Name == subtype))
-                                        scout.Tenderfoot.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "Second Class Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.SecondClass.Requirements.Any(req => req.Name == subtype))
-                                        scout.SecondClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "First Class Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.FirstClass.Requirements.Any(req => req.Name == subtype))
-                                        scout.FirstClass.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "Star Scout Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Star.Requirements.Any(req => req.Name == subtype))
-                                        scout.Star.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "Life Scout Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Life.Requirements.Any(req => req.Name == subtype))
-                                        scout.Life.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "Eagle Scout Rank Requirement":
-                                    if (!string.IsNullOrWhiteSpace(subtype) && scout.Eagle.Requirements.Any(req => req.Name == subtype))
-                                        scout.Eagle.Requirements.First(req => req.Name == subtype).DateEarned = date;
-                                    break;
-                                case "Merit Badge Requirement":
-                                    var badgeName = subtype.Substring(0, subtype.IndexOf("#") - 1).Trim();
-                                    scout.AddPartial(badgeName, version);
-                                    break;
-                                case "Award Requirement":
-                                    var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
-                                    var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim().TrimEnd('.');
-                                    // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
-                                    if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
+                                    if (null != palm)
                                     {
-                                        Palm palm = null;
-                                        switch (palmName)
+                                        var req = palm.Requirements.FirstOrDefault(x => x.Name == requirementNumber);
+                                        if (req != null)
                                         {
-                                            case "Eagle Palm Pin #1 (Bronze)":
-                                                palm = scout.GetNthPalm(Palm.PalmType.Bronze, 1);
-                                                break;
-                                            case "Eagle Palm Pin #2 (Gold)":
-                                                palm = scout.GetNthPalm(Palm.PalmType.Gold, 1);
-                                                break;
-                                            case "Eagle Palm Pin #3 (Silver)":
-                                                palm = scout.GetNthPalm(Palm.PalmType.Silver, 1);
-                                                break;
-                                            case "Eagle Palm Pin #4 (Bronze)":
-                                                palm = scout.GetNthPalm(Palm.PalmType.Bronze, 2);
-                                                break;
-                                            case "Eagle Palm Pin #5 (Gold)":
-                                                palm = scout.GetNthPalm(Palm.PalmType.Gold, 2);
-                                                break;
-                                            case "Eagle Palm Pin #6 (Silver)":
-                                                palm = scout.GetNthPalm(Palm.PalmType.Silver, 2);
-                                                break;
+                                            req.DateEarned = date;
                                         }
-                                        if (null != palm)
+                                        else
                                         {
-                                            var req = palm.Requirements.FirstOrDefault(x => x.Name == requirementNumber);
-                                            if (req != null)
-                                            {
-                                                req.DateEarned = date;
-                                            }
-                                            else
-                                            {
-                                                warnings.Add($"Unknown requirement '{requirementNumber}' for '{palmName}'");
-                                            }
+                                            warnings.Add($"Unknown requirement '{requirementNumber}' for '{palmName}'");
                                         }
                                     }
-                                    break;
+                                }
                             }
+                            // New-format "<Award> Award Requirements" rows carry the requirement as
+                            // descriptive text rather than a number, and palms are only tracked once
+                            // earned (via "Awards" rows); there is nothing to attach, so those rows
+                            // are intentionally ignored.
                         }
                         catch (FormatException e)
                         {
@@ -298,6 +296,49 @@ namespace advancement_chart
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Removes a trailing token from a value (case-sensitive) and trims trailing
+        /// whitespace, returning the value unchanged if the suffix is absent. Used to
+        /// normalize the pluralized/suffixed labels in newer Scoutbook exports
+        /// (e.g. "Scout Rank" -> "Scout", "Camping MB" -> "Camping").
+        /// </summary>
+        internal static string StripSuffix(string value, string suffix)
+        {
+            if (!string.IsNullOrEmpty(value) && value.EndsWith(suffix))
+            {
+                return value.Substring(0, value.Length - suffix.Length).TrimEnd();
+            }
+            return value?.Trim();
+        }
+
+        /// <summary>
+        /// Maps a rank display name to the corresponding <see cref="Rank"/> on the scout.
+        /// Returns null for names that are not Scouts BSA ranks (e.g. Cub Scout ranks),
+        /// so their rows are ignored.
+        /// </summary>
+        internal static Rank GetRankByName(TroopMember scout, string rankName)
+        {
+            switch (rankName)
+            {
+                case "Scout":
+                    return scout.Scout;
+                case "Tenderfoot":
+                    return scout.Tenderfoot;
+                case "Second Class":
+                    return scout.SecondClass;
+                case "First Class":
+                    return scout.FirstClass;
+                case "Star Scout":
+                    return scout.Star;
+                case "Life Scout":
+                    return scout.Life;
+                case "Eagle Scout":
+                    return scout.Eagle;
+                default:
+                    return null;
+            }
         }
     }
 }

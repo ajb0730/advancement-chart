@@ -8,7 +8,7 @@ scouts.csv : scouts-merged.csv birthdates.csv
 	head -n 1 scouts-merged.csv | tr -d '\r' | awk '{ printf("%s,\"DOB\"\n", $$0); }' > $@
 	tail -n +2 scouts-merged.csv | tr -d '\r' | awk 'NF' | sort -t, -k 2 > one
 	tail -n +2 birthdates.csv | tr -d '\r' | awk 'NF' | sort -t, -k 1 > two
-	join -t, -1 2 -2 1 -o '1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,1.10,1.11,1.12,1.13,1.14,1.15,1.16,1.17,1.18,1.19,1.20,1.21,2.4' one two >> $@
+	join -t, -a 1 -e '' -1 2 -2 1 -o '1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,1.10,1.11,1.12,1.13,1.14,1.15,1.16,1.17,1.18,1.19,1.20,1.21,2.4' one two >> $@
 	rm -f one two
 
 birthdates.csv : scouts-merged.csv
