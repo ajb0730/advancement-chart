@@ -77,6 +77,8 @@ namespace advancement_chart
                     csvReader.ReadHeader();
 
                     int memberIdIndex = csvReader.GetFieldIndex(name: "BSA Member ID");
+                    int firstNameIndex = csvReader.GetFieldIndex(name: "First Name", isTryGet: true);
+                    int lastNameIndex = csvReader.GetFieldIndex(name: "Last Name", isTryGet: true);
                     int nicknameIndex = csvReader.GetFieldIndex(name: "Nickname");
                     int patrolNameIndex = csvReader.GetFieldIndex(name: "Patrol Name");
                     int dobIndex = csvReader.GetFieldIndex(name: "DOB");
@@ -84,31 +86,44 @@ namespace advancement_chart
                     while (csvReader.Read())
                     {
                         string id = csvReader.GetField(memberIdIndex);
-                        TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
-                        if (scout != null)
+                        if (string.IsNullOrWhiteSpace(id))
                         {
-                            string nickname = csvReader.GetField(nicknameIndex);
-                            if (!string.IsNullOrWhiteSpace(nickname))
+                            // Skip blank/placeholder roster rows (e.g. an empty line).
+                            continue;
+                        }
+                        TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
+                        if (scout == null)
+                        {
+                            // Seed scouts who are on the roster but have no advancement
+                            // records, so every registered scout still appears in the reports.
+                            string firstName = firstNameIndex >= 0 ? csvReader.GetField(firstNameIndex) : "";
+                            string lastName = lastNameIndex >= 0 ? csvReader.GetField(lastNameIndex) : "";
+                            scout = new TroopMember(memberId: id, firstName: firstName, middleName: "", lastName: lastName);
+                            scouts.Add(scout);
+                            Console.WriteLine($"Adding roster-only record for {firstName} {lastName}.");
+                        }
+
+                        string nickname = csvReader.GetField(nicknameIndex);
+                        if (!string.IsNullOrWhiteSpace(nickname))
+                        {
+                            scout.NickName = nickname;
+                        }
+                        string patrol = csvReader.GetField(patrolNameIndex);
+                        if (!string.IsNullOrWhiteSpace(patrol))
+                        {
+                            scout.Patrol = patrol;
+                        }
+                        string dob = csvReader.GetField(dobIndex);
+                        if (!string.IsNullOrWhiteSpace(dob))
+                        {
+                            DateTime dobDate;
+                            if (DateTime.TryParse(dob, out dobDate))
                             {
-                                scout.NickName = nickname;
-                            }
-                            string patrol = csvReader.GetField(patrolNameIndex);
-                            if (!string.IsNullOrWhiteSpace(patrol))
-                            {
-                                scout.Patrol = patrol;
-                            }
-                            string dob = csvReader.GetField(dobIndex);
-                            if (!string.IsNullOrWhiteSpace(dob))
-                            {
-                                DateTime dobDate;
-                                if (DateTime.TryParse(dob, out dobDate))
+                                if (dobDate.Year < 1990 || dobDate > DateTime.Now)
                                 {
-                                    if (dobDate.Year < 1990 || dobDate > DateTime.Now)
-                                    {
-                                        Console.Error.WriteLine($"WARNING: Suspicious DOB '{dob}' for {scout.DisplayName}");
-                                    }
-                                    scout.DateOfBirth = dobDate;
+                                    Console.Error.WriteLine($"WARNING: Suspicious DOB '{dob}' for {scout.DisplayName}");
                                 }
+                                scout.DateOfBirth = dobDate;
                             }
                         }
                     }

@@ -293,14 +293,68 @@ namespace advancement_chart.tests
         }
 
         [Fact]
-        public void LoadPatrolLookup_UnknownScout_Ignored()
+        public void LoadPatrolLookup_RosterScoutNotInAdvancement_IsSeeded()
         {
-            string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
-                          "999,Nobody,Hawks,2008-06-15";
+            // A scout on the roster but with no advancement records must still be
+            // added (seeded), otherwise they would never appear in any report.
+            string csv = "BSA Member ID,First Name,Last Name,Nickname,Patrol Name,DOB\n" +
+                          "999,Diana,Wilson,,Hawks,2010-06-15";
             var path = CreateTempCsv(csv);
 
             Program.LoadPatrolLookup(path, _scouts);
-            // Should not throw, just skip unknown scouts
+
+            Assert.Single(_scouts);
+            Assert.Equal("999", _scouts[0].BsaMemberId);
+            Assert.Equal("Diana", _scouts[0].FirstName);
+            Assert.Equal("Wilson", _scouts[0].LastName);
+            Assert.Equal("Hawks", _scouts[0].Patrol);
+            Assert.Equal(new DateTime(2010, 6, 15), _scouts[0].DateOfBirth);
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_SeededScout_WithoutPatrol_DefaultsToUnassigned()
+        {
+            // A seeded scout with no patrol on the roster keeps the constructor's
+            // "Unassigned" default rather than an empty patrol.
+            string csv = "BSA Member ID,First Name,Last Name,Nickname,Patrol Name,DOB\n" +
+                          "999,Diana,Wilson,,,";
+            var path = CreateTempCsv(csv);
+
+            Program.LoadPatrolLookup(path, _scouts);
+
+            Assert.Single(_scouts);
+            Assert.Equal("Unassigned", _scouts[0].Patrol);
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_BlankMemberId_IsSkipped()
+        {
+            // Placeholder/blank roster rows (no member ID) must not create scouts.
+            string csv = "BSA Member ID,First Name,Last Name,Nickname,Patrol Name,DOB\n" +
+                          ",,,,,";
+            var path = CreateTempCsv(csv);
+
+            Program.LoadPatrolLookup(path, _scouts);
+
+            Assert.Empty(_scouts);
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_ExistingScout_NotDuplicatedBySeeding()
+        {
+            // A scout already loaded from advancement must be enriched, not duplicated,
+            // when the same member ID appears on the roster.
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
+
+            string csv = "BSA Member ID,First Name,Last Name,Nickname,Patrol Name,DOB\n" +
+                          "123,John,Doe,Johnny,Hawks,2008-06-15";
+            var path = CreateTempCsv(csv);
+
+            Program.LoadPatrolLookup(path, _scouts);
+
+            Assert.Single(_scouts);
+            Assert.Equal("Johnny", _scouts[0].NickName);
+            Assert.Equal("Hawks", _scouts[0].Patrol);
         }
 
         [Fact]
