@@ -6,7 +6,7 @@ namespace advancementchart.Model.Ranks
     public class SecondClass : Rank
     {
         public SecondClass(DateTime? earned = null)
-            : base(name: "Second Class", description: "", earned: earned, version: "2016")
+            : base(name: "Second Class", description: "", earned: earned)
         {
             Requirements.Add(new RankRequirement(name: "1a", description: "Participate in five outdoor activities since joining", rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "1b", description: "Explain Leave No Trace", rank: this, handbookPages: "224-234", curriculumGroup: CurriculumGroup.OutdoorEthics));

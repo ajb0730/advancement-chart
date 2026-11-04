@@ -40,11 +40,11 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void Rank_SetsNameAndVersion()
+        public void Rank_SetsNameAndDescription()
         {
-            var rank = new Rank("Scout", "desc", version: "2016");
+            var rank = new Rank("Scout", "desc");
             Assert.Equal("Scout", rank.Name);
-            Assert.Equal("2016", rank.Version);
+            Assert.Equal("desc", rank.Description);
         }
 
         [Fact]

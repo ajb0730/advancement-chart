@@ -6,7 +6,7 @@ namespace advancementchart.Model.Ranks
     public class Scout : Rank
     {
         public Scout(DateTime? earned = null)
-            : base(name: "Scout", description: "", earned: earned, version: "2016")
+            : base(name: "Scout", description: "", earned: earned)
         {
             Requirements.Add(new RankRequirement(name: "1a", description: "Repeat from memory and explain: Scout Oath, Law, Motto, Slogan", rank: this, handbookPages: "11-18", curriculumGroup: CurriculumGroup.FormingThePatrol));
             Requirements.Add(new RankRequirement(name: "1b", description: "Explain Scout spirit", rank: this, handbookPages: "15", curriculumGroup: CurriculumGroup.FormingThePatrol));

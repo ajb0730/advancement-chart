@@ -12,7 +12,7 @@ namespace advancementchart.Model.Ranks
         public enum PalmType { None, Bronze, Gold, Silver }
 
         public Palm(PalmType type, DateTime? earned = null)
-            : base(name: $"{Enum.GetName(typeof(PalmType), type)} Palm", description: "", earned: earned, version: "2016")
+            : base(name: $"{Enum.GetName(typeof(PalmType), type)} Palm", description: "", earned: earned)
         {
             if (type == PalmType.None)
             {

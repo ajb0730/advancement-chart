@@ -20,13 +20,6 @@ namespace advancement_chart.tests.Model.Ranks
         }
 
         [Fact]
-        public void Version_Is2016()
-        {
-            var rank = new NoRank();
-            Assert.Equal("2016", rank.Version);
-        }
-
-        [Fact]
         public void Requirements_Empty()
         {
             var rank = new NoRank();

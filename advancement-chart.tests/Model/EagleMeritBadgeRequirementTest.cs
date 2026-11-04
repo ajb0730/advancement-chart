@@ -8,7 +8,7 @@ namespace advancement_chart.tests.Model
     {
         private Rank CreateRank()
         {
-            return new Rank("Eagle", "", version: "2016");
+            return new Rank("Eagle", "");
         }
 
         [Fact]

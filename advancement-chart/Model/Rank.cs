@@ -4,14 +4,14 @@ using System.Drawing;
 
 namespace advancementchart.Model
 {
-    public class Rank : VersionedEntity
+    public class Rank : BaseEntity
     {
         protected Rank()
             : base()
         { }
 
-        public Rank(string name, string description, DateTime? earned = null, string version = "2016")
-            : base(name,description,version)
+        public Rank(string name, string description, DateTime? earned = null)
+            : base(name, description)
         {
             DateEarned = earned;
             Requirements = new List<RankRequirement>();

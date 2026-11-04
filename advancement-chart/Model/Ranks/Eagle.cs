@@ -11,7 +11,7 @@ namespace advancementchart.Model.Ranks
         { }
 
         public Eagle(DateTime? earned = null)
-            : base(name: "Eagle", description: "", earned: earned, version: "2016")
+            : base(name: "Eagle", description: "", earned: earned)
         {
             Requirements.Add(new RankRequirement(name: "1", description: "Be active 6 months since earning Life Scout", rank: this, handbookPages: "", timeRequirementMonths: 6));
             Requirements.Add(new RankRequirement(name: "2", description: "Demonstrate Scout spirit while Life Scout", rank: this, handbookPages: ""));

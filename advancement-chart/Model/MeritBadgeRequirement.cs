@@ -12,8 +12,8 @@ namespace advancementchart.Model
             MeritBadges = new List<MeritBadge>();
         }
 
-        public MeritBadgeRequirement(string name, string description, Rank rank, int required, int total, string version = "2016", string handbookPages = "", DateTime? earned = null)
-            : base(name, description, rank, version, handbookPages, earned, null)
+        public MeritBadgeRequirement(string name, string description, Rank rank, int required, int total, string handbookPages = "", DateTime? earned = null)
+            : base(name, description, rank, handbookPages, earned, null)
         {
             if (total <= 0)
             {
