@@ -24,8 +24,84 @@ namespace advancement_chart
         }
     }
 
+    /// <summary>
+    /// Invalid command-line usage.
+    /// </summary>
+    internal class UsageException : Exception
+    {
+        public UsageException(string message) : base(message)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Parsed command-line options.
+    /// </summary>
+    internal class Options
+    {
+        public string PatrolFile { get; set; } = "./scouts.csv";
+        public bool PatrolFileSpecified { get; set; }
+        public string OutputDir { get; set; } = ".";
+        public List<string> InputFiles { get; } = new List<string>();
+        public bool ShowHelp { get; set; }
+    }
+
     class Program
     {
+        internal const string Usage =
+            "USAGE: advancement-chart [--patrol FILE] [--output-dir DIR] advancement.csv [advancement2.csv ...]\n" +
+            "  --patrol FILE      patrol lookup file with DOBs (default: ./scouts.csv)\n" +
+            "  --output-dir DIR   directory to write reports to (default: current directory)";
+
+        /// <summary>
+        /// Parses command-line arguments. Throws <see cref="UsageException"/> for unknown options,
+        /// options missing their value, or no input files.
+        /// </summary>
+        internal static Options ParseArgs(string[] args)
+        {
+            var options = new Options();
+            for (int i = 0; i < args.Length; i++)
+            {
+                string arg = args[i];
+                switch (arg)
+                {
+                    case "-h":
+                    case "--help":
+                        options.ShowHelp = true;
+                        break;
+                    case "--patrol":
+                    case "--output-dir":
+                        if (i + 1 >= args.Length)
+                        {
+                            throw new UsageException($"Option {arg} requires a value");
+                        }
+                        string value = args[++i];
+                        if (arg == "--patrol")
+                        {
+                            options.PatrolFile = value;
+                            options.PatrolFileSpecified = true;
+                        }
+                        else
+                        {
+                            options.OutputDir = value;
+                        }
+                        break;
+                    default:
+                        if (arg.StartsWith("--"))
+                        {
+                            throw new UsageException($"Unknown option {arg}");
+                        }
+                        options.InputFiles.Add(arg);
+                        break;
+                }
+            }
+            if (!options.ShowHelp && options.InputFiles.Count == 0)
+            {
+                throw new UsageException("No advancement input file given");
+            }
+            return options;
+        }
+
         static int Main(string[] args)
         {
             return Execute(args);
@@ -43,13 +119,26 @@ namespace advancement_chart
                 Console.Error.WriteLine($"ERROR: {e.Message}");
                 return 1;
             }
+            catch (UsageException e)
+            {
+                Console.Error.WriteLine($"ERROR: {e.Message}");
+                Console.Error.WriteLine(Usage);
+                return 2;
+            }
         }
 
         private static void Run(string[] args)
         {
+            var options = ParseArgs(args);
+            if (options.ShowHelp)
+            {
+                Console.WriteLine(Usage);
+                return;
+            }
+
             var scouts = new List<TroopMember>();
             DateTime maxDate = DateTime.MinValue;
-            foreach (string arg in args)
+            foreach (string arg in options.InputFiles)
             {
                 var fileMaxDate = LoadFile(arg, scouts);
                 maxDate = fileMaxDate > maxDate ? fileMaxDate : maxDate;
@@ -58,33 +147,38 @@ namespace advancement_chart
             // Download the "Scout" backup report from Scoutbook and rename
             // the file "scouts.csv"
             //
-            var patrolFile = "./scouts.csv";
+            var patrolFile = options.PatrolFile;
+            if (options.PatrolFileSpecified && !File.Exists(patrolFile))
+            {
+                throw new InputFileException($"Patrol lookup file not found: {patrolFile}");
+            }
             if (!File.Exists(patrolFile))
             {
                 Console.Error.WriteLine($"WARNING: Patrol lookup file '{patrolFile}' not found.");
                 Console.Error.WriteLine("Scouts will not have patrol assignments, nicknames, or dates of birth.");
-                Console.Error.WriteLine("Eagle Report deadline calculations will be incorrect.");
+                Console.Error.WriteLine("The Eagle Report will not show deadlines for scouts without a date of birth.");
             }
             LoadPatrolLookup(patrolFile, scouts);
+            Directory.CreateDirectory(options.OutputDir);
             {
                 var report = new TroopReport(scouts);
-                report.Run(@"./TroopAdvancementChart.xlsx");
+                report.Run(Path.Combine(options.OutputDir, "TroopAdvancementChart.xlsx"));
             }
             {
                 var report = new IndividualReport(scouts);
-                report.Run(@"./IndividualReport.xlsx");
+                report.Run(Path.Combine(options.OutputDir, "IndividualReport.xlsx"));
             }
             {
                 var report = new EagleReport(scouts);
-                report.Run(@"./EagleReport.xlsx");
+                report.Run(Path.Combine(options.OutputDir, "EagleReport.xlsx"));
             }
             {
                 var report = new TroopGuideReport(scouts);
-                report.Run(@"./TroopGuideReport.xlsx");
+                report.Run(Path.Combine(options.OutputDir, "TroopGuideReport.xlsx"));
             }
             {
                 var report = new TroopCheckList(scouts);
-                report.Run(@"./TroopCheckList.xlsx");
+                report.Run(Path.Combine(options.OutputDir, "TroopCheckList.xlsx"));
             }
             {
                 var report = new AdvancementCheck(scouts);
@@ -92,7 +186,7 @@ namespace advancement_chart
             }
             {
                 var report = new AdvancementReport(scouts, maxDate);
-                report.Run(@"./AdvancementReport.docx");
+                report.Run(Path.Combine(options.OutputDir, "AdvancementReport.docx"));
             }
         }
 
@@ -175,7 +269,10 @@ namespace advancement_chart
             DateTime result = DateTime.MinValue;
             var warnings = new List<string>();
 
-            if (File.Exists(fileName))
+            if (!File.Exists(fileName))
+            {
+                throw new InputFileException($"Input file not found: {fileName}");
+            }
             {
                 Console.WriteLine($"Reading data from {fileName}.");
                 using (TextReader txtReader = new StreamReader(fileName))

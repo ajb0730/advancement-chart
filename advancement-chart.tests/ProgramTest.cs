@@ -33,10 +33,129 @@ namespace advancement_chart.tests
         }
 
         [Fact]
-        public void LoadFile_NonExistentFile_ReturnsMinValue()
+        public void LoadFile_NonExistentFile_Throws()
         {
-            var result = Program.LoadFile("/nonexistent/path.csv", _scouts);
-            Assert.Equal(DateTime.MinValue, result);
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile("/nonexistent/path.csv", _scouts));
+            Assert.Contains("/nonexistent/path.csv", ex.Message);
+        }
+
+        [Fact]
+        public void ParseArgs_Defaults()
+        {
+            var options = Program.ParseArgs(new[] { "a.csv", "b.csv" });
+            Assert.Equal(new[] { "a.csv", "b.csv" }, options.InputFiles);
+            Assert.Equal("./scouts.csv", options.PatrolFile);
+            Assert.False(options.PatrolFileSpecified);
+            Assert.Equal(".", options.OutputDir);
+        }
+
+        [Fact]
+        public void ParseArgs_OptionsInAnyPosition()
+        {
+            var options = Program.ParseArgs(new[] { "a.csv", "--output-dir", "out", "--patrol", "p.csv", "b.csv" });
+            Assert.Equal(new[] { "a.csv", "b.csv" }, options.InputFiles);
+            Assert.Equal("p.csv", options.PatrolFile);
+            Assert.True(options.PatrolFileSpecified);
+            Assert.Equal("out", options.OutputDir);
+        }
+
+        [Theory]
+        [InlineData("--bogus")]
+        [InlineData("--patrol")]
+        [InlineData("--output-dir")]
+        public void ParseArgs_BadUsage_Throws(string bad)
+        {
+            Assert.Throws<UsageException>(() => Program.ParseArgs(new[] { "a.csv", bad }));
+        }
+
+        [Fact]
+        public void ParseArgs_NoInputFiles_Throws()
+        {
+            Assert.Throws<UsageException>(() => Program.ParseArgs(new string[0]));
+        }
+
+        [Fact]
+        public void ParseArgs_Help_NeedsNoInputFiles()
+        {
+            Assert.True(Program.ParseArgs(new[] { "--help" }).ShowHelp);
+        }
+
+        private int ExecuteCapturingConsole(string[] args, out string stdout, out string stderr)
+        {
+            var oldOut = Console.Out;
+            var oldErr = Console.Error;
+            var outWriter = new StringWriter();
+            var errWriter = new StringWriter();
+            Console.SetOut(outWriter);
+            Console.SetError(errWriter);
+            try
+            {
+                return Program.Execute(args);
+            }
+            finally
+            {
+                Console.SetOut(oldOut);
+                Console.SetError(oldErr);
+                stdout = outWriter.ToString();
+                stderr = errWriter.ToString();
+            }
+        }
+
+        [Fact]
+        public void Execute_UsageError_ReturnsTwoAndPrintsUsage()
+        {
+            int code = ExecuteCapturingConsole(new[] { "--bogus" }, out _, out string err);
+            Assert.Equal(2, code);
+            Assert.Contains("Unknown option --bogus", err);
+            Assert.Contains("USAGE:", err);
+        }
+
+        [Fact]
+        public void Execute_Help_ReturnsZero()
+        {
+            int code = ExecuteCapturingConsole(new[] { "--help" }, out string stdout, out _);
+            Assert.Equal(0, code);
+            Assert.Contains("USAGE:", stdout);
+        }
+
+        [Fact]
+        public void Execute_MissingInputFile_ReturnsOne()
+        {
+            int code = ExecuteCapturingConsole(new[] { "/nonexistent/typo.csv" }, out _, out string err);
+            Assert.Equal(1, code);
+            Assert.Contains("Input file not found", err);
+        }
+
+        [Fact]
+        public void Execute_MissingExplicitPatrolFile_ReturnsOne()
+        {
+            var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01");
+            int code = ExecuteCapturingConsole(new[] { "--patrol", "/nonexistent/scouts.csv", advancement }, out _, out string err);
+            Assert.Equal(1, code);
+            Assert.Contains("Patrol lookup file not found", err);
+        }
+
+        [Fact]
+        public void Execute_WritesReportsToOutputDir()
+        {
+            var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01");
+            var patrol = CreateTempCsv("BSA Member ID,Nickname,Patrol Name,DOB\n123,Johnny,Hawks,2010-06-15");
+            var outDir = Path.Combine(Path.GetTempPath(), $"out_{Guid.NewGuid()}");
+            try
+            {
+                int code = ExecuteCapturingConsole(new[] { "--patrol", patrol, "--output-dir", outDir, advancement }, out _, out _);
+                Assert.Equal(0, code);
+                Assert.True(File.Exists(Path.Combine(outDir, "TroopAdvancementChart.xlsx")));
+                Assert.True(File.Exists(Path.Combine(outDir, "IndividualReport.xlsx")));
+                Assert.True(File.Exists(Path.Combine(outDir, "AdvancementReport.docx")));
+            }
+            finally
+            {
+                if (Directory.Exists(outDir))
+                    Directory.Delete(outDir, true);
+            }
         }
 
         [Fact]

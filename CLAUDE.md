@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Build: `dotnet build`
 - Test all: `dotnet test --settings advancement-chart.tests/test.runsettings` (the runsettings sets `PANGOCAIRO_BACKEND=fontconfig`, needed by EPPlus/System.Drawing on macOS)
 - Single test: `dotnet test --settings advancement-chart.tests/test.runsettings --filter "FullyQualifiedName~TroopMemberTest.SomeTest"`
-- Run: the program takes one or more normalized advancement CSVs as args and reads `./scouts.csv` from the **current directory**; it writes all reports to the cwd. Normally run via `make` in `utils/` (see below), which invokes `~/src/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll`, so build Debug first.
+- Run: the program takes one or more normalized advancement CSVs as args (`--patrol FILE` overrides the default `./scouts.csv` roster lookup; `--output-dir DIR` overrides the default of writing reports to the cwd). Normally run via `make` in `utils/` (see below), which invokes `~/src/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll`, so build Debug first.
 
 ## Data pipeline
 

@@ -58,6 +58,21 @@ see [below](#generating-the-reports-with-the-utils-makefile).
    1. AdvancementReport.docx - this is a Word document summarizing the
    advancement earned since the most recent completion date in the export.
 
+### Command-line options
+
+```
+advancement-chart [--patrol FILE] [--output-dir DIR] advancement.csv [advancement2.csv ...]
+```
+
+- `--patrol FILE` - the patrol lookup file that supplies patrols, nicknames, and
+  dates of birth (default: `./scouts.csv`). If given explicitly, the file must exist.
+- `--output-dir DIR` - the directory the reports are written to (default: the
+  current directory). It is created if needed.
+- `--help` - print usage.
+
+At least one advancement file is required, and each file named must exist.
+Exit codes: `0` success, `1` unusable input file, `2` bad command-line usage.
+
 ## TIPS
 
 ### Printing the Advancement Chart
