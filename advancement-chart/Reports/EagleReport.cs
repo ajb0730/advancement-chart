@@ -208,7 +208,10 @@ namespace advancementchart.Reports
 
                     EagleMeritBadgeRequirement req = scout.Eagle.Requirements.Where(r => r is EagleMeritBadgeRequirement).First() as EagleMeritBadgeRequirement;
                     var required = req.MeritBadges.Where(mb => mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                    var elective = req.MeritBadges.Where(mb => !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                    // Electives are the non-Eagle-required badges plus any extra earned badges from an
+                    // either-or group (e.g. Lifesaving after Emergency Preparedness).
+                    var extras = req.SplitEarned().Elective.Where(mb => mb.EagleRequired);
+                    var elective = req.MeritBadges.Where(mb => !mb.EagleRequired).Concat(extras).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
 
                     int remaining = req.Elective - elective.Count();
 

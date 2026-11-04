@@ -427,7 +427,11 @@ namespace advancement_chart.tests.Reports
             Assert.Contains("Earned: Camping *", text);
             Assert.Contains("Earned: First Aid *", text);
             Assert.Contains("Earned: Art", text);
-            Assert.Contains("Need: 5 elective(s)", text);
+            // Lifesaving, Sustainability, Hiking and Cycling are the second badges of their either-or
+            // groups, so they count as electives (with Art and Chess that is 6 of 7).
+            Assert.Contains("Earned: Lifesaving !", text);
+            Assert.Contains("Earned: Cycling !", text);
+            Assert.Contains("Need: 1 elective(s)", text);
         }
 
         [Fact]

@@ -50,11 +50,69 @@ namespace advancementchart.Model
         }
 
         /// <summary>
-        /// Adds the badge, except that an Eagle-required badge is rejected when a mutually exclusive alternative
-        /// is already counted (e.g. Lifesaving when Emergency Preparedness is already there). See
-        /// <see cref="MeritBadge.MutuallyExclusiveGroups"/>. A rejected badge is not counted toward Eagle at all (it may still
-        /// be allocated to Star, Life, or a Palm by <see cref="TroopMember.AllocateMeritBadges"/>). The
-        /// <paramref name="forceElective"/> argument is ignored: <see cref="MeritBadgeRequirement.AddAny"/> behaves like Add here.
+        /// True if <paramref name="badge"/> belongs to a mutually exclusive group (e.g. Lifesaving and
+        /// Emergency Preparedness) and another badge of that group is already earlier in <paramref name="badges"/>.
+        /// </summary>
+        private static bool HasEarlierEquivalent(IList<MeritBadge> badges, int index)
+        {
+            var equivalents = MeritBadge.GetEagleEquivalents(badges[index].Name);
+            for (int i = 0; i < index; i++)
+            {
+                if (equivalents.Contains(badges[i].Name))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Only the first badge of each mutually exclusive group fills a required slot; the others count
+        /// as electives.
+        /// </summary>
+        protected override int RequiredSlotsUsed()
+        {
+            int used = 0;
+            for (int i = 0; i < MeritBadges.Count; i++)
+            {
+                if (MeritBadges[i].EagleRequired && !HasEarlierEquivalent(MeritBadges, i))
+                {
+                    used++;
+                }
+            }
+            return Math.Min(Required, used);
+        }
+
+        /// <summary>
+        /// Splits the earned badges (oldest first) into those filling Eagle-required slots and those
+        /// counting as electives. When a scout has earned several badges of an either-or group, the
+        /// first fills the required slot and the others are electives.
+        /// </summary>
+        public (List<MeritBadge> Required, List<MeritBadge> Elective) SplitEarned()
+        {
+            var earned = MeritBadges.Where(mb => mb.Earned).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+            var required = new List<MeritBadge>();
+            var elective = new List<MeritBadge>();
+            for (int i = 0; i < earned.Count; i++)
+            {
+                if (earned[i].EagleRequired && !HasEarlierEquivalent(earned, i))
+                {
+                    required.Add(earned[i]);
+                }
+                else
+                {
+                    elective.Add(earned[i]);
+                }
+            }
+            return (required, elective);
+        }
+
+        /// <summary>
+        /// Adds the badge if there is a slot for it. An Eagle-required badge takes a required slot; if another
+        /// badge from its mutually exclusive group is already counted (e.g. Lifesaving when Emergency
+        /// Preparedness is there) it counts as an elective instead, as BSA rules allow. See
+        /// <see cref="MeritBadge.MutuallyExclusiveGroups"/>. The <paramref name="forceElective"/> argument is
+        /// ignored: <see cref="MeritBadgeRequirement.AddAny"/> behaves like Add here.
         /// </summary>
         /// <returns>True if the badge was added.</returns>
         public override bool Add(MeritBadge badge, bool forceElective = false)
@@ -64,6 +122,11 @@ namespace advancementchart.Model
                 var equivalents = MeritBadge.GetEagleEquivalents(badge.Name);
                 if (equivalents.Length > 0 && MeritBadges.Any(mb => equivalents.Contains(mb.Name)))
                 {
+                    if (MeritBadges.Count < Total && MeritBadges.Count - RequiredSlotsUsed() < Elective)
+                    {
+                        MeritBadges.Add(badge);
+                        return true;
+                    }
                     return false;
                 }
             }

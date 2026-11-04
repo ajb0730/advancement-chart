@@ -68,6 +68,14 @@ namespace advancementchart.Model
         public override bool Earned => MeritBadges.Where(x => x.Earned).Count() == Total;
 
         /// <summary>
+        /// How many of the <see cref="Required"/> slots the current badges fill.
+        /// </summary>
+        protected virtual int RequiredSlotsUsed()
+        {
+            return Math.Min(Required, MeritBadges.Count(mb => mb.EagleRequired));
+        }
+
+        /// <summary>
         /// Adds the badge to any open slot, letting an Eagle-required badge fill an elective slot.
         /// </summary>
         /// <returns>True if the badge was added.</returns>
@@ -86,11 +94,7 @@ namespace advancementchart.Model
             int count = MeritBadges.Count;
             if (count < Total)
             {
-                int req = MeritBadges.Count(mb => mb.EagleRequired);
-                if (req > Required)
-                {
-                    req = Required;
-                }
+                int req = RequiredSlotsUsed();
                 int ele = count - req;
 
                 if ((badge.EagleRequired && (req < Required || forceElective))
