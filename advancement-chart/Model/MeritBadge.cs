@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -67,7 +68,7 @@ namespace advancementchart.Model
             {
                 return cached.Badges;
             }
-            var badges = BuildEagleRequired(now);
+            var badges = BuildEagleRequired(now).ToFrozenSet();
             eagleRequiredCache = new EagleRequiredSnapshot { Day = today, Badges = badges };
             return badges;
         }
