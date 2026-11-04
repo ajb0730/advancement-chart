@@ -41,6 +41,17 @@ namespace advancementchart.Reports
             new[] { MeritBadge.FamilyLife },
         };
 
+        /// <summary>
+        /// The <see cref="EagleBadgeColumns"/> for badges that are Eagle-required according to
+        /// <paramref name="eagleRequired"/>. The Eagle merit badge requirement has exactly one named
+        /// column per required badge (Citizenship in Society drops out when its window closes), so
+        /// writing more or fewer would misalign every column after it.
+        /// </summary>
+        internal static List<string[]> EagleColumnsFor(IReadOnlySet<string> eagleRequired)
+        {
+            return EagleBadgeColumns.Where(column => column.Any(eagleRequired.Contains)).ToList();
+        }
+
         /// <summary>Writes a bold, bottom-aligned header label rotated 90 degrees.</summary>
         private static void WriteRotatedHeader(ExcelWorksheet wks, CellAddress cell, string text)
         {
@@ -67,7 +78,7 @@ namespace advancementchart.Reports
                     CellAddress desc = new CellAddress(cell);
                     desc.Row--;
 
-                    foreach (var column in EagleBadgeColumns)
+                    foreach (var column in EagleColumnsFor(MeritBadge.GetEagleRequired()))
                     {
                         WriteRotatedHeader(wks, desc, string.Join(" / ", column));
                         desc.ColumnNumber++;
@@ -161,7 +172,7 @@ namespace advancementchart.Reports
                     var required = mbReq.MeritBadges.Where(mb => mb.Earned && mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                     var elective = mbReq.MeritBadges.Where(mb => mb.Earned && !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
 
-                    foreach (var column in EagleBadgeColumns)
+                    foreach (var column in EagleColumnsFor(MeritBadge.GetEagleRequired()))
                     {
                         cell.ColumnNumber++;
                         var selected = required.Where(mb => column.Contains(mb.Name)).ToList();

@@ -350,52 +350,142 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
-        public void EagleBadgeColumns_CoverEveryEagleRequiredBadgeOnce()
+        public void EagleBadgeColumns_ListEachBadgeOnce()
         {
             var inColumns = TroopReport.EagleBadgeColumns.SelectMany(c => c).ToList();
             Assert.Equal(inColumns.Count, inColumns.Distinct().Count());
-            // Today's Eagle-required set is exactly the columns (Citizenship in Society is in its window).
-            Assert.True(MeritBadge.GetEagleRequired().SetEquals(inColumns));
+            Assert.All(inColumns, name => Assert.True(MeritBadge.BsaMeritBadgeIds.ContainsKey(name), name));
         }
 
         [Fact]
-        public void Run_EagleHeaders_ListEveryColumnInOrder()
+        public void EagleColumnsFor_DropsCitizenshipInSocietyWhenItIsNotRequired()
+        {
+            var all = TroopReport.EagleBadgeColumns.SelectMany(c => c).ToHashSet();
+            var withoutSociety = all.Where(n => n != MeritBadge.CitizenshipSociety).ToHashSet();
+
+            Assert.Equal(14, TroopReport.EagleColumnsFor(all).Count);
+            var columns = TroopReport.EagleColumnsFor(withoutSociety);
+            Assert.Equal(13, columns.Count);
+            Assert.DoesNotContain(columns, c => c.Contains(MeritBadge.CitizenshipSociety));
+        }
+
+        [Fact]
+        public void EagleColumnsFor_Today_MatchesTheRequirementsRequiredCount()
+        {
+            // Holds on any date: the number of named columns must equal Required, or the Eagle block
+            // would overflow or underfill its merged header.
+            var req = new EagleMeritBadgeRequirement("3", "desc", new Eagle(), handbookPages: "");
+            Assert.Equal(req.Required, TroopReport.EagleColumnsFor(MeritBadge.GetEagleRequired()).Count);
+        }
+
+        [Fact]
+        public void Run_EagleHeaders_ListEveryCurrentColumnInOrder()
         {
             var scouts = new List<TroopMember> { TestFixtures.CreateScoutThroughFirstClass() };
             new TroopReport(scouts).Run(_tempFile);
 
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
-                var sheet = package.Workbook.Worksheets["Scout Advancement"];
-                var headers = sheet.Cells[sheet.Dimension.Address]
-                    .Where(c => c.Style.TextRotation == 90 && c.Value != null)
-                    .Select(c => c.Text)
-                    .ToList();
+                var headers = RotatedHeaders(package.Workbook.Worksheets["Scout Advancement"]);
                 int first = headers.IndexOf(MeritBadge.FirstAid);
                 Assert.True(first >= 0);
-                var expected = TroopReport.EagleBadgeColumns.Select(c => string.Join(" / ", c)).ToList();
+                var expected = TroopReport.EagleColumnsFor(MeritBadge.GetEagleRequired())
+                    .Select(c => string.Join(" / ", c)).ToList();
                 Assert.Equal(expected, headers.Skip(first).Take(expected.Count).ToList());
             }
+        }
+
+        private static List<string> RotatedHeaders(ExcelWorksheet sheet)
+        {
+            return sheet.Cells[sheet.Dimension.Address]
+                .Where(c => c.Style.TextRotation == 90 && c.Value != null)
+                .Select(c => c.Text)
+                .ToList();
+        }
+
+        private static int HeaderColumn(ExcelWorksheet sheet, string text)
+        {
+            return sheet.Cells[sheet.Dimension.Address]
+                .First(c => c.Style.TextRotation == 90 && c.Text == text).Start.Column;
+        }
+
+        /// <summary>
+        /// Columns inside the Eagle merit badge block (which starts at the First Aid column and spans
+        /// the requirement's Total) whose scout-row cell shows <paramref name="text"/>. Star and Life
+        /// have their own badge columns to the left, which the same badges also fill.
+        /// </summary>
+        private static List<int> EagleBlockColumnsContaining(ExcelWorksheet sheet, string text)
+        {
+            int start = HeaderColumn(sheet, MeritBadge.FirstAid);
+            int end = start + new EagleMeritBadgeRequirement("3", "desc", new Eagle(), handbookPages: "").Total - 1;
+            return sheet.Cells[sheet.Dimension.Address]
+                .Where(c => c.Start.Row > 3 && c.Style.TextRotation != 90 && c.Text == text
+                            && c.Start.Column >= start && c.Start.Column <= end)
+                .Select(c => c.Start.Column)
+                .ToList();
+        }
+
+        private TroopMember EagleCandidate()
+        {
+            var scout = TestFixtures.CreateScoutThroughFirstClass();
+            scout.Star.DateEarned = new DateTime(2020, 9, 1);
+            scout.Life.DateEarned = new DateTime(2021, 5, 1);
+            return scout;
+        }
+
+        // EagleMeritBadgeRequirement.Add normally refuses a second badge from an exclusive group, so
+        // these tests put both directly into the requirement to exercise the report's overflow rule.
+        private static void PutInEagleRequirement(TroopMember scout, params MeritBadge[] badges)
+        {
+            scout.Eagle.MbReq.MeritBadges.AddRange(badges);
         }
 
         [Fact]
         public void Run_SecondBadgeOfExclusiveGroup_MovesToElectiveColumn()
         {
-            var scout = TestFixtures.CreateScoutThroughFirstClass();
-            scout.Star.DateEarned = new DateTime(2020, 9, 1);
-            scout.Life.DateEarned = new DateTime(2021, 5, 1);
-            scout.Add(TestFixtures.EarnedBadge(MeritBadge.EmergencyPreparedness, new DateTime(2020, 2, 1)));
-            scout.Add(TestFixtures.EarnedBadge(MeritBadge.Lifesaving, new DateTime(2020, 3, 1)));
-            scout.AllocateMeritBadges();
+            var scout = EagleCandidate();
+            PutInEagleRequirement(scout,
+                TestFixtures.EarnedBadge(MeritBadge.EmergencyPreparedness, new DateTime(2020, 2, 1)),
+                TestFixtures.EarnedBadge(MeritBadge.Lifesaving, new DateTime(2020, 3, 1)));
             new TroopReport(new List<TroopMember> { scout }).Run(_tempFile);
 
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
                 var sheet = package.Workbook.Worksheets["Scout Advancement"];
-                var ids = sheet.Cells[sheet.Dimension.Address].Where(c => c.Start.Row > 3).Select(c => c.Text).ToList();
-                // Eagle's EP/LS column shows the first-earned badge; the other is placed as an elective.
-                Assert.Contains(MeritBadge.BsaMeritBadgeIds[MeritBadge.EmergencyPreparedness], ids);
-                Assert.Contains(MeritBadge.BsaMeritBadgeIds[MeritBadge.Lifesaving], ids);
+                int groupColumn = HeaderColumn(sheet, $"{MeritBadge.EmergencyPreparedness} / {MeritBadge.Lifesaving}");
+                int lastNamedColumn = HeaderColumn(sheet, MeritBadge.FamilyLife);
+
+                // The earlier badge fills the group's column; the other counts as an elective.
+                Assert.Contains(groupColumn, EagleBlockColumnsContaining(sheet, MeritBadge.BsaMeritBadgeIds[MeritBadge.EmergencyPreparedness]));
+                var lifesaving = EagleBlockColumnsContaining(sheet, MeritBadge.BsaMeritBadgeIds[MeritBadge.Lifesaving]);
+                Assert.DoesNotContain(groupColumn, lifesaving);
+                Assert.Contains(lifesaving, col => col > lastNamedColumn);
+            }
+        }
+
+        [Fact]
+        public void Run_ThreeBadgesOfExclusiveGroup_TwoMoveToElectiveColumns()
+        {
+            var scout = EagleCandidate();
+            PutInEagleRequirement(scout,
+                TestFixtures.EarnedBadge(MeritBadge.Swimming, new DateTime(2020, 2, 1)),
+                TestFixtures.EarnedBadge(MeritBadge.Hiking, new DateTime(2020, 3, 1)),
+                TestFixtures.EarnedBadge(MeritBadge.Cycling, new DateTime(2020, 4, 1)));
+            new TroopReport(new List<TroopMember> { scout }).Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var sheet = package.Workbook.Worksheets["Scout Advancement"];
+                int groupColumn = HeaderColumn(sheet, $"{MeritBadge.Swimming} / {MeritBadge.Hiking} / {MeritBadge.Cycling}");
+                int lastNamedColumn = HeaderColumn(sheet, MeritBadge.FamilyLife);
+
+                Assert.Contains(groupColumn, EagleBlockColumnsContaining(sheet, MeritBadge.BsaMeritBadgeIds[MeritBadge.Swimming]));
+                foreach (var extra in new[] { MeritBadge.Hiking, MeritBadge.Cycling })
+                {
+                    var columns = EagleBlockColumnsContaining(sheet, MeritBadge.BsaMeritBadgeIds[extra]);
+                    Assert.DoesNotContain(groupColumn, columns);
+                    Assert.Contains(columns, col => col > lastNamedColumn);
+                }
             }
         }
     }
