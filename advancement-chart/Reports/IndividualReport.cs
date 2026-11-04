@@ -20,6 +20,11 @@ namespace advancementchart.Reports
         {
             Console.WriteLine("Running Individual Report");
 
+            // These accumulate across scouts within a run; reset them so a second Run on the
+            // same instance does not duplicate scouts.
+            numberIncomplete.Clear();
+            numberNotStarted.Clear();
+
             if (File.Exists(outputFileName))
                 File.Delete(outputFileName);
             var fi = new FileInfo(outputFileName);
