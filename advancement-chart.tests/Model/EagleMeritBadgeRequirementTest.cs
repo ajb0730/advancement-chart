@@ -44,7 +44,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Lifesaving", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Emergency Preparedness", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -57,7 +57,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Emergency Preparedness", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Lifesaving", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -70,7 +70,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Environmental Science", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Sustainability", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -83,7 +83,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Sustainability", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Environmental Science", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -96,7 +96,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Swimming", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Hiking", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -109,7 +109,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Swimming", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Cycling", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -122,7 +122,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Hiking", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Swimming", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
@@ -135,7 +135,7 @@ namespace advancement_chart.tests.Model
             req.Add(new MeritBadge("Cycling", "2016", new DateTime(2023, 1, 1)));
             bool added = req.Add(new MeritBadge("Swimming", "2016", new DateTime(2023, 2, 1)));
             Assert.True(added);
-            Assert.Equal(1, req.SplitEarned().Elective.Count);
+            Assert.Single(req.SplitEarned().Elective);
             Assert.Single(req.SplitEarned().Required);
         }
 
