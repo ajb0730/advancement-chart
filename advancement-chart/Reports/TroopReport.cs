@@ -186,8 +186,9 @@ namespace advancementchart.Reports
                 if (req is EagleMeritBadgeRequirement)
                 {
                     var mbReq = req as EagleMeritBadgeRequirement;
-                    var required = mbReq.MeritBadges.Where(mb => mb.Earned && mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                    var elective = mbReq.MeritBadges.Where(mb => mb.Earned && !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                    // Extra badges from an either-or group (e.g. Lifesaving after Emergency
+                    // Preparedness) are already in the elective list.
+                    var (required, elective) = mbReq.SplitEarned();
 
                     foreach (var column in EagleColumnsFor(MeritBadge.GetEagleRequired()))
                     {
@@ -197,13 +198,6 @@ namespace advancementchart.Reports
                         {
                             wks.Cells[cell].Value = selected[0].BsaId;
                             wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                            // Earning more than one badge of a mutually exclusive group fills the
-                            // column once; the extras count as electives.
-                            if (selected.Count > 1)
-                            {
-                                elective.AddRange(selected.Skip(1));
-                                elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                            }
                         }
                     }
 

@@ -194,19 +194,7 @@ namespace advancementchart.Reports
                             {
                                 EagleMeritBadgeRequirement mbReq = requirement as EagleMeritBadgeRequirement;
                                 WriteLine(body: body, line: $"=> {mbReq.MeritBadges.Where(x => x.Earned).Count()} of {mbReq.Total} earned.", indent: true);
-                                List<MeritBadge> required = new List<MeritBadge>();
-                                List<MeritBadge> elective = new List<MeritBadge>();
-                                foreach (var badge in mbReq.MeritBadges.Where(x => x.Earned).OrderBy(x => x.DateEarned).ThenBy(x => x.BsaId))
-                                {
-                                    if (badge.EagleRequired)
-                                    {
-                                        required.Add(badge);
-                                    }
-                                    else
-                                    {
-                                        elective.Add(badge);
-                                    }
-                                }
+                                var (required, elective) = mbReq.SplitEarned();
 
                                 HashSet<string> skip = new HashSet<string>();
                                 var requiredNames = new HashSet<string>(required.Select(x => x.Name));

@@ -47,7 +47,7 @@ namespace advancementchart.Model
         public const string FamilyLife = "Family Life";
 
         /// <summary>
-        /// Groups of Eagle-required badges of which only one counts toward the Eagle requirement (see <see cref="EagleMeritBadgeRequirement.Add"/>).
+        /// Groups of Eagle-required badges of which only one fills a required slot; any others earned count as electives (see <see cref="EagleMeritBadgeRequirement.Add"/>).
         /// </summary>
         public static readonly string[][] MutuallyExclusiveGroups = new[]
         {

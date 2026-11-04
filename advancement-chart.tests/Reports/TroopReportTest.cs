@@ -433,18 +433,21 @@ namespace advancement_chart.tests.Reports
             return scout;
         }
 
-        // EagleMeritBadgeRequirement.Add normally refuses a second badge from an exclusive group, so
-        // these tests put both directly into the requirement to exercise the report's overflow rule.
-        private static void PutInEagleRequirement(TroopMember scout, params MeritBadge[] badges)
+        // The second badge of an either-or group counts as an Eagle elective.
+        private static void AddAndAllocate(TroopMember scout, params MeritBadge[] badges)
         {
-            scout.Eagle.MbReq.MeritBadges.AddRange(badges);
+            foreach (var badge in badges)
+            {
+                scout.Add(badge);
+            }
+            scout.AllocateMeritBadges();
         }
 
         [Fact]
         public void Run_SecondBadgeOfExclusiveGroup_MovesToElectiveColumn()
         {
             var scout = EagleCandidate();
-            PutInEagleRequirement(scout,
+            AddAndAllocate(scout,
                 TestFixtures.EarnedBadge(MeritBadge.EmergencyPreparedness, new DateTime(2020, 2, 1)),
                 TestFixtures.EarnedBadge(MeritBadge.Lifesaving, new DateTime(2020, 3, 1)));
             new TroopReport(new List<TroopMember> { scout }).Run(_tempFile);
@@ -467,7 +470,7 @@ namespace advancement_chart.tests.Reports
         public void Run_ThreeBadgesOfExclusiveGroup_TwoMoveToElectiveColumns()
         {
             var scout = EagleCandidate();
-            PutInEagleRequirement(scout,
+            AddAndAllocate(scout,
                 TestFixtures.EarnedBadge(MeritBadge.Swimming, new DateTime(2020, 2, 1)),
                 TestFixtures.EarnedBadge(MeritBadge.Hiking, new DateTime(2020, 3, 1)),
                 TestFixtures.EarnedBadge(MeritBadge.Cycling, new DateTime(2020, 4, 1)));

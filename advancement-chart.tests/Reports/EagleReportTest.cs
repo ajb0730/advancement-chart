@@ -343,5 +343,23 @@ namespace advancement_chart.tests.Reports
                 }
             }
         }
+
+        [Fact]
+        public void Run_ExtraBadgeOfEitherOrGroup_CountsAsElective()
+        {
+            var scout = TestFixtures.CreateScoutThroughFirstClass();
+            scout.DateOfBirth = new DateTime(2008, 6, 15);
+            scout.Add(TestFixtures.EarnedBadge(MeritBadge.EmergencyPreparedness, new DateTime(2021, 1, 1)));
+            scout.Add(TestFixtures.EarnedBadge(MeritBadge.Lifesaving, new DateTime(2021, 2, 1)));
+            scout.AllocateMeritBadges();
+            new EagleReport(new List<TroopMember> { scout }).Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var sheet = package.Workbook.Worksheets[0];
+                var text = string.Join("\n", sheet.Cells[sheet.Dimension.Address].Where(c => c.Value != null).Select(c => c.Text));
+                Assert.Contains($"1 of {scout.Eagle.MbReq.Elective}", text);
+            }
+        }
     }
 }
