@@ -44,6 +44,12 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
+        public void Constructor_NullRank_Throws()
+        {
+            Assert.Throws<ArgumentNullException>(() => new RankRequirement("1a", "desc", null));
+        }
+
+        [Fact]
         public void TimeRequirementMonths_SetsCorrectly()
         {
             var rank = CreateRank();

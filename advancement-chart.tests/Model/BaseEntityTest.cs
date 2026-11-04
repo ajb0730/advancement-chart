@@ -1,4 +1,3 @@
-using System;
 using Xunit;
 using advancementchart.Model;
 
@@ -6,11 +5,17 @@ namespace advancement_chart.tests.Model
 {
     public class BaseEntityTest
     {
-        [Fact]
-        public void RankRequirement_SetsNameAndDescription()
+        private class TestEntity : BaseEntity
         {
-            var rank = new Rank("TestRank", "");
-            var entity = new RankRequirement("TestName", "TestDesc", rank);
+            public TestEntity(string name, string description) : base(name, description)
+            {
+            }
+        }
+
+        [Fact]
+        public void BaseEntity_SetsNameAndDescription()
+        {
+            var entity = new TestEntity("TestName", "TestDesc");
             Assert.Equal("TestName", entity.Name);
             Assert.Equal("TestDesc", entity.Description);
         }

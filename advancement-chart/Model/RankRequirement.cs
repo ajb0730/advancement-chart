@@ -14,7 +14,7 @@ namespace advancementchart.Model
         public RankRequirement(string name, string description, Rank rank, string handbookPages = "", DateTime? earned = null, CurriculumGroup? curriculumGroup = null, int? timeRequirementMonths = null)
             : base(name, description)
         {
-            Rank = rank;
+            Rank = rank ?? throw new ArgumentNullException(nameof(rank));
             if (!string.IsNullOrWhiteSpace(handbookPages))
             {
                 HandbookPages = handbookPages;
