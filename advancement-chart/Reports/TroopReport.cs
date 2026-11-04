@@ -18,6 +18,39 @@ namespace advancementchart.Reports
 
         public List<TroopMember> Scouts { get; set; }
 
+        /// <summary>
+        /// The Eagle-required merit badge columns, in sheet order. A column with several names is a
+        /// group of mutually exclusive badges (e.g. Emergency Preparedness or Lifesaving) that
+        /// share one column.
+        /// </summary>
+        internal static readonly string[][] EagleBadgeColumns =
+        {
+            new[] { MeritBadge.FirstAid },
+            new[] { MeritBadge.CitizenshipCommunity },
+            new[] { MeritBadge.CitizenshipNation },
+            new[] { MeritBadge.CitizenshipSociety },
+            new[] { MeritBadge.CitizenshipWorld },
+            new[] { MeritBadge.Communication },
+            new[] { MeritBadge.Cooking },
+            new[] { MeritBadge.PersonalFitness },
+            new[] { MeritBadge.EmergencyPreparedness, MeritBadge.Lifesaving },
+            new[] { MeritBadge.EnvironmentalScience, MeritBadge.Sustainability },
+            new[] { MeritBadge.PersonalManagement },
+            new[] { MeritBadge.Swimming, MeritBadge.Hiking, MeritBadge.Cycling },
+            new[] { MeritBadge.Camping },
+            new[] { MeritBadge.FamilyLife },
+        };
+
+        /// <summary>Writes a bold, bottom-aligned header label rotated 90 degrees.</summary>
+        private static void WriteRotatedHeader(ExcelWorksheet wks, CellAddress cell, string text)
+        {
+            wks.Cells[cell].Value = text;
+            wks.Cells[cell].Style.TextRotation = 90;
+            wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            wks.Cells[cell].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
+            wks.Cells[cell].Style.Font.Bold = true;
+        }
+
         protected CellAddress AddHeader(ExcelWorksheet wks, CellAddress cell, Rank rank)
         {
             CellAddress rangeStart = new CellAddress(cell);
@@ -34,126 +67,15 @@ namespace advancementchart.Reports
                     CellAddress desc = new CellAddress(cell);
                     desc.Row--;
 
+                    foreach (var column in EagleBadgeColumns)
                     {
-                        wks.Cells[desc].Value = MeritBadge.FirstAid;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.CitizenshipCommunity;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.CitizenshipNation;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-		    {
-                        wks.Cells[desc].Value = MeritBadge.CitizenshipSociety;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.CitizenshipWorld;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.Communication;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.Cooking;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.PersonalFitness;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = $"{MeritBadge.EmergencyPreparedness} / {MeritBadge.Lifesaving}";
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = $"{MeritBadge.EnvironmentalScience} / {MeritBadge.Sustainability}";
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.PersonalManagement;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = $"{MeritBadge.Swimming} / {MeritBadge.Hiking} / {MeritBadge.Cycling}";
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.Camping;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
-                        desc.ColumnNumber++;
-                    }
-                    {
-                        wks.Cells[desc].Value = MeritBadge.FamilyLife;
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
+                        WriteRotatedHeader(wks, desc, string.Join(" / ", column));
                         desc.ColumnNumber++;
                     }
 
                     for (int i = 0; i < mbReq.Elective; i++)
                     {
-                        wks.Cells[desc].Value = "Elective Merit Badge";
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
+                        WriteRotatedHeader(wks, desc, "Elective Merit Badge");
                         desc.ColumnNumber++;
                     }
 
@@ -177,20 +99,12 @@ namespace advancementchart.Reports
                     desc.Row--;
                     for (int i = 0; i < mbReq.Required; i++)
                     {
-                        wks.Cells[desc].Value = "Eagle Required Merit Badge";
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
+                        WriteRotatedHeader(wks, desc, "Eagle Required Merit Badge");
                         desc.ColumnNumber++;
                     }
                     for (int i = 0; i < mbReq.Elective; i++)
                     {
-                        wks.Cells[desc].Value = "Elective Merit Badge";
-                        wks.Cells[desc].Style.TextRotation = 90;
-                        wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                        wks.Cells[desc].Style.Font.Bold = true;
+                        WriteRotatedHeader(wks, desc, "Elective Merit Badge");
                         desc.ColumnNumber++;
                     }
 
@@ -210,11 +124,7 @@ namespace advancementchart.Reports
                 {
                     CellAddress desc = new CellAddress(cell);
                     desc.Row--;
-                    wks.Cells[desc].Value = req.Description;
-                    wks.Cells[desc].Style.TextRotation = 90;
-                    wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
-                    wks.Cells[desc].Style.Font.Bold = true;
+                    WriteRotatedHeader(wks, desc, req.Description);
 
                     wks.Cells[cell].Value = req.Name;
                     wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -251,140 +161,22 @@ namespace advancementchart.Reports
                     var required = mbReq.MeritBadges.Where(mb => mb.Earned && mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                     var elective = mbReq.MeritBadges.Where(mb => mb.Earned && !mb.EagleRequired).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
 
-                    // Order is: First Aid, Cit Comm, Cit Nation, Cit Society, Cit World, 
-                    //           Comm, Cooking, Pers Fitness, EPrep or Lifesaving
-                    //           Envi Sci or Sustainability, Pers Mgmt
-                    //           Swimming or Hiking or Cycling, Camping, Fam Life
-
-                    cell.ColumnNumber++;
-                    var selected = required.Where(mb => mb.Name == MeritBadge.FirstAid);
-                    if (selected.Any())
+                    foreach (var column in EagleBadgeColumns)
                     {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipCommunity);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipNation);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipSociety);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipWorld);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.Communication);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.Cooking);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.PersonalFitness);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.EmergencyPreparedness || mb.Name == MeritBadge.Lifesaving);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        if (selected.Count() > 1)
+                        cell.ColumnNumber++;
+                        var selected = required.Where(mb => column.Contains(mb.Name)).ToList();
+                        if (selected.Count > 0)
                         {
-                            elective.Add(selected.Last());
-                            elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                        }
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.EnvironmentalScience || mb.Name == MeritBadge.Sustainability);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        if (selected.Count() > 1)
-                        {
-                            elective.Add(selected.Last());
-                            elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                        }
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.PersonalManagement);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.Swimming || mb.Name == MeritBadge.Hiking || mb.Name == MeritBadge.Cycling);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        if (selected.Count() > 1)
-                        {
-                            elective.Add(selected.Last());
-                            if (selected.Count() > 2)
+                            wks.Cells[cell].Value = selected[0].BsaId;
+                            wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                            // Earning more than one badge of a mutually exclusive group fills the
+                            // column once; the extras count as electives.
+                            if (selected.Count > 1)
                             {
-                                elective.Add(selected.SkipLast(1).Last());
+                                elective.AddRange(selected.Skip(1));
+                                elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                             }
-                            elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
                         }
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.Camping);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == MeritBadge.FamilyLife);
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                     }
 
                     for (int i = 0; i < mbReq.Elective; i++)

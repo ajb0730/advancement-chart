@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 using advancementchart.Model;
 using advancementchart.Reports;
@@ -345,6 +346,56 @@ namespace advancement_chart.tests.Reports
             {
                 var sa = package.Workbook.Worksheets["Scout Advancement"];
                 Assert.NotNull(sa);
+            }
+        }
+
+        [Fact]
+        public void EagleBadgeColumns_CoverEveryEagleRequiredBadgeOnce()
+        {
+            var inColumns = TroopReport.EagleBadgeColumns.SelectMany(c => c).ToList();
+            Assert.Equal(inColumns.Count, inColumns.Distinct().Count());
+            // Today's Eagle-required set is exactly the columns (Citizenship in Society is in its window).
+            Assert.True(MeritBadge.GetEagleRequired().SetEquals(inColumns));
+        }
+
+        [Fact]
+        public void Run_EagleHeaders_ListEveryColumnInOrder()
+        {
+            var scouts = new List<TroopMember> { TestFixtures.CreateScoutThroughFirstClass() };
+            new TroopReport(scouts).Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var sheet = package.Workbook.Worksheets["Scout Advancement"];
+                var headers = sheet.Cells[sheet.Dimension.Address]
+                    .Where(c => c.Style.TextRotation == 90 && c.Value != null)
+                    .Select(c => c.Text)
+                    .ToList();
+                int first = headers.IndexOf(MeritBadge.FirstAid);
+                Assert.True(first >= 0);
+                var expected = TroopReport.EagleBadgeColumns.Select(c => string.Join(" / ", c)).ToList();
+                Assert.Equal(expected, headers.Skip(first).Take(expected.Count).ToList());
+            }
+        }
+
+        [Fact]
+        public void Run_SecondBadgeOfExclusiveGroup_MovesToElectiveColumn()
+        {
+            var scout = TestFixtures.CreateScoutThroughFirstClass();
+            scout.Star.DateEarned = new DateTime(2020, 9, 1);
+            scout.Life.DateEarned = new DateTime(2021, 5, 1);
+            scout.Add(TestFixtures.EarnedBadge(MeritBadge.EmergencyPreparedness, new DateTime(2020, 2, 1)));
+            scout.Add(TestFixtures.EarnedBadge(MeritBadge.Lifesaving, new DateTime(2020, 3, 1)));
+            scout.AllocateMeritBadges();
+            new TroopReport(new List<TroopMember> { scout }).Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var sheet = package.Workbook.Worksheets["Scout Advancement"];
+                var ids = sheet.Cells[sheet.Dimension.Address].Where(c => c.Start.Row > 3).Select(c => c.Text).ToList();
+                // Eagle's EP/LS column shows the first-earned badge; the other is placed as an elective.
+                Assert.Contains(MeritBadge.BsaMeritBadgeIds[MeritBadge.EmergencyPreparedness], ids);
+                Assert.Contains(MeritBadge.BsaMeritBadgeIds[MeritBadge.Lifesaving], ids);
             }
         }
     }
