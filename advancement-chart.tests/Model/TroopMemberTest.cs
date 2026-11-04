@@ -660,5 +660,57 @@ namespace advancement_chart.tests.Model
             Assert.True(hasScoutReq);
             Assert.True(hasTenderfootReq);
         }
+
+        [Fact]
+        public void AllocateMeritBadges_Overflow_CyclesPalmTypes()
+        {
+            var scout = new TroopMember("1", "Pat", "", "Scout");
+            int day = 0;
+            foreach (var name in MeritBadge.BsaMeritBadgeIds.Keys)
+            {
+                scout.Add(new MeritBadge(name, "2016", new DateTime(2020, 1, 1).AddDays(day++)));
+            }
+            scout.AllocateMeritBadges();
+
+            Assert.True(scout.EaglePalms.Count >= 4, $"expected at least 4 palms, got {scout.EaglePalms.Count}");
+            var expected = new[] { Palm.PalmType.Bronze, Palm.PalmType.Gold, Palm.PalmType.Silver, Palm.PalmType.Bronze };
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.Equal(expected[i], scout.EaglePalms[i].Type);
+            }
+            // Every palm but the last is full.
+            Assert.All(scout.EaglePalms.Take(scout.EaglePalms.Count - 1), p => Assert.True(p.MbReq.Earned));
+        }
+
+        [Fact]
+        public void AllocateMeritBadges_CalledTwice_OnlyAllocatesOnce()
+        {
+            var scout = new TroopMember("1", "Pat", "", "Scout");
+            int day = 0;
+            foreach (var name in MeritBadge.BsaMeritBadgeIds.Keys.Take(40))
+            {
+                scout.Add(new MeritBadge(name, "2016", new DateTime(2020, 1, 1).AddDays(day++)));
+            }
+            scout.AllocateMeritBadges();
+            int palms = scout.EaglePalms.Count;
+            int starBadges = scout.Star.MbReq.MeritBadges.Count;
+
+            scout.AllocateMeritBadges();
+
+            Assert.Equal(palms, scout.EaglePalms.Count);
+            Assert.Equal(starBadges, scout.Star.MbReq.MeritBadges.Count);
+        }
+
+        [Fact]
+        public void AllocateMeritBadges_StartedBadges_AreAllocatedAfterEarnedOnes()
+        {
+            var scout = new TroopMember("1", "Pat", "", "Scout");
+            scout.Add(new MeritBadge("Art", "2016", new DateTime(2020, 1, 1)));
+            scout.AddPartial("Astronomy", "2016");
+            scout.AllocateMeritBadges();
+
+            var starBadges = scout.Star.MbReq.MeritBadges;
+            Assert.Equal(new[] { "Art", "Astronomy" }, starBadges.Select(b => b.Name).ToArray());
+        }
     }
 }

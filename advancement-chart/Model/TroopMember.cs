@@ -194,129 +194,105 @@ namespace advancementchart.Model
 
         private bool runOnce = false;
 
+        /// <summary>
+        /// Distributes the scout's merit badges across the merit badge requirements of Star, Life, Eagle,
+        /// and the Eagle Palms. Safe to call more than once; only the first call does any work.
+        /// </summary>
+        /// <remarks>
+        /// Earned badges are placed first, oldest first, so the earliest badges fill the earliest
+        /// requirements; badges that are only started follow. A badge can count toward Star/Life
+        /// and toward Eagle at the same time (they run in parallel), but only a badge that fits
+        /// neither spills over to a Palm, creating new Palms (Bronze, Gold, Silver, Bronze, ...)
+        /// as needed.
+        /// </remarks>
         public void AllocateMeritBadges()
         {
             if (runOnce) { return; }
             runOnce = true;
-            // run once for the earned badges
+
             foreach (MeritBadge badge in MeritBadges.Where(x => x.Earned).OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId))
             {
-                bool added = false;
-                if (!Star.MbReq.Earned)
-                {
-                    added = Star.MbReq.Add(badge);
-                }
-                if (!added && !Life.MbReq.Earned)
-                {
-                    added = Life.MbReq.Add(badge);
-                }
-                if (!added && !Star.MbReq.Earned)
-                {
-                    added = Star.MbReq.AddAny(badge);
-                }
-                if (!added && !Life.MbReq.Earned)
-                {
-                    added = Life.MbReq.AddAny(badge);
-                }
-
-                bool eagleAdded = false;
-                if (!Eagle.MbReq.Earned)
-                {
-                    eagleAdded = Eagle.MbReq.Add(badge);
-                }
-
-                if (!added && !eagleAdded)
-                {
-                    Palm.PalmType lastPalm = Palm.PalmType.None;
-                    foreach (Palm palm in EaglePalms)
-                    {
-                        lastPalm = palm.Type;
-                        if (!added && !palm.MbReq.Earned)
-                        {
-                            added = palm.MbReq.AddAny(badge);
-                        }
-                    }
-                    if (!added)
-                    {
-                        Palm.PalmType nextType = Palm.PalmType.None;
-                        switch (lastPalm)
-                        {
-                            case Palm.PalmType.None:
-                            case Palm.PalmType.Silver:
-                                nextType = Palm.PalmType.Bronze;
-                                break;
-                            case Palm.PalmType.Bronze:
-                                nextType = Palm.PalmType.Gold;
-                                break;
-                            case Palm.PalmType.Gold:
-                                nextType = Palm.PalmType.Silver;
-                                break;
-                        }
-                        var newPalm = new Palm(nextType);
-                        added = newPalm.MbReq.AddAny(badge);
-                        EaglePalms.Add(newPalm);
-                    }
-                }
+                AllocateBadge(badge);
             }
-            // run again for the partials
             foreach (MeritBadge badge in MeritBadges.Where(x => !x.Earned && x.Started).OrderBy(mb => mb.BsaId))
             {
-                bool added = false;
-                if (!Star.MbReq.Earned)
-                {
-                    added = Star.MbReq.Add(badge);
-                }
-                if (!added && !Life.MbReq.Earned)
-                {
-                    added = Life.MbReq.Add(badge);
-                }
-                if (!added && !Star.MbReq.Earned)
-                {
-                    added = Star.MbReq.AddAny(badge);
-                }
-                if (!added && !Life.MbReq.Earned)
-                {
-                    added = Life.MbReq.AddAny(badge);
-                }
+                AllocateBadge(badge);
+            }
+        }
 
-                bool eagleAdded = false;
-                if (!Eagle.MbReq.Earned)
-                {
-                    eagleAdded = Eagle.MbReq.Add(badge);
-                }
+        private void AllocateBadge(MeritBadge badge)
+        {
+            bool addedToStarOrLife = TryAllocateToStarOrLife(badge);
 
-                if (!added && !eagleAdded)
+            bool addedToEagle = !Eagle.MbReq.Earned && Eagle.MbReq.Add(badge);
+
+            if (!addedToStarOrLife && !addedToEagle)
+            {
+                AllocateToPalms(badge);
+            }
+        }
+
+        /// <summary>
+        /// Star first, then Life: Eagle-required badges take the "required" slots, and anything left
+        /// fills the elective slots.
+        /// </summary>
+        private bool TryAllocateToStarOrLife(MeritBadge badge)
+        {
+            bool added = false;
+            if (!Star.MbReq.Earned)
+            {
+                added = Star.MbReq.Add(badge);
+            }
+            if (!added && !Life.MbReq.Earned)
+            {
+                added = Life.MbReq.Add(badge);
+            }
+            if (!added && !Star.MbReq.Earned)
+            {
+                added = Star.MbReq.AddAny(badge);
+            }
+            if (!added && !Life.MbReq.Earned)
+            {
+                added = Life.MbReq.AddAny(badge);
+            }
+            return added;
+        }
+
+        /// <summary>
+        /// Places the badge in the first incomplete existing Palm, or starts a new Palm for it.
+        /// </summary>
+        private void AllocateToPalms(MeritBadge badge)
+        {
+            bool added = false;
+            Palm.PalmType lastPalm = Palm.PalmType.None;
+            foreach (Palm palm in EaglePalms)
+            {
+                lastPalm = palm.Type;
+                if (!added && !palm.MbReq.Earned)
                 {
-                    Palm.PalmType lastPalm = Palm.PalmType.None;
-                    foreach (Palm palm in EaglePalms)
-                    {
-                        lastPalm = palm.Type;
-                        if (!added && !palm.MbReq.Earned)
-                        {
-                            added = palm.MbReq.AddAny(badge);
-                        }
-                    }
-                    if (!added)
-                    {
-                        Palm.PalmType nextType = Palm.PalmType.None;
-                        switch (lastPalm)
-                        {
-                            case Palm.PalmType.None:
-                            case Palm.PalmType.Silver:
-                                nextType = Palm.PalmType.Bronze;
-                                break;
-                            case Palm.PalmType.Bronze:
-                                nextType = Palm.PalmType.Gold;
-                                break;
-                            case Palm.PalmType.Gold:
-                                nextType = Palm.PalmType.Silver;
-                                break;
-                        }
-                        var newPalm = new Palm(nextType);
-                        added = newPalm.MbReq.AddAny(badge);
-                        EaglePalms.Add(newPalm);
-                    }
+                    added = palm.MbReq.AddAny(badge);
                 }
+            }
+            if (!added)
+            {
+                var newPalm = new Palm(NextPalmType(lastPalm));
+                newPalm.MbReq.AddAny(badge);
+                EaglePalms.Add(newPalm);
+            }
+        }
+
+        /// <summary>Palms cycle Bronze, Gold, Silver, then start over at Bronze.</summary>
+        private static Palm.PalmType NextPalmType(Palm.PalmType lastPalm)
+        {
+            switch (lastPalm)
+            {
+                case Palm.PalmType.Bronze:
+                    return Palm.PalmType.Gold;
+                case Palm.PalmType.Gold:
+                    return Palm.PalmType.Silver;
+                default:
+                    // None or Silver
+                    return Palm.PalmType.Bronze;
             }
         }
 
