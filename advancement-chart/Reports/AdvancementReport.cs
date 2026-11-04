@@ -203,7 +203,8 @@ namespace advancementchart.Reports
                                         continue;
                                     }
                                     bool haveStarted = mbReq.MeritBadges.Any(x => x.Name == badgeName && !x.Earned);
-                                    List<MeritBadge> others = mbReq.MeritBadges.GetEagleEquivalents(badgeName).ToList();
+                                    string[] equivalentNames = MeritBadge.GetEagleEquivalents(badgeName);
+                                    List<MeritBadge> others = mbReq.MeritBadges.Where(x => equivalentNames.Contains(x.Name)).ToList();
                                     bool isMultiple = MeritBadge.IsMultiple(badgeName);
                                     bool haveEarnedOther = others.Any(x => x.Earned);
                                     bool haveStartedOther = others.Any(x => x.Started);
@@ -242,10 +243,10 @@ namespace advancementchart.Reports
                                         }
                                         else
                                         {
-                                            var stuffToList = MeritBadge.GetEagleEquivalents(badgeName).Prepend(badgeName);
+                                            var stuffToList = equivalentNames.Prepend(badgeName);
                                             WriteLine(body: body, line: $"Need: {String.Join(" * or ", stuffToList)} *", indent: true);
                                         }
-                                        foreach (var otherName in MeritBadge.GetEagleEquivalents(badgeName))
+                                        foreach (var otherName in equivalentNames)
                                         {
                                             if (!electiveNames.Contains(otherName))
                                             {

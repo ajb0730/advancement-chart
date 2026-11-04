@@ -48,17 +48,17 @@ namespace advancementchart.Model
         private sealed class EagleRequiredSnapshot
         {
             public DateTime Day;
-            public HashSet<string> Badges;
+            public IReadOnlySet<string> Badges;
         }
 
         private static volatile EagleRequiredSnapshot eagleRequiredCache;
 
         /// <summary>
         /// The set of Eagle-required badge names. The result depends on today's date (the Citizenship
-        /// in Society window) so it is cached per calendar day. The returned set is shared and must
-        /// not be modified.
+        /// in Society window) so it is cached per calendar day. The returned set is shared, so it is
+        /// exposed read-only.
         /// </summary>
-        static public HashSet<string> GetEagleRequired()
+        static public IReadOnlySet<string> GetEagleRequired()
         {
             var today = DateTime.Today;
             var cached = eagleRequiredCache;
