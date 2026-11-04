@@ -216,8 +216,8 @@ namespace advancementchart.Reports
                     cell.Row++;
                     if (hasDob)
                     {
-                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.PersonalFitness, doneBy.AddDays(-ScoutingConstants.PersonalFitnessWeeks * 7));
-                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.PersonalManagement, doneBy.AddDays(-ScoutingConstants.PersonalManagementWeeks * 7));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.PersonalFitness, doneBy.AddDays(-ScoutingConstants.PersonalFitnessDays));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.PersonalManagement, doneBy.AddDays(-ScoutingConstants.PersonalManagementDays));
                         cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.FamilyLife, doneBy.AddDays(-ScoutingConstants.FamilyLifeDays));
                     }
                     cell.Row++;

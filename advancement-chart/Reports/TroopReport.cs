@@ -99,7 +99,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Emergency Preparedness / Lifesaving";
+                        wks.Cells[desc].Value = $"{MeritBadge.EmergencyPreparedness} / {MeritBadge.Lifesaving}";
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -107,7 +107,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Environmental Science / Sustainability";
+                        wks.Cells[desc].Value = $"{MeritBadge.EnvironmentalScience} / {MeritBadge.Sustainability}";
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -123,7 +123,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Swimming / Hiking / Cycling";
+                        wks.Cells[desc].Value = $"{MeritBadge.Swimming} / {MeritBadge.Hiking} / {MeritBadge.Cycling}";
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
