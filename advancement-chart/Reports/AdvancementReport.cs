@@ -204,7 +204,7 @@ namespace advancementchart.Reports
                                     }
                                     bool haveStarted = mbReq.MeritBadges.Any(x => x.Name == badgeName && !x.Earned);
                                     string[] equivalentNames = MeritBadge.GetEagleEquivalents(badgeName);
-                                    List<MeritBadge> others = mbReq.MeritBadges.Where(x => equivalentNames.Contains(x.Name)).ToList();
+                                    List<MeritBadge> others = mbReq.MeritBadges.GetEagleEquivalents(badgeName).ToList();
                                     bool isMultiple = MeritBadge.IsMultiple(badgeName);
                                     bool haveEarnedOther = others.Any(x => x.Earned);
                                     bool haveStartedOther = others.Any(x => x.Started);

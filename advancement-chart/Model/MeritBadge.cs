@@ -60,18 +60,19 @@ namespace advancementchart.Model
         /// </summary>
         static public IReadOnlySet<string> GetEagleRequired()
         {
-            var today = DateTime.Today;
+            var now = DateTime.Now;
+            var today = now.Date;
             var cached = eagleRequiredCache;
             if (cached != null && cached.Day == today)
             {
                 return cached.Badges;
             }
-            var badges = BuildEagleRequired();
+            var badges = BuildEagleRequired(now);
             eagleRequiredCache = new EagleRequiredSnapshot { Day = today, Badges = badges };
             return badges;
         }
 
-        private static HashSet<string> BuildEagleRequired()
+        private static HashSet<string> BuildEagleRequired(DateTime now)
         {
             HashSet<string> eagleRequired = new HashSet<string>(){
                 "Camping",
@@ -92,8 +93,8 @@ namespace advancementchart.Model
                 "Hiking",
                 "Cycling"
             };
-            if (DateTime.Now >= EagleMeritBadgeRequirement.CitSocietyCutover
-                && DateTime.Now <= EagleMeritBadgeRequirement.CitSocietyEnd)
+            if (now >= EagleMeritBadgeRequirement.CitSocietyCutover
+                && now <= EagleMeritBadgeRequirement.CitSocietyEnd)
             {
                 eagleRequired.Add("Citizenship in Society");
             }
