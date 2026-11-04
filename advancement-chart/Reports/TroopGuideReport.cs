@@ -10,7 +10,7 @@ using System.Drawing;
 namespace advancementchart.Reports
 {
     /// <summary>
-    /// A single-sheet chart of the requirements for Scout through First Class, with a row per active scout who has not yet earned First Class (by patrol, then name). It reuses the troop chart's column layout.
+    /// A single-sheet chart of the requirements for Scout through First Class, with a row per active scout who has not yet earned First Class (ordered by last name, then first name). It reuses the troop chart's column layout.
     /// </summary>
     public class TroopGuideReport : TroopReport
     {

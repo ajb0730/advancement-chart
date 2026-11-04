@@ -326,6 +326,7 @@ namespace advancementchart.Model
         /// <param name="description">Free text; the importer stores the requirements version here.</param>
         /// <param name="earned">When it was earned; null for a badge that is only started.</param>
         /// <exception cref="ArgumentException"><paramref name="name"/> is not a known merit badge.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
         public MeritBadge(string name, string description, DateTime? earned = null)
             : base(name, description)
         {
