@@ -57,23 +57,34 @@ namespace advancement_chart.tests.Reports
             scout.Life.DateEarned = new DateTime(2020, 1, 1); // before Star (2020-11-01)
 
             var issue = Assert.Single(new AdvancementCheck(new List<TroopMember> { scout }).Validate());
-            Assert.Equal(IssueSeverity.Error, issue.Severity);
+            Assert.Equal(IssueSeverity.Warning, issue.Severity);
             Assert.Contains("earned Life", issue.Message);
             Assert.Contains("before Star", issue.Message);
         }
 
         [Fact]
-        public void Validate_RanksEarnedOnSameDay_NoIssues()
+        public void Validate_RanksEarnedOnSameDay_NoDateOrderIssue()
         {
             var scout = TestFixtures.CreateScout();
             var day = new DateTime(2020, 1, 1);
             scout.Scout.DateEarned = day;
-            scout.Tenderfoot.DateEarned = day;
-            scout.SecondClass.DateEarned = day;
+            scout.Tenderfoot.DateEarned = day.AddHours(9);
+            scout.SecondClass.DateEarned = day.AddHours(1);
             scout.FirstClass.DateEarned = day;
-            // Star is not earned, so only the (overdue) time requirement is flagged.
             var issues = new AdvancementCheck(new List<TroopMember> { scout }).Validate();
-            Assert.All(issues, i => Assert.Equal(IssueSeverity.Warning, i.Severity));
+            Assert.DoesNotContain(issues, i => i.Message.Contains(" before "));
+            Assert.DoesNotContain(issues, i => i.Severity == IssueSeverity.Error);
+        }
+
+        [Fact]
+        public void Validate_PastTheRank_NoTimeRequirementWarning()
+        {
+            // Life is earned although Star is not (a data gap); the "check Star #1" nudge is moot.
+            var scout = TestFixtures.CreateScoutThroughFirstClass();
+            scout.Life.DateEarned = new DateTime(2022, 1, 1);
+            var issues = new AdvancementCheck(new List<TroopMember> { scout }).Validate();
+            Assert.Contains(issues, i => i.Message == "has earned Life but not Star");
+            Assert.DoesNotContain(issues, i => i.Message.Contains("check Star #1"));
         }
 
         [Fact]

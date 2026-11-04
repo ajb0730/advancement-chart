@@ -89,9 +89,11 @@ namespace advancementchart.Reports
                 {
                     issues.Add(new AdvancementIssue(IssueSeverity.Error, name, $"has earned {higher.Name} but not {lower.Name}"));
                 }
-                else if (higher.DateEarned.Value < lower.DateEarned.Value)
+                else if (higher.DateEarned.Value.Date < lower.DateEarned.Value.Date)
                 {
-                    issues.Add(new AdvancementIssue(IssueSeverity.Error, name,
+                    // Scoutbook is authoritative and dates are sometimes backfilled out of order,
+                    // so this is a heads-up rather than an error.
+                    issues.Add(new AdvancementIssue(IssueSeverity.Warning, name,
                         $"earned {higher.Name} ({higher.DateEarned.Value.ToShortDateString()}) before {lower.Name} ({lower.DateEarned.Value.ToShortDateString()})"));
                 }
             }
@@ -104,21 +106,29 @@ namespace advancementchart.Reports
             }
 
             // The "active for N months" requirement of the next rank is due once the time has passed.
-            CheckTimeRequirement(issues, name, scout.Star, scout.FirstClass, 4, "First Class");
-            CheckTimeRequirement(issues, name, scout.Life, scout.Star, 6, "Star");
-            CheckTimeRequirement(issues, name, scout.Eagle, scout.Life, 6, "Life");
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 4, months: 4);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 5, months: 6);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 6, months: 6);
         }
 
-        private static void CheckTimeRequirement(List<AdvancementIssue> issues, string scoutName, Rank next, Rank previous, int months, string previousName)
+        /// <summary>
+        /// Warns when the "active for N months" requirement (#1) of the rank at <paramref name="nextIndex"/>
+        /// is overdue: the previous rank is earned, the time has passed, and the scout has not yet
+        /// reached that rank or any rank above it.
+        /// </summary>
+        private static void CheckTimeRequirement(List<AdvancementIssue> issues, string scoutName, Rank[] ladder, int nextIndex, int months)
         {
-            if (!next.Earned && previous.Earned)
+            Rank next = ladder[nextIndex];
+            Rank previous = ladder[nextIndex - 1];
+            if (ladder.Skip(nextIndex).Any(r => r.Earned) || !previous.Earned)
             {
-                DateTime due = previous.DateEarned.Value.AddMonths(months);
-                if (DateTime.Now >= due && !RequirementEarned(next, "1", whenMissing: true))
-                {
-                    issues.Add(new AdvancementIssue(IssueSeverity.Warning, scoutName,
-                        $"{due} is {months} months since earning {previousName}, check {next.Name} #1"));
-                }
+                return;
+            }
+            DateTime due = previous.DateEarned.Value.AddMonths(months);
+            if (DateTime.Now >= due && !RequirementEarned(next, "1", whenMissing: true))
+            {
+                issues.Add(new AdvancementIssue(IssueSeverity.Warning, scoutName,
+                    $"{due.ToShortDateString()} is {months} months since earning {previous.Name}, check {next.Name} #1"));
             }
         }
 
