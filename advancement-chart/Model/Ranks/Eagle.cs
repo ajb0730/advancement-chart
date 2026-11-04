@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace advancementchart.Model.Ranks
 {
+    /// <summary>
+    /// The Eagle Scout rank. Its requirements are created in the constructor.
+    /// </summary>
     public class Eagle : Rank
     {
 
@@ -22,6 +25,9 @@ namespace advancementchart.Model.Ranks
             Requirements.Add(new RankRequirement(name: "7", description: "Eagle Board of Review", rank: this, handbookPages: ""));
         }
 
+        /// <summary>
+        /// The Eagle merit badge requirement.
+        /// </summary>
         public EagleMeritBadgeRequirement MbReq => Requirements.First(req => req is EagleMeritBadgeRequirement) as EagleMeritBadgeRequirement;
     }
 }

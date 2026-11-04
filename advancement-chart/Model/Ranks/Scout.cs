@@ -3,6 +3,9 @@ using System.Drawing;
 
 namespace advancementchart.Model.Ranks
 {
+    /// <summary>
+    /// The Scout rank, the first rank. Its requirements are created in the constructor.
+    /// </summary>
     public class Scout : Rank
     {
         public Scout(DateTime? earned = null)

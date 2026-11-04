@@ -10,20 +10,32 @@ using DocumentFormat.OpenXml.Wordprocessing;
 namespace advancementchart.Reports
 {
 
+    /// <summary>
+    /// Word document summarizing the advancement each scout has earned, and what is outstanding, as of the latest completion date in the export.
+    /// </summary>
     public class AdvancementReport : IReport
     {
         protected readonly DateTime ReportDataTimestamp = DateTime.MinValue;
 
+        /// <summary>
+        /// Creates the report for the given scouts, with no "data as of" date.
+        /// </summary>
         public AdvancementReport(List<TroopMember> scouts)
             : this(scouts, DateTime.MinValue)
         { }
 
+        /// <summary>
+        /// Creates the report for the given scouts, noting that the data is as of <paramref name="maxDate"/>.
+        /// </summary>
         public AdvancementReport(List<TroopMember> scouts, DateTime maxDate)
         {
             Scouts = scouts;
             ReportDataTimestamp = maxDate;
         }
 
+        /// <summary>
+        /// The scouts the report covers.
+        /// </summary>
         public List<TroopMember> Scouts { get; set; }
 
         private static void WriteLine(Body body, string line, string font = "courier", string fontSize = "22" /* half-points */, bool indent = false)
@@ -110,6 +122,9 @@ namespace advancementchart.Reports
             styles.Append(style);
         }
 
+        /// <summary>
+        /// Writes the document to <paramref name="outputFileName"/>, replacing any existing file.
+        /// </summary>
         public void Run(string outputFileName)
         {
             Console.WriteLine("Running Advancement Report");

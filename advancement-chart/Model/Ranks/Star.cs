@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace advancementchart.Model.Ranks
 {
+    /// <summary>
+    /// The Star Scout rank. Its requirements are created in the constructor.
+    /// </summary>
     public class Star : Rank
     {
         protected Star()

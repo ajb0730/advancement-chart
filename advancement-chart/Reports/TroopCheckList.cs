@@ -9,6 +9,9 @@ using OfficeOpenXml.Style;
 
 namespace advancementchart.Reports
 {
+    /// <summary>
+    /// A printable landscape checklist of scouts by patrol, with empty checkbox columns.
+    /// </summary>
     public class TroopCheckList : IReport
     {
         private const int CheckboxColumns = 10;
@@ -16,13 +19,22 @@ namespace advancementchart.Reports
         private const int CommentsColumn = CheckboxColumns + 2;
         private const double CommentsColumnWidth = 20;
 
+        /// <summary>
+        /// Creates the checklist for the given scouts.
+        /// </summary>
         public TroopCheckList(List<TroopMember> scouts)
         {
             Scouts = scouts;
         }
 
+        /// <summary>
+        /// The scouts listed.
+        /// </summary>
         public List<TroopMember> Scouts { get; set; }
 
+        /// <summary>
+        /// Writes the workbook to <paramref name="outputFileName"/>, replacing any existing file.
+        /// </summary>
         public void Run(string outputFileName)
         {
             Console.WriteLine("Running Troop Checklist");

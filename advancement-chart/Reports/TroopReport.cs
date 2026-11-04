@@ -9,15 +9,28 @@ using OfficeOpenXml;
 
 namespace advancementchart.Reports
 {
+    /// <summary>
+    /// The troop advancement poster: an Excel workbook with a row per scout (by patrol) and a column per requirement, one sheet up to First Class and one from Star on, plus a merit badge key.
+    /// </summary>
     public class TroopReport : IReport
     {
+        /// <summary>
+        /// Creates the report for the given scouts.
+        /// </summary>
         public TroopReport(List<TroopMember> scouts)
         {
             Scouts = scouts;
         }
 
+        /// <summary>
+        /// The scouts shown on the chart.
+        /// </summary>
         public List<TroopMember> Scouts { get; set; }
 
+        /// <summary>
+        /// Writes the column headings for a rank's requirements starting after <paramref name="cell"/>.
+        /// </summary>
+        /// <returns>The address of the rank's last (the "Earned") column.</returns>
         protected CellAddress AddHeader(ExcelWorksheet wks, CellAddress cell, Rank rank)
         {
             CellAddress rangeStart = new CellAddress(cell);
@@ -241,6 +254,10 @@ namespace advancementchart.Reports
             return cell;
         }
 
+        /// <summary>
+        /// Writes one scout's progress on a rank's requirements starting after <paramref name="cell"/>.
+        /// </summary>
+        /// <returns>The address of the rank's last (the "Earned") column.</returns>
         protected CellAddress AddContent(ExcelWorksheet wks, CellAddress cell, Rank rank)
         {
             foreach (var req in rank.Requirements)
@@ -437,6 +454,9 @@ namespace advancementchart.Reports
             return cell;
         }
 
+        /// <summary>
+        /// Writes the workbook to <paramref name="outputFilename"/>, replacing any existing file.
+        /// </summary>
         public virtual void Run(string outputFilename)
         {
             Console.WriteLine("Running Troop Report");

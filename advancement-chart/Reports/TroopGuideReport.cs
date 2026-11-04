@@ -9,12 +9,21 @@ using System.Drawing;
 
 namespace advancementchart.Reports
 {
+    /// <summary>
+    /// Summarizes each scout's progress through the Troop Guide curriculum groups, in one worksheet.
+    /// </summary>
     public class TroopGuideReport : TroopReport
     {
+        /// <summary>
+        /// Creates the report for the given scouts.
+        /// </summary>
         public TroopGuideReport(List<TroopMember> scouts) : base(scouts)
         {
         }
 
+        /// <summary>
+        /// Writes the Troop Guide workbook to <paramref name="outputFilename"/>, replacing any existing file.
+        /// </summary>
         public override void Run(string outputFilename)
         {
             Console.WriteLine("Running Troop Guide Report");

@@ -7,15 +7,27 @@ using OfficeOpenXml;
 
 namespace advancementchart.Reports
 {
+    /// <summary>
+    /// Workbook with a sheet for the troop, one per patrol, and one per scout below First Class, showing remaining rank requirements by Troop Guide topic.
+    /// </summary>
     public class IndividualReport : IReport
     {
+        /// <summary>
+        /// Creates the report for the given scouts.
+        /// </summary>
         public IndividualReport(List<TroopMember> scouts)
         {
             Scouts = scouts;
         }
 
+        /// <summary>
+        /// The scouts the report covers; those already First Class get no individual sheet.
+        /// </summary>
         public List<TroopMember> Scouts { get; set; }
 
+        /// <summary>
+        /// Writes the workbook to <paramref name="outputFileName"/>, replacing any existing file.
+        /// </summary>
         public void Run(string outputFileName)
         {
             Console.WriteLine("Running Individual Report");
