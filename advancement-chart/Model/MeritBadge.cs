@@ -45,7 +45,33 @@ namespace advancementchart.Model
             return IsMultiple(badge.Name);
         }
 
+        private sealed class EagleRequiredSnapshot
+        {
+            public DateTime Day;
+            public HashSet<string> Badges;
+        }
+
+        private static volatile EagleRequiredSnapshot eagleRequiredCache;
+
+        /// <summary>
+        /// The set of Eagle-required badge names. The result depends on today's date (the Citizenship
+        /// in Society window) so it is cached per calendar day. The returned set is shared and must
+        /// not be modified.
+        /// </summary>
         static public HashSet<string> GetEagleRequired()
+        {
+            var today = DateTime.Today;
+            var cached = eagleRequiredCache;
+            if (cached != null && cached.Day == today)
+            {
+                return cached.Badges;
+            }
+            var badges = BuildEagleRequired();
+            eagleRequiredCache = new EagleRequiredSnapshot { Day = today, Badges = badges };
+            return badges;
+        }
+
+        private static HashSet<string> BuildEagleRequired()
         {
             HashSet<string> eagleRequired = new HashSet<string>(){
                 "Camping",

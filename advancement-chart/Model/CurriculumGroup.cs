@@ -5,7 +5,15 @@ namespace advancementchart.Model
 {
     public static class CurriculumGroupExtensions
     {
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<CurriculumGroup, string> displayNames =
+            new System.Collections.Concurrent.ConcurrentDictionary<CurriculumGroup, string>();
+
         public static string GetDisplayName(this CurriculumGroup value)
+        {
+            return displayNames.GetOrAdd(value, ComputeDisplayName);
+        }
+
+        private static string ComputeDisplayName(CurriculumGroup value)
         {
             System.Reflection.FieldInfo fieldInfo = value.GetType().GetField(value.ToString());
             DisplayAttribute[] descriptionAttributes = fieldInfo.GetCustomAttributes(typeof(DisplayAttribute), false) as DisplayAttribute[];
