@@ -152,7 +152,12 @@ namespace advancement_chart.tests.Reports
                     .Where(c => c.Value != null).Select(c => c.Value.ToString()));
                 Assert.Contains("Date of birth unknown", text);
                 Assert.DoesNotContain("must be completed by", text);
-                Assert.DoesNotContain("Board of Review", text);
+                Assert.DoesNotContain("on or before", text);
+                // Earned ranks are still reported, just without deadlines.
+                Assert.Contains("First Class Board of Review:", text);
+                Assert.Contains("7/1/2020", text.Replace("07/01/2020", "7/1/2020"));
+                Assert.Contains("not yet earned", text);
+                Assert.Contains("still need to be earned", text);
 
                 var knownText = string.Join("\n", package.Workbook.Worksheets[0].Cells
                     .Where(c => c.Value != null).Select(c => c.Value.ToString()));

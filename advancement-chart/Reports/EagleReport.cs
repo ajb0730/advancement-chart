@@ -22,18 +22,27 @@ namespace advancementchart.Reports
             return scout.DateOfBirth != default(DateTime);
         }
 
-        private CellAddress AddRank(ExcelWorksheet wks, CellAddress cell, Rank rank, DateTime lastStartDate)
+        /// <summary>
+        /// Writes a rank's Board of Review status. With no <paramref name="lastStartDate"/> (the
+        /// scout's DOB is unknown) only the earned date, or "not yet earned", is shown.
+        /// </summary>
+        private CellAddress AddRank(ExcelWorksheet wks, CellAddress cell, Rank rank, DateTime? lastStartDate)
         {
             wks.Cells[cell].Value = $"{rank.Name} Board of Review:";
             wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
             cell.ColumnNumber++;
-            if (rank.Earned && rank.DateEarned <= lastStartDate)
+            if (rank.Earned && (lastStartDate == null || rank.DateEarned <= lastStartDate))
             {
                 wks.Cells[cell].Value = $"{rank.DateEarned.Value.ToShortDateString()}";
             }
+            else if (lastStartDate == null)
+            {
+                wks.Cells[cell].Value = "not yet earned";
+                wks.Cells[cell].Style.Font.Bold = true;
+            }
             else
             {
-                wks.Cells[cell].Value = $"on or before {lastStartDate.ToShortDateString()}";
+                wks.Cells[cell].Value = $"on or before {lastStartDate.Value.ToShortDateString()}";
                 wks.Cells[cell].Style.Font.Bold = true;
             }
             cell.ColumnNumber = 1;
@@ -132,8 +141,8 @@ namespace advancementchart.Reports
             // Scouts with no known DOB sort last; they cannot be placed on the age timeline.
             scouts = scouts
                 .OrderBy(m => HasDateOfBirth(m) ? m.DateOfBirth : DateTime.MaxValue)
-                .ThenBy(m => m.LastName)
-                .ThenBy(m => m.FirstName)
+                .ThenBy(m => m.LastName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(m => m.FirstName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             var fi = new FileInfo(outputFileName);
@@ -178,12 +187,9 @@ namespace advancementchart.Reports
                     cell.Row++;
                     cell.Row++;
 
-                    if (hasDob)
-                    {
-                        cell = this.AddRank(wks, cell, scout.FirstClass, doneBy.AddMonths(-(4 + 6 + 6)));
-                        cell = this.AddRank(wks, cell, scout.Star, doneBy.AddMonths(-(6 + 6)));
-                        cell = this.AddRank(wks, cell, scout.Life, doneBy.AddMonths(-6));
-                    }
+                    cell = this.AddRank(wks, cell, scout.FirstClass, hasDob ? doneBy.AddMonths(-(4 + 6 + 6)) : (DateTime?)null);
+                    cell = this.AddRank(wks, cell, scout.Star, hasDob ? doneBy.AddMonths(-(6 + 6)) : (DateTime?)null);
+                    cell = this.AddRank(wks, cell, scout.Life, hasDob ? doneBy.AddMonths(-6) : (DateTime?)null);
 
                     cell.Row++;
                     cell.Row++;
@@ -220,14 +226,19 @@ namespace advancementchart.Reports
                     cell.ColumnNumber++;
                     wks.Cells[cell].Value = $"{elective.Count()} of {req.Elective}";
                     cell.ColumnNumber = 1;
-                    if (remaining > 0 && hasDob)
+                    if (remaining > 0)
                     {
                         cell.Row++;
-                        wks.Cells[cell].Value = $"The {remaining} remaining elective badge{((remaining != 1) ? "s" : "")} must be earned by:";
+                        wks.Cells[cell].Value = hasDob
+                            ? $"The {remaining} remaining elective badge{((remaining != 1) ? "s" : "")} must be earned by:"
+                            : $"The {remaining} remaining elective badge{((remaining != 1) ? "s" : "")} still need to be earned.";
                         wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                        cell.ColumnNumber++;
-                        wks.Cells[cell].Value = $"{doneBy.ToShortDateString()}";
-                        wks.Cells[cell].Style.Font.Bold = true;
+                        if (hasDob)
+                        {
+                            cell.ColumnNumber++;
+                            wks.Cells[cell].Value = $"{doneBy.ToShortDateString()}";
+                            wks.Cells[cell].Style.Font.Bold = true;
+                        }
                         cell.ColumnNumber = 1;
                     }
                     wks.Calculate();
