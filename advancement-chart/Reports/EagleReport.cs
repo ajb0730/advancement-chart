@@ -187,9 +187,9 @@ namespace advancementchart.Reports
                     cell.Row++;
                     cell.Row++;
 
-                    cell = this.AddRank(wks, cell, scout.FirstClass, hasDob ? doneBy.AddMonths(-(4 + 6 + 6)) : (DateTime?)null);
-                    cell = this.AddRank(wks, cell, scout.Star, hasDob ? doneBy.AddMonths(-(6 + 6)) : (DateTime?)null);
-                    cell = this.AddRank(wks, cell, scout.Life, hasDob ? doneBy.AddMonths(-6) : (DateTime?)null);
+                    cell = this.AddRank(wks, cell, scout.FirstClass, hasDob ? doneBy.AddMonths(-(ScoutingConstants.StarActiveMonths + ScoutingConstants.LifeActiveMonths + ScoutingConstants.EagleActiveMonths)) : (DateTime?)null);
+                    cell = this.AddRank(wks, cell, scout.Star, hasDob ? doneBy.AddMonths(-(ScoutingConstants.LifeActiveMonths + ScoutingConstants.EagleActiveMonths)) : (DateTime?)null);
+                    cell = this.AddRank(wks, cell, scout.Life, hasDob ? doneBy.AddMonths(-ScoutingConstants.EagleActiveMonths) : (DateTime?)null);
 
                     cell.Row++;
                     cell.Row++;
@@ -200,25 +200,25 @@ namespace advancementchart.Reports
 
                     int remaining = req.Elective - elective.Count();
 
-                    cell = this.AddMeritBadge(wks, cell, required, "First Aid");
-                    cell = this.AddMeritBadge(wks, cell, required, "Citizenship in the Community");
-                    cell = this.AddMeritBadge(wks, cell, required, "Citizenship in the Nation");
-                    cell = this.AddMeritBadge(wks, cell, required, "Citizenship in the World");
-                    cell = this.AddMeritBadge(wks, cell, required, "Communication");
-                    cell = this.AddMeritBadge(wks, cell, required, "Cooking");
-                    cell = this.AddMeritBadge(wks, cell, required, "Personal Fitness");
-                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { "Emergency Preparedness", "Lifesaving" });
-                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { "Environmental Science", "Sustainability" });
-                    cell = this.AddMeritBadge(wks, cell, required, "Personal Management");
-                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { "Swimming", "Hiking", "Cycling" });
-                    cell = this.AddMeritBadge(wks, cell, required, "Camping");
-                    cell = this.AddMeritBadge(wks, cell, required, "Family Life");
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.FirstAid);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.CitizenshipCommunity);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.CitizenshipNation);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.CitizenshipWorld);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.Communication);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.Cooking);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.PersonalFitness);
+                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { MeritBadge.EmergencyPreparedness, MeritBadge.Lifesaving });
+                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { MeritBadge.EnvironmentalScience, MeritBadge.Sustainability });
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.PersonalManagement);
+                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { MeritBadge.Swimming, MeritBadge.Hiking, MeritBadge.Cycling });
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.Camping);
+                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.FamilyLife);
                     cell.Row++;
                     if (hasDob)
                     {
-                        cell = this.WarnAboutLongRequirement(wks, cell, required, "Personal Fitness", doneBy.AddDays(-12 * 7));
-                        cell = this.WarnAboutLongRequirement(wks, cell, required, "Personal Management", doneBy.AddDays(-13 * 7));
-                        cell = this.WarnAboutLongRequirement(wks, cell, required, "Family Life", doneBy.AddDays(-90));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.PersonalFitness, doneBy.AddDays(-ScoutingConstants.PersonalFitnessDays));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.PersonalManagement, doneBy.AddDays(-ScoutingConstants.PersonalManagementDays));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, MeritBadge.FamilyLife, doneBy.AddDays(-ScoutingConstants.FamilyLifeDays));
                     }
                     cell.Row++;
                     wks.Cells[cell].Value = "Elective merit badges earned:";

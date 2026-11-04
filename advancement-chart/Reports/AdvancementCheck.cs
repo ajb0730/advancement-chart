@@ -109,9 +109,9 @@ namespace advancementchart.Reports
             }
 
             // The "active for N months" requirement of the next rank is due once the time has passed.
-            CheckTimeRequirement(issues, name, ladder, nextIndex: 4, months: 4);
-            CheckTimeRequirement(issues, name, ladder, nextIndex: 5, months: 6);
-            CheckTimeRequirement(issues, name, ladder, nextIndex: 6, months: 6);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 4);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 5);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 6);
         }
 
         /// <summary>
@@ -119,15 +119,21 @@ namespace advancementchart.Reports
         /// is overdue: the previous rank is earned, the time has passed, and the scout has not yet
         /// reached that rank or any rank above it.
         /// </summary>
-        private static void CheckTimeRequirement(List<AdvancementIssue> issues, string scoutName, Rank[] ladder, int nextIndex, int months)
+        private static void CheckTimeRequirement(List<AdvancementIssue> issues, string scoutName, Rank[] ladder, int nextIndex)
         {
             Rank next = ladder[nextIndex];
             Rank previous = ladder[nextIndex - 1];
+            // The month count comes from the rank's own requirement 1 so the two cannot drift apart.
+            int? months = next.Requirements.Find(r => r.Name == "1")?.TimeRequirementMonths;
+            if (months == null)
+            {
+                return;
+            }
             if (ladder.Skip(nextIndex).Any(r => r.Earned) || !previous.Earned)
             {
                 return;
             }
-            DateTime due = previous.DateEarned.Value.AddMonths(months);
+            DateTime due = previous.DateEarned.Value.AddMonths(months.Value);
             if (DateTime.Now >= due && !RequirementEarned(next, "1", whenMissing: true))
             {
                 issues.Add(new AdvancementIssue(IssueSeverity.Warning, scoutName,
