@@ -127,7 +127,7 @@ namespace advancementchart.Reports
                 // Create the document structure and add some text.
                 mainPart.Document = new Document();
                 StyleDefinitionsPart part = mainPart.StyleDefinitionsPart;
-                if (null == part)
+                if (part is null)
                 {
                     part = mainPart.AddNewPart<StyleDefinitionsPart>();
                     Styles root = new Styles();

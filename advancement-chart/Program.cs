@@ -337,7 +337,7 @@ namespace advancement_chart
                 {
                     string id = csvReader.GetField("BSA Member ID");
                     TroopMember scout = scouts.FirstOrDefault(tm => tm.BsaMemberId == id);
-                    if (null == scout)
+                    if (scout is null)
                     {
                         string firstName = csvReader.GetField("First Name");
                         string middleName = csvReader.GetField("Middle Name");
@@ -352,7 +352,7 @@ namespace advancement_chart
                     string version = csvReader.GetField("Version")?.Trim();
                     // Defensive: normalize a null Advancement value to empty so the '#' parsing
                     // below reports the row as malformed instead of throwing.
-                    subtype = subtype ?? string.Empty;
+                    subtype ??= string.Empty;
                     // Rows without a parseable completion date carry no advancement signal we
                     // can use (and would otherwise throw); skip them rather than crash the load.
                     if (!csvReader.TryGetField<DateTime>("Date Completed", out DateTime date))
@@ -478,7 +478,7 @@ namespace advancement_chart
                                         palm = scout.GetNthPalm(Palm.PalmType.Silver, 2);
                                         break;
                                 }
-                                if (null != palm)
+                                if (palm is not null)
                                 {
                                     var req = palm.Requirements.FirstOrDefault(x => x.Name == requirementNumber);
                                     if (req != null)
