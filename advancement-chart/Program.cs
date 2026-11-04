@@ -202,8 +202,8 @@ namespace advancement_chart
                         string type = csvReader.GetField("Advancement Type")?.Trim();
                         string subtype = csvReader.GetField("Advancement")?.Trim();
                         string version = csvReader.GetField("Version")?.Trim();
-                        // A blank Advancement field can come back null; treat it as empty so the
-                        // '#' parsing below reports it as malformed instead of throwing.
+                        // Defensive: normalize a null Advancement value to empty so the '#' parsing
+                        // below reports the row as malformed instead of throwing.
                         subtype = subtype ?? string.Empty;
                         // Rows without a parseable completion date carry no advancement signal we
                         // can use (and would otherwise throw); skip them rather than crash the load.

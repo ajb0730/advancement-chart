@@ -47,6 +47,16 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
+        public void Run_StarRequirementOneUnearned_WarnsAfterFourMonths()
+        {
+            var scout = TestFixtures.CreateScout();
+            scout.FirstClass.DateEarned = DateTime.Now.AddYears(-2);
+            var report = new AdvancementCheck(new List<TroopMember> { scout });
+            var output = CaptureStdErr(() => report.Run(""));
+            Assert.Contains("check Star #1", output);
+        }
+
+        [Fact]
         public void Run_MissingRequirement_DoesNotThrow()
         {
             var scout = TestFixtures.CreateScout();
