@@ -4,6 +4,11 @@ using System.Text.RegularExpressions;
 
 namespace advancementchart.Model
 {
+    /// <summary>
+    /// A 1-based spreadsheet cell reference ("B7"). Convertible to and from strings, so it can be used
+    /// directly as an EPPlus cell address, and its <see cref="Row"/> and <see cref="Column"/> can be moved
+    /// to walk across a sheet.
+    /// </summary>
     public class CellAddress
     {
         public const int MIN_COLUMN = 1;
@@ -11,6 +16,9 @@ namespace advancementchart.Model
         public const int MIN_ROW = 1;
         public const int MAX_ROW = 1048576;
 
+        /// <summary>
+        /// Splits an address such as "AB12" into its 1-based row (12) and column (28) numbers.
+        /// </summary>
         public static void CellNameToIndex(string address, out int row, out int column)
         {
             row = 0;
@@ -20,11 +28,17 @@ namespace advancementchart.Model
             column = ColumnNameToIndex(address);
         }
 
+        /// <summary>
+        /// Builds an address such as "AB12" from 1-based row and column numbers.
+        /// </summary>
         public static string CellIndexToName(int row, int column)
         {
             return $"{ColumnIndexToName(column)}{row}";
         }
 
+        /// <summary>
+        /// Converts column letters ("A", "AB"; any trailing row digits are ignored) to a 1-based column number. The letters are not validated: input other than A-Z yields a meaningless number.
+        /// </summary>
         public static int ColumnNameToIndex(string address)
         {
             address = Regex.Replace(address.ToUpper(), @"\d+$", string.Empty);
@@ -39,6 +53,10 @@ namespace advancementchart.Model
             return column;
         }
 
+        /// <summary>
+        /// Converts a 1-based column number to its letters (1 is "A", 28 is "AB").
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The column is outside <see cref="MIN_COLUMN"/>..<see cref="MAX_COLUMN"/>.</exception>
         public static string ColumnIndexToName(int column)
         {
             if (column < MIN_COLUMN || column > MAX_COLUMN)
@@ -52,22 +70,34 @@ namespace advancementchart.Model
                 return c.ToString();
         }
 
+        /// <summary>
+        /// Creates the address A1.
+        /// </summary>
         public CellAddress()
             : this(c: "A", r: 1)
         { }
 
+        /// <summary>
+        /// Creates an address from column letters and a 1-based row.
+        /// </summary>
         public CellAddress(string c, int r)
         {
             Column = c;
             Row = r;
         }
 
+        /// <summary>
+        /// Creates an address from 1-based column and row numbers.
+        /// </summary>
         public CellAddress(int c, int r)
         {
             ColumnNumber = c;
             Row = r;
         }
 
+        /// <summary>
+        /// Parses an address such as "B7".
+        /// </summary>
         public CellAddress(string address)
         {
             int r = 0;
@@ -79,6 +109,9 @@ namespace advancementchart.Model
 
         private int column = 0;
 
+        /// <summary>
+        /// The column letters ("A", "AB"). Setting it moves the address to that column.
+        /// </summary>
         public string Column
         {
             get
@@ -91,6 +124,10 @@ namespace advancementchart.Model
             }
         }
 
+        /// <summary>
+        /// The 1-based column number. Incrementing it moves one cell to the right.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Set to a value outside the valid column range.</exception>
         public int ColumnNumber
         {
             get
@@ -108,6 +145,10 @@ namespace advancementchart.Model
         }
 
         private int row = 0;
+        /// <summary>
+        /// The 1-based row number. Incrementing it moves one cell down.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Set to a value outside the valid row range.</exception>
         public int Row
         {
             get
@@ -124,11 +165,17 @@ namespace advancementchart.Model
             }
         }
 
+        /// <summary>
+        /// The address as text, e.g. "B7".
+        /// </summary>
         public override string ToString()
         {
             return CellIndexToName(Row, ColumnNumber);
         }
 
+        /// <summary>
+        /// Two addresses are equal when they refer to the same cell.
+        /// </summary>
         public override bool Equals(object obj)
         {
             if (obj is null) { return false; }
@@ -142,11 +189,17 @@ namespace advancementchart.Model
             return this.ToString().GetHashCode();
         }
 
+        /// <summary>
+        /// Converts the address to its text form so it can be passed wherever a cell address string is expected.
+        /// </summary>
         public static implicit operator string(CellAddress c)
         {
             return c.ToString();
         }
 
+        /// <summary>
+        /// Parses an address string such as "B7".
+        /// </summary>
         public static implicit operator CellAddress(string s)
         {
             return new CellAddress(s);

@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace advancementchart.Model.Ranks
 {
+    /// <summary>
+    /// The Life Scout rank. Its requirements are created in the constructor.
+    /// </summary>
     public class Life : Rank
     {
         protected Life()

@@ -3,6 +3,9 @@ using System.Drawing;
 
 namespace advancementchart.Model.Ranks
 {
+    /// <summary>
+    /// The Second Class rank. Its requirements are created in the constructor.
+    /// </summary>
     public class SecondClass : Rank
     {
         public SecondClass(DateTime? earned = null)

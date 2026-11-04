@@ -3,11 +3,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace advancementchart.Model
 {
+    /// <summary>
+    /// Helpers for <see cref="CurriculumGroup"/>.
+    /// </summary>
     public static class CurriculumGroupExtensions
     {
         private static readonly System.Collections.Concurrent.ConcurrentDictionary<CurriculumGroup, string> displayNames =
             new System.Collections.Concurrent.ConcurrentDictionary<CurriculumGroup, string>();
 
+        /// <summary>
+        /// The group's display name (its <c>[Display(Name = ...)]</c> attribute, else the enum name). Cached after the first lookup.
+        /// </summary>
         public static string GetDisplayName(this CurriculumGroup value)
         {
             return displayNames.GetOrAdd(value, ComputeDisplayName);
@@ -22,6 +28,10 @@ namespace advancementchart.Model
         }
     }
 
+    /// <summary>
+    /// The topics the Troop Guide handbook groups rank requirements into (Camping, First Aid, ...).
+    /// <see cref="advancementchart.Reports.IndividualReport"/> uses them to show progress by topic rather than by rank.
+    /// </summary>
     public enum CurriculumGroup
     {
         [Display(Name="Camping I")]

@@ -4,9 +4,20 @@ using System.Linq;
 
 namespace advancementchart.Model
 {
+    /// <summary>
+    /// The Eagle rank's merit badge requirement: 21 badges, of which 13 or 14 are Eagle-required (14 while
+    /// Citizenship in Society is required, between <see cref="CitSocietyCutover"/> and <see cref="CitSocietyEnd"/>).
+    /// The count is fixed when the requirement is constructed; <see cref="MeritBadge.EagleRequired"/> is evaluated per day.
+    /// </summary>
     public class EagleMeritBadgeRequirement : MeritBadgeRequirement
     {
+        /// <summary>
+        /// First day on which Citizenship in Society counts as Eagle-required.
+        /// </summary>
         public static readonly DateTime CitSocietyCutover = new DateTime(2022, 7, 1);
+        /// <summary>
+        /// Last day (inclusive) of the window in which Citizenship in Society counts as Eagle-required.
+        /// </summary>
         public static readonly DateTime CitSocietyEnd = new DateTime(2026, 12, 31);
 
         /// <summary>
@@ -22,6 +33,9 @@ namespace advancementchart.Model
             : base()
         { }
 
+        /// <summary>
+        /// Creates the Eagle merit badge requirement for <paramref name="rank"/>.
+        /// </summary>
         public EagleMeritBadgeRequirement(string name, string description, Rank rank, string handbookPages = "", DateTime? earned = null)
             : base(name: name, description: description, rank: rank, required: 14, total: 21, handbookPages: handbookPages)
         {
@@ -35,6 +49,14 @@ namespace advancementchart.Model
             }
         }
 
+        /// <summary>
+        /// Adds the badge, except that an Eagle-required badge is rejected when a mutually exclusive alternative
+        /// is already counted (e.g. Lifesaving when Emergency Preparedness is already there). See
+        /// <see cref="MeritBadge.MutuallyExclusiveGroups"/>. A rejected badge is not counted toward Eagle at all (it may still
+        /// be allocated to Star, Life, or a Palm by <see cref="TroopMember.AllocateMeritBadges"/>). The
+        /// <paramref name="forceElective"/> argument is ignored: <see cref="MeritBadgeRequirement.AddAny"/> behaves like Add here.
+        /// </summary>
+        /// <returns>True if the badge was added.</returns>
         public override bool Add(MeritBadge badge, bool forceElective = false)
         {
             if (badge.EagleRequired)

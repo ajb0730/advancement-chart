@@ -9,12 +9,21 @@ using System.Drawing;
 
 namespace advancementchart.Reports
 {
+    /// <summary>
+    /// A single-sheet chart of the requirements for Scout through First Class, with a row per active scout who has not yet earned First Class (ordered by last name, then first name). It reuses the troop chart's column layout.
+    /// </summary>
     public class TroopGuideReport : TroopReport
     {
+        /// <summary>
+        /// Creates the report for the given scouts.
+        /// </summary>
         public TroopGuideReport(List<TroopMember> scouts) : base(scouts)
         {
         }
 
+        /// <summary>
+        /// Writes the Troop Guide workbook to <paramref name="outputFilename"/>, replacing any existing file.
+        /// </summary>
         public override void Run(string outputFilename)
         {
             Console.WriteLine("Running Troop Guide Report");

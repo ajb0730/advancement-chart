@@ -5,8 +5,14 @@ using System.Linq;
 
 namespace advancementchart.Model
 {
+    /// <summary>
+    /// Helpers for working with collections of <see cref="MeritBadge"/>.
+    /// </summary>
     public static class MeritBadgeExtensions
     {
+        /// <summary>
+        /// The badges in the list that could substitute for <paramref name="badgeName"/> toward an Eagle requirement.
+        /// </summary>
         public static IEnumerable<MeritBadge> GetEagleEquivalents(this IEnumerable<MeritBadge> list, string badgeName)
         {
             var equivalents = MeritBadge.GetEagleEquivalents(badgeName);
@@ -14,6 +20,10 @@ namespace advancementchart.Model
         }
     }
 
+    /// <summary>
+    /// A merit badge a scout has earned or started. <see cref="BaseEntity.Name"/> must be a badge known to BSA
+    /// (see <see cref="BsaMeritBadgeIds"/>); <see cref="BaseEntity.Description"/> holds the requirements version from the export.
+    /// </summary>
     public class MeritBadge : BaseEntity
     {
         // Names of the Eagle-required merit badges, shared so a typo is a compile error.
@@ -36,6 +46,9 @@ namespace advancementchart.Model
         public const string Camping = "Camping";
         public const string FamilyLife = "Family Life";
 
+        /// <summary>
+        /// Groups of Eagle-required badges of which only one counts toward the Eagle requirement (see <see cref="EagleMeritBadgeRequirement.Add"/>).
+        /// </summary>
         public static readonly string[][] MutuallyExclusiveGroups = new[]
         {
             new[] { EmergencyPreparedness, Lifesaving },
@@ -43,6 +56,9 @@ namespace advancementchart.Model
             new[] { Swimming, Hiking, Cycling }
         };
 
+        /// <summary>
+        /// The other badges in <paramref name="badgeName"/>'s mutually exclusive group, or an empty array if it has none.
+        /// </summary>
         static public string[] GetEagleEquivalents(string badgeName)
         {
             foreach (var group in MutuallyExclusiveGroups)
@@ -56,11 +72,17 @@ namespace advancementchart.Model
             return new string[] { };
         }
 
+        /// <summary>
+        /// True if the badge belongs to a group of mutually exclusive Eagle-required badges.
+        /// </summary>
         static public bool IsMultiple(string badgeName)
         {
             return MutuallyExclusiveGroups.Any(group => group.Contains(badgeName));
         }
 
+        /// <summary>
+        /// True if the badge belongs to a group of mutually exclusive Eagle-required badges.
+        /// </summary>
         static public bool IsMultiple(MeritBadge badge)
         {
             return IsMultiple(badge.Name);
@@ -121,6 +143,9 @@ namespace advancementchart.Model
             return eagleRequired;
         }
 
+        /// <summary>
+        /// Every merit badge name known to this program, mapped to its BSA id (used for compact display and sorting).
+        /// </summary>
         static public readonly Dictionary<string, string> BsaMeritBadgeIds = new Dictionary<string, string>()
         {
             {Camping, "001"},
@@ -294,6 +319,14 @@ namespace advancementchart.Model
             : base()
         { }
 
+        /// <summary>
+        /// Creates a merit badge.
+        /// </summary>
+        /// <param name="name">The badge name; must be a key of <see cref="BsaMeritBadgeIds"/>.</param>
+        /// <param name="description">Free text; the importer stores the requirements version here.</param>
+        /// <param name="earned">When it was earned; null for a badge that is only started.</param>
+        /// <exception cref="ArgumentException"><paramref name="name"/> is not a known merit badge.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
         public MeritBadge(string name, string description, DateTime? earned = null)
             : base(name, description)
         {
@@ -304,11 +337,26 @@ namespace advancementchart.Model
             DateEarned = earned;
         }
 
+        /// <summary>
+        /// When the badge was earned, or null.
+        /// </summary>
         public DateTime? DateEarned { get; protected set; }
+        /// <summary>
+        /// True if the badge is currently Eagle-required (see <see cref="GetEagleRequired"/>).
+        /// </summary>
         public bool EagleRequired => GetEagleRequired().Contains(Name);
+        /// <summary>
+        /// The badge's BSA id.
+        /// </summary>
         public string BsaId => BsaMeritBadgeIds[Name];
+        /// <summary>
+        /// True if the scout has started, but not finished, the badge.
+        /// </summary>
         public bool Started { get; set; }
 
+        /// <summary>
+        /// True once the badge has a <see cref="DateEarned"/>.
+        /// </summary>
         public bool Earned => DateEarned.HasValue;
     }
 }

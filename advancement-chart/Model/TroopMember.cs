@@ -5,6 +5,10 @@ using advancementchart.Model.Ranks;
 
 namespace advancementchart.Model
 {
+    /// <summary>
+    /// One scout: identity, patrol, the progress of every rank, any Eagle Palms, and merit badges.
+    /// Two members are equal when they have the same BSA member id.
+    /// </summary>
     public class TroopMember
     {
         protected TroopMember()
@@ -20,6 +24,9 @@ namespace advancementchart.Model
             MeritBadges = new List<MeritBadge>();
         }
 
+        /// <summary>
+        /// Creates a scout with all ranks unearned.
+        /// </summary>
         public TroopMember(string memberId, string firstName, string middleName, string lastName, string patrol = "Unassigned")
             : this()
         {
@@ -44,15 +51,27 @@ namespace advancementchart.Model
             return BsaMemberId.GetHashCode();
         }
 
+        /// <summary>
+        /// The scout's BSA member id; the key used to merge the Scoutbook exports.
+        /// </summary>
         public string BsaMemberId { get; protected set; }
         public string FirstName { get; protected set; }
         public string MiddleName { get; protected set; }
         public string LastName { get; protected set; }
+        /// <summary>
+        /// Preferred name, if the scout goes by one.
+        /// </summary>
         public string NickName { get; set; }
         /// <summary>The nickname if one is set, otherwise the first name.</summary>
         public string PreferredFirstName => string.IsNullOrWhiteSpace(NickName) ? FirstName : NickName;
         public string DisplayName => $"{PreferredFirstName} {LastName}";
+        /// <summary>
+        /// The scout's patrol; "Inactive" scouts are left out of the reports.
+        /// </summary>
         public string Patrol { get; set; }
+        /// <summary>
+        /// Date of birth, or <c>default(DateTime)</c> when unknown. The Eagle report derives deadlines from it.
+        /// </summary>
         public DateTime DateOfBirth { get; set; }
 
         public Scout Scout { get; protected set; }
@@ -62,8 +81,14 @@ namespace advancementchart.Model
         public Star Star { get; protected set; }
         public Life Life { get; protected set; }
         public Eagle Eagle { get; protected set; }
+        /// <summary>
+        /// The Eagle Palms the scout has earned or is working on, in order (Bronze, Gold, Silver, repeating).
+        /// </summary>
         public List<Palm> EaglePalms { get; protected set; }
 
+        /// <summary>
+        /// The highest rank earned (not counting Palms), or a <see cref="NoRank"/> if none.
+        /// </summary>
         public Rank CurrentRank
         {
             get
@@ -79,6 +104,9 @@ namespace advancementchart.Model
             }
         }
 
+        /// <summary>
+        /// The most recently earned Eagle Palm if there is one, otherwise <see cref="CurrentRank"/>.
+        /// </summary>
         public Rank CurrentRankWithPalms
         {
             get
@@ -94,9 +122,13 @@ namespace advancementchart.Model
             }
         }
 
-        /// Gets the Nth Palm of the given type (i.e. Second Bronze Palm)
-        /// Will create a new, blank Palm and add it to the list if that Palm would be
-        /// next available.
+        /// <summary>
+        /// Gets the Nth Palm of the given type (e.g. the second Bronze Palm). If that Palm would be the
+        /// next one in the Bronze, Gold, Silver cycle, a new blank Palm is created and added to
+        /// <see cref="EaglePalms"/>.
+        /// </summary>
+        /// <returns>The Palm, or null if it cannot exist yet (an earlier Palm in the cycle is missing).</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="ordinal"/> is not positive.</exception>
         public Palm GetNthPalm(Palm.PalmType type, int ordinal = 1)
         {
             if (ordinal <= 0)
@@ -133,6 +165,9 @@ namespace advancementchart.Model
             return null;
         }
 
+        /// <summary>
+        /// The next rank to work on: the first unearned rank, or the next Palm in the Bronze, Gold, Silver cycle once Eagle is earned.
+        /// </summary>
         public Rank NextRank
         {
             get
@@ -165,8 +200,14 @@ namespace advancementchart.Model
         }
 
 
+        /// <summary>
+        /// Every merit badge the scout has earned or started. Call <see cref="AllocateMeritBadges"/> to distribute them across requirements.
+        /// </summary>
         public List<MeritBadge> MeritBadges { get; protected set; }
 
+        /// <summary>
+        /// Records a badge. If the scout already has that badge, an earned copy replaces a merely started one; otherwise the first is kept.
+        /// </summary>
         public void Add(MeritBadge badge)
         {
             if (!MeritBadges.Any(x => x.Name == badge.Name))
@@ -184,6 +225,9 @@ namespace advancementchart.Model
             }
         }
 
+        /// <summary>
+        /// Records that the scout has started the named badge, unless the scout already has it.
+        /// </summary>
         public void AddPartial(string badgeName, string version)
         {
             if (!MeritBadges.Any(x => x.Name == badgeName))
@@ -298,6 +342,9 @@ namespace advancementchart.Model
             }
         }
 
+        /// <summary>
+        /// The requirements of ranks up to First Class, grouped by Troop Guide topic (requirements with no topic are omitted).
+        /// </summary>
         public Dictionary<CurriculumGroup, List<RankRequirement>> GetRequirementsByGroup()
         {
             List<RankRequirement> requirements = new List<RankRequirement>();

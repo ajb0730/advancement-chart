@@ -17,6 +17,9 @@ namespace advancementchart.Reports
     /// <summary>A single inconsistency found by <see cref="AdvancementCheck"/>.</summary>
     public class AdvancementIssue
     {
+        /// <summary>
+        /// Creates an issue.
+        /// </summary>
         public AdvancementIssue(IssueSeverity severity, string scoutName, string message)
         {
             Severity = severity;
@@ -24,10 +27,22 @@ namespace advancementchart.Reports
             Message = message;
         }
 
+        /// <summary>
+        /// How serious the issue is.
+        /// </summary>
         public IssueSeverity Severity { get; }
+        /// <summary>
+        /// Display name of the scout the issue is about.
+        /// </summary>
         public string ScoutName { get; }
+        /// <summary>
+        /// What is wrong.
+        /// </summary>
         public string Message { get; }
 
+        /// <summary>
+        /// The issue as printed by <see cref="AdvancementCheck.Run"/>, e.g. <c>ERROR [Pat Doe] has earned Eagle but not Life</c>.
+        /// </summary>
         public override string ToString()
         {
             string label = Severity == IssueSeverity.Error ? "ERROR" : "WARN ";
@@ -41,11 +56,17 @@ namespace advancementchart.Reports
     /// </summary>
     public class AdvancementCheck : IReport
     {
+        /// <summary>
+        /// Creates the check for the given scouts.
+        /// </summary>
         public AdvancementCheck(List<TroopMember> scouts)
         {
             Scouts = scouts;
         }
 
+        /// <summary>
+        /// The scouts to check.
+        /// </summary>
         public List<TroopMember> Scouts { get; set; }
 
         /// <summary>Finds the inconsistencies for every active (non-Inactive) scout.</summary>

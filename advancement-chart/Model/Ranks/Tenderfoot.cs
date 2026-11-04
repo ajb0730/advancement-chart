@@ -3,6 +3,9 @@ using System.Drawing;
 
 namespace advancementchart.Model.Ranks
 {
+    /// <summary>
+    /// The Tenderfoot rank. Its requirements are created in the constructor.
+    /// </summary>
     public class Tenderfoot : Rank
     {
         public Tenderfoot(DateTime? earned = null)

@@ -8,13 +8,22 @@ using System;
 
 namespace advancementchart.Reports
 {
+    /// <summary>
+    /// Trail to Eagle workbook: a sheet per active scout who is First Class or above but not yet Eagle, showing the merit badges still needed and the latest dates they can be started (from the scout's date of birth).
+    /// </summary>
     public class EagleReport : IReport
     {
+        /// <summary>
+        /// Creates the report for the given scouts.
+        /// </summary>
         public EagleReport(List<TroopMember> scouts)
         {
             Scouts = scouts;
         }
 
+        /// <summary>
+        /// The scouts the report is generated from.
+        /// </summary>
         public List<TroopMember> Scouts { get; set; }
 
         private static bool HasDateOfBirth(TroopMember scout)
@@ -124,6 +133,9 @@ namespace advancementchart.Reports
             return cell;
         }
 
+        /// <summary>
+        /// Writes the workbook to <paramref name="outputFileName"/>, replacing any existing file. Writes nothing if no scout qualifies. Scouts without a known date of birth are listed last, without deadlines.
+        /// </summary>
         public void Run(string outputFileName)
         {
             Console.WriteLine("Running Eagle Report");
