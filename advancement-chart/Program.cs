@@ -13,9 +13,39 @@ using advancementchart.Model.Ranks;
 
 namespace advancement_chart
 {
+    /// <summary>
+    /// An input file (Scoutbook export or roster) that cannot be used, e.g. because it is empty
+    /// or lacks required columns.
+    /// </summary>
+    internal class InputFileException : InvalidOperationException
+    {
+        public InputFileException(string message) : base(message)
+        {
+        }
+    }
+
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
+        {
+            return Execute(args);
+        }
+
+        internal static int Execute(string[] args)
+        {
+            try
+            {
+                Run(args);
+                return 0;
+            }
+            catch (InputFileException e)
+            {
+                Console.Error.WriteLine($"ERROR: {e.Message}");
+                return 1;
+            }
+        }
+
+        private static void Run(string[] args)
         {
             var scouts = new List<TroopMember>();
             DateTime maxDate = DateTime.MinValue;
@@ -73,8 +103,8 @@ namespace advancement_chart
                 using (TextReader txtReader = new StreamReader(fileName))
                 using (var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture))
                 {
-                    csvReader.Read();
-                    csvReader.ReadHeader();
+                    ReadHeader(csvReader, fileName);
+                    RequireColumns(csvReader, fileName, "BSA Member ID", "Nickname", "Patrol Name", "DOB");
 
                     int memberIdIndex = csvReader.GetFieldIndex(name: "BSA Member ID");
                     int firstNameIndex = csvReader.GetFieldIndex(name: "First Name", isTryGet: true);
@@ -117,13 +147,22 @@ namespace advancement_chart
                         if (!string.IsNullOrWhiteSpace(dob))
                         {
                             DateTime dobDate;
-                            if (DateTime.TryParse(dob, out dobDate))
+                            if (!DateTime.TryParse(dob, out dobDate))
+                            {
+                                Console.Error.WriteLine($"WARNING: Unparseable DOB '{dob}' for {scout.DisplayName}, ignoring it");
+                            }
+                            else
                             {
                                 if (dobDate.Year < 1990 || dobDate > DateTime.Now)
                                 {
-                                    Console.Error.WriteLine($"WARNING: Suspicious DOB '{dob}' for {scout.DisplayName}");
+                                    // An implausible DOB would produce a misleading Eagle deadline, so
+                                    // leave the DOB unset rather than accept it.
+                                    Console.Error.WriteLine($"WARNING: Suspicious DOB '{dob}' for {scout.DisplayName}, ignoring it");
                                 }
-                                scout.DateOfBirth = dobDate;
+                                else
+                                {
+                                    scout.DateOfBirth = dobDate;
+                                }
                             }
                         }
                     }
@@ -142,8 +181,9 @@ namespace advancement_chart
                 using (TextReader txtReader = new StreamReader(fileName))
                 using (var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture))
                 {
-                    csvReader.Read();
-                    csvReader.ReadHeader();
+                    ReadHeader(csvReader, fileName);
+                    RequireColumns(csvReader, fileName, "BSA Member ID", "First Name", "Middle Name", "Last Name",
+                        "Advancement Type", "Advancement", "Version", "Date Completed");
 
                     while (csvReader.Read())
                     {
@@ -162,6 +202,9 @@ namespace advancement_chart
                         string type = csvReader.GetField("Advancement Type")?.Trim();
                         string subtype = csvReader.GetField("Advancement")?.Trim();
                         string version = csvReader.GetField("Version")?.Trim();
+                        // Defensive: normalize a null Advancement value to empty so the '#' parsing
+                        // below reports the row as malformed instead of throwing.
+                        subtype = subtype ?? string.Empty;
                         // Rows without a parseable completion date carry no advancement signal we
                         // can use (and would otherwise throw); skip them rather than crash the load.
                         if (!csvReader.TryGetField<DateTime>("Date Completed", out DateTime date))
@@ -187,6 +230,11 @@ namespace advancement_chart
                                 // New exports suffix the badge name with " MB" and replace commas in
                                 // the name with semicolons (e.g. "Signs; Signals; and Codes MB").
                                 var badgeName = StripSuffix(subtype, " MB").Replace("; ", ", ");
+                                if (string.IsNullOrWhiteSpace(badgeName))
+                                {
+                                    warnings.Add($"Skipped merit badge row with no badge name: version={version} date={date.ToShortDateString()}");
+                                    continue;
+                                }
                                 MeritBadge badge = new MeritBadge(name: badgeName, description: version, earned: date);
                                 scout.Add(badge);
                             }
@@ -208,7 +256,7 @@ namespace advancement_chart
                                         break;
                                 }
                             }
-                            else if (type.EndsWith("Rank Requirement") || type.EndsWith("Rank Requirements"))
+                            else if (type != null && (type.EndsWith("Rank Requirement") || type.EndsWith("Rank Requirements")))
                             {
                                 // New exports move the rank name into the type column and pluralize
                                 // the suffix, e.g. "First Class Rank Requirements" with the
@@ -228,10 +276,16 @@ namespace advancement_chart
                             {
                                 // Legacy format: badge name and requirement number share the
                                 // Advancement column, e.g. "Camping #1a".
-                                var badgeName = subtype.Substring(0, subtype.IndexOf("#") - 1).Trim();
+                                int hashIndex = subtype.IndexOf('#');
+                                if (hashIndex <= 0)
+                                {
+                                    warnings.Add($"Skipped malformed merit badge requirement (no badge name before '#'): {subtype}");
+                                    continue;
+                                }
+                                var badgeName = subtype.Substring(0, hashIndex).Trim();
                                 scout.AddPartial(badgeName, version);
                             }
-                            else if (type.EndsWith("Merit Badge Requirements"))
+                            else if (type != null && type.EndsWith("Merit Badge Requirements"))
                             {
                                 // New format: the badge name lives in the type column and keeps its
                                 // real commas ("Signs, Signals, and Codes Merit Badge Requirements"),
@@ -243,8 +297,14 @@ namespace advancement_chart
                             else if (type == "Award Requirement")
                             {
                                 // Legacy palm-requirement format: "Eagle Palm Pin #1 (Bronze) #1".
-                                var palmName = subtype.Substring(0, subtype.LastIndexOf("#") - 1).Trim();
-                                var requirementNumber = subtype.Substring(subtype.LastIndexOf("#") + 1).Trim().TrimEnd('.');
+                                int hashIndex = subtype.LastIndexOf('#');
+                                if (hashIndex <= 0)
+                                {
+                                    warnings.Add($"Skipped malformed palm requirement (no palm name before '#'): {subtype}");
+                                    continue;
+                                }
+                                var palmName = subtype.Substring(0, hashIndex).Trim();
+                                var requirementNumber = subtype.Substring(hashIndex + 1).Trim().TrimEnd('.');
                                 // Console.WriteLine($"Found '{palmName}' and '{requirementNumber}' in '{subtype}'");
                                 if (!string.IsNullOrWhiteSpace(palmName) && !string.IsNullOrWhiteSpace(requirementNumber))
                                 {
@@ -311,6 +371,31 @@ namespace advancement_chart
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Reads the header row, throwing <see cref="InputFileException"/> if the file is empty.
+        /// </summary>
+        internal static void ReadHeader(CsvReader csvReader, string fileName)
+        {
+            if (!csvReader.Read() || !csvReader.ReadHeader())
+            {
+                throw new InputFileException($"No header row found in {fileName}");
+            }
+        }
+
+        /// <summary>
+        /// Throws if any of the named columns is missing from the header row just read, so a
+        /// changed Scoutbook export fails loudly instead of silently yielding null fields.
+        /// </summary>
+        internal static void RequireColumns(CsvReader csvReader, string fileName, params string[] columns)
+        {
+            var missing = columns.Where(c => csvReader.GetFieldIndex(name: c, isTryGet: true) < 0).ToList();
+            if (missing.Count > 0)
+            {
+                throw new InputFileException(
+                    $"Required column(s) {string.Join(", ", missing.Select(m => $"'{m}'"))} not found in {fileName}");
+            }
         }
 
         /// <summary>

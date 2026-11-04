@@ -437,7 +437,7 @@ namespace advancement_chart.tests
         }
 
         [Fact]
-        public void LoadPatrolLookup_FutureDob_WarnsButStillSets()
+        public void LoadPatrolLookup_FutureDob_WarnsAndIgnores()
         {
             _scouts.Add(new TroopMember("123", "John", "", "Doe"));
 
@@ -457,12 +457,12 @@ namespace advancement_chart.tests
                 Console.SetError(oldErr);
             }
 
-            Assert.Equal(new DateTime(2030, 1, 1), _scouts[0].DateOfBirth);
+            Assert.Equal(default(DateTime), _scouts[0].DateOfBirth);
             Assert.Contains("Suspicious DOB", errWriter.ToString());
         }
 
         [Fact]
-        public void LoadPatrolLookup_AncientDob_WarnsButStillSets()
+        public void LoadPatrolLookup_AncientDob_WarnsAndIgnores()
         {
             _scouts.Add(new TroopMember("123", "John", "", "Doe"));
 
@@ -482,8 +482,192 @@ namespace advancement_chart.tests
                 Console.SetError(oldErr);
             }
 
-            Assert.Equal(new DateTime(1980, 1, 1), _scouts[0].DateOfBirth);
+            Assert.Equal(default(DateTime), _scouts[0].DateOfBirth);
             Assert.Contains("Suspicious DOB", errWriter.ToString());
+        }
+
+        [Fact]
+        public void LoadFile_MalformedPalmRequirement_LogsWarningAndContinues()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Award Requirement,Eagle Palm Pin,2016,2023-01-15\n" +
+                          "123,John,,Doe,Rank,Scout,2016,2023-02-01";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.True(_scouts[0].Scout.Earned);
+            Assert.Contains("malformed palm requirement", errWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void LoadFile_LeadingHashMeritBadgeRequirement_LogsWarningAndContinues()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge Requirement,#1a,2016,2023-01-15";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Contains("malformed merit badge requirement", errWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void LoadFile_MissingRequiredColumn_Throws()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version\n" +
+                          "123,John,,Doe,Rank,Scout,2016";
+            var path = CreateTempCsv(csv);
+
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile(path, _scouts));
+            Assert.Contains("Date Completed", ex.Message);
+            Assert.Contains(path, ex.Message);
+        }
+
+        [Fact]
+        public void LoadFile_MultipleMissingColumns_ListsAll()
+        {
+            var path = CreateTempCsv("BSA Member ID,First Name\n123,John");
+
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile(path, _scouts));
+            Assert.Contains("'Last Name'", ex.Message);
+            Assert.Contains("'Date Completed'", ex.Message);
+            Assert.DoesNotContain("'First Name'", ex.Message);
+        }
+
+        [Fact]
+        public void LoadFile_EmptyFile_ThrowsNoHeader()
+        {
+            var path = CreateTempCsv("");
+
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile(path, _scouts));
+            Assert.Contains("No header row", ex.Message);
+        }
+
+        [Fact]
+        public void Execute_BadInputFile_ReturnsOneAndReportsError()
+        {
+            var path = CreateTempCsv("BSA Member ID,First Name\n123,John");
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            int exitCode;
+            try
+            {
+                exitCode = Program.Execute(new[] { path });
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(1, exitCode);
+            Assert.Contains("ERROR: Required column(s)", errWriter.ToString());
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_MissingRequiredColumn_Throws()
+        {
+            string csv = "BSA Member ID,Nickname,Patrol Name\n" +
+                          "123,Johnny,Hawks";
+            var path = CreateTempCsv(csv);
+
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadPatrolLookup(path, _scouts));
+            Assert.Contains("DOB", ex.Message);
+        }
+
+        [Fact]
+        public void LoadPatrolLookup_UnparseableDob_WarnsAndIgnores()
+        {
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
+
+            string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
+                          "123,Johnny,Hawks,not-a-date";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadPatrolLookup(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(default(DateTime), _scouts[0].DateOfBirth);
+            Assert.Contains("Unparseable DOB", errWriter.ToString());
+        }
+
+        [Fact]
+        public void LoadFile_BlankAdvancementOnRequirementRow_LogsWarningAndContinues()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge Requirement,,2016,2023-01-15\n" +
+                          "123,John,,Doe,Award Requirement,,2016,2023-01-15\n" +
+                          "123,John,,Doe,Rank,Scout,2016,2023-02-01";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.True(_scouts[0].Scout.Earned);
+            Assert.Contains("malformed", errWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void LoadFile_MeritBadgeRowWithNoName_LogsWarningAndAddsNothing()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge,,2016,2023-01-15";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Empty(_scouts[0].MeritBadges);
+            Assert.Contains("no badge name", errWriter.ToString());
         }
 
         [Fact]

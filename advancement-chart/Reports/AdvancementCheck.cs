@@ -46,8 +46,8 @@ namespace advancementchart.Reports
                 }
 
                 // 1C.1a implies 2C.1a
-                if (scout.FirstClass.Requirements.Find(x => x.Name == "1a").Earned &&
-                    !scout.SecondClass.Requirements.Find(x => x.Name == "1a").Earned)
+                if (RequirementEarned(scout.FirstClass, "1a", whenMissing: false) &&
+                    !RequirementEarned(scout.SecondClass, "1a", whenMissing: true))
                 {
                     Console.Error.WriteLine("ERROR [{0}] has earned First Class #1a but not Second Class #1a", scout.DisplayName);
                 }
@@ -55,25 +55,35 @@ namespace advancementchart.Reports
                 // if !Star.earned && Today > (1C.DateEarned + 4 Months)
                 if (!scout.Star.Earned && scout.FirstClass.Earned &&
                     DateTime.Now >= scout.FirstClass.DateEarned.Value.AddMonths(4) &&
-                    !scout.Star.Requirements.Find(x => x.Name == "1").Earned)
+                    !RequirementEarned(scout.Star, "1", whenMissing: true))
                 {
                     Console.Error.WriteLine("WARN  [{0}] {1} is 4 months since earning First Class, check Star #1", scout.DisplayName, scout.FirstClass.DateEarned.Value.AddMonths(4));
                 }
 
                 if (!scout.Life.Earned && scout.Star.Earned &&
                     DateTime.Now >= scout.Star.DateEarned.Value.AddMonths(6) &&
-                    !scout.Life.Requirements.Find(x => x.Name == "1").Earned)
+                    !RequirementEarned(scout.Life, "1", whenMissing: true))
                 {
                     Console.Error.WriteLine("WARN  [{0}] {1} is 6 months since earning Star, check Life #1", scout.DisplayName, scout.Star.DateEarned.Value.AddMonths(6));
                 }
 
                 if (!scout.Eagle.Earned && scout.Life.Earned &&
                     DateTime.Now >= scout.Life.DateEarned.Value.AddMonths(6) &&
-                    !scout.Eagle.Requirements.Find(x => x.Name == "1").Earned)
+                    !RequirementEarned(scout.Eagle, "1", whenMissing: true))
                 {
                     Console.Error.WriteLine("WARN  [{0}] {1} is 6 months since earning Life, check Eagle #1", scout.DisplayName, scout.Life.DateEarned.Value.AddMonths(6));
                 }
             }
+        }
+
+        /// <summary>
+        /// Whether the named requirement on the rank is earned, or <paramref name="whenMissing"/>
+        /// if the rank has no requirement by that name.
+        /// </summary>
+        private static bool RequirementEarned(Rank rank, string name, bool whenMissing)
+        {
+            var req = rank.Requirements.Find(x => x.Name == name);
+            return req == null ? whenMissing : req.Earned;
         }
     }
 }
