@@ -30,6 +30,72 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
+        public void Validate_ReturnsStructuredIssues()
+        {
+            var scout = TestFixtures.CreateScout();
+            scout.Eagle.DateEarned = new DateTime(2023, 1, 1);
+            var issues = new AdvancementCheck(new List<TroopMember> { scout }).Validate();
+
+            var issue = Assert.Single(issues);
+            Assert.Equal(IssueSeverity.Error, issue.Severity);
+            Assert.Equal(scout.DisplayName, issue.ScoutName);
+            Assert.Equal("has earned Eagle but not Life", issue.Message);
+            Assert.Equal($"ERROR [{scout.DisplayName}] has earned Eagle but not Life", issue.ToString());
+        }
+
+        [Fact]
+        public void Validate_ValidHierarchy_NoIssues()
+        {
+            var scout = TestFixtures.CreateScoutWithAllRanksEarned();
+            Assert.Empty(new AdvancementCheck(new List<TroopMember> { scout }).Validate());
+        }
+
+        [Fact]
+        public void Validate_RankEarnedBeforePreviousRank_ReportsError()
+        {
+            var scout = TestFixtures.CreateScoutWithAllRanksEarned();
+            scout.Life.DateEarned = new DateTime(2020, 1, 1); // before Star (2020-11-01)
+
+            var issue = Assert.Single(new AdvancementCheck(new List<TroopMember> { scout }).Validate());
+            Assert.Equal(IssueSeverity.Error, issue.Severity);
+            Assert.Contains("earned Life", issue.Message);
+            Assert.Contains("before Star", issue.Message);
+        }
+
+        [Fact]
+        public void Validate_RanksEarnedOnSameDay_NoIssues()
+        {
+            var scout = TestFixtures.CreateScout();
+            var day = new DateTime(2020, 1, 1);
+            scout.Scout.DateEarned = day;
+            scout.Tenderfoot.DateEarned = day;
+            scout.SecondClass.DateEarned = day;
+            scout.FirstClass.DateEarned = day;
+            // Star is not earned, so only the (overdue) time requirement is flagged.
+            var issues = new AdvancementCheck(new List<TroopMember> { scout }).Validate();
+            Assert.All(issues, i => Assert.Equal(IssueSeverity.Warning, i.Severity));
+        }
+
+        [Fact]
+        public void Validate_OverdueTimeRequirement_IsWarning()
+        {
+            var scout = TestFixtures.CreateScoutThroughFirstClass();
+            var issue = Assert.Single(new AdvancementCheck(new List<TroopMember> { scout }).Validate());
+            Assert.Equal(IssueSeverity.Warning, issue.Severity);
+            Assert.StartsWith("WARN  [", issue.ToString());
+            Assert.Contains("check Star #1", issue.Message);
+        }
+
+        [Fact]
+        public void Validate_SkipsInactiveScouts()
+        {
+            var scout = TestFixtures.CreateScout();
+            scout.Eagle.DateEarned = new DateTime(2023, 1, 1);
+            scout.Patrol = "Inactive";
+            Assert.Empty(new AdvancementCheck(new List<TroopMember> { scout }).Validate());
+        }
+
+        [Fact]
         public void Run_NoScouts_NoErrors()
         {
             var report = new AdvancementCheck(new List<TroopMember>());
