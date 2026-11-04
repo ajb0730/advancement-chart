@@ -539,9 +539,51 @@ namespace advancement_chart.tests
                           "123,John,,Doe,Rank,Scout,2016";
             var path = CreateTempCsv(csv);
 
-            var ex = Assert.Throws<InvalidOperationException>(() => Program.LoadFile(path, _scouts));
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile(path, _scouts));
             Assert.Contains("Date Completed", ex.Message);
             Assert.Contains(path, ex.Message);
+        }
+
+        [Fact]
+        public void LoadFile_MultipleMissingColumns_ListsAll()
+        {
+            var path = CreateTempCsv("BSA Member ID,First Name\n123,John");
+
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile(path, _scouts));
+            Assert.Contains("'Last Name'", ex.Message);
+            Assert.Contains("'Date Completed'", ex.Message);
+            Assert.DoesNotContain("'First Name'", ex.Message);
+        }
+
+        [Fact]
+        public void LoadFile_EmptyFile_ThrowsNoHeader()
+        {
+            var path = CreateTempCsv("");
+
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadFile(path, _scouts));
+            Assert.Contains("No header row", ex.Message);
+        }
+
+        [Fact]
+        public void Execute_BadInputFile_ReturnsOneAndReportsError()
+        {
+            var path = CreateTempCsv("BSA Member ID,First Name\n123,John");
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            int exitCode;
+            try
+            {
+                exitCode = Program.Execute(new[] { path });
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(1, exitCode);
+            Assert.Contains("ERROR: Required column(s)", errWriter.ToString());
         }
 
         [Fact]
@@ -551,7 +593,7 @@ namespace advancement_chart.tests
                           "123,Johnny,Hawks";
             var path = CreateTempCsv(csv);
 
-            var ex = Assert.Throws<InvalidOperationException>(() => Program.LoadPatrolLookup(path, _scouts));
+            var ex = Assert.Throws<InputFileException>(() => Program.LoadPatrolLookup(path, _scouts));
             Assert.Contains("DOB", ex.Message);
         }
 

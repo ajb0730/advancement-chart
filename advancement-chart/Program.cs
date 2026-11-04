@@ -13,18 +13,33 @@ using advancementchart.Model.Ranks;
 
 namespace advancement_chart
 {
+    /// <summary>
+    /// An input file (Scoutbook export or roster) that cannot be used, e.g. because it is empty
+    /// or lacks required columns.
+    /// </summary>
+    internal class InputFileException : InvalidOperationException
+    {
+        public InputFileException(string message) : base(message)
+        {
+        }
+    }
+
     class Program
     {
         static int Main(string[] args)
+        {
+            return Execute(args);
+        }
+
+        internal static int Execute(string[] args)
         {
             try
             {
                 Run(args);
                 return 0;
             }
-            catch (InvalidOperationException e)
+            catch (InputFileException e)
             {
-                // Raised for unusable input files (e.g. missing required CSV columns).
                 Console.Error.WriteLine($"ERROR: {e.Message}");
                 return 1;
             }
@@ -88,8 +103,7 @@ namespace advancement_chart
                 using (TextReader txtReader = new StreamReader(fileName))
                 using (var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture))
                 {
-                    csvReader.Read();
-                    csvReader.ReadHeader();
+                    ReadHeader(csvReader, fileName);
                     RequireColumns(csvReader, fileName, "BSA Member ID", "Nickname", "Patrol Name", "DOB");
 
                     int memberIdIndex = csvReader.GetFieldIndex(name: "BSA Member ID");
@@ -163,8 +177,7 @@ namespace advancement_chart
                 using (TextReader txtReader = new StreamReader(fileName))
                 using (var csvReader = new CsvReader(txtReader, CultureInfo.CurrentCulture))
                 {
-                    csvReader.Read();
-                    csvReader.ReadHeader();
+                    ReadHeader(csvReader, fileName);
                     RequireColumns(csvReader, fileName, "BSA Member ID", "First Name", "Middle Name", "Last Name",
                         "Advancement Type", "Advancement", "Version", "Date Completed");
 
@@ -349,6 +362,17 @@ namespace advancement_chart
         }
 
         /// <summary>
+        /// Reads the header row, throwing <see cref="InputFileException"/> if the file is empty.
+        /// </summary>
+        internal static void ReadHeader(CsvReader csvReader, string fileName)
+        {
+            if (!csvReader.Read() || !csvReader.ReadHeader())
+            {
+                throw new InputFileException($"No header row found in {fileName}");
+            }
+        }
+
+        /// <summary>
         /// Throws if any of the named columns is missing from the header row just read, so a
         /// changed Scoutbook export fails loudly instead of silently yielding null fields.
         /// </summary>
@@ -357,7 +381,7 @@ namespace advancement_chart
             var missing = columns.Where(c => csvReader.GetFieldIndex(name: c, isTryGet: true) < 0).ToList();
             if (missing.Count > 0)
             {
-                throw new InvalidOperationException(
+                throw new InputFileException(
                     $"Required column(s) {string.Join(", ", missing.Select(m => $"'{m}'"))} not found in {fileName}");
             }
         }
