@@ -50,8 +50,8 @@ namespace advancementchart.Model
         }
 
         /// <summary>
-        /// True if <paramref name="badge"/> belongs to a mutually exclusive group (e.g. Lifesaving and
-        /// Emergency Preparedness) and another badge of that group is already earlier in <paramref name="badges"/>.
+        /// True if the badge at <paramref name="index"/> belongs to a mutually exclusive group (e.g. Lifesaving
+        /// and Emergency Preparedness) and another badge of that group is earlier in <paramref name="badges"/>.
         /// </summary>
         private static bool HasEarlierEquivalent(IList<MeritBadge> badges, int index)
         {
