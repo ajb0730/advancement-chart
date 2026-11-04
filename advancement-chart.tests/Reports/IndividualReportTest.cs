@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 using advancementchart.Model;
 using advancementchart.Reports;
@@ -23,6 +24,30 @@ namespace advancement_chart.tests.Reports
         {
             if (File.Exists(_tempFile))
                 File.Delete(_tempFile);
+        }
+
+        [Fact]
+        public void Run_TwiceOnSameInstance_ProducesSameOutput()
+        {
+            var scout = TestFixtures.CreateScout();
+            scout.Patrol = "Hawks";
+            var report = new IndividualReport(new List<TroopMember> { scout });
+
+            report.Run(_tempFile);
+            string first = SheetSummary();
+            report.Run(_tempFile);
+            string second = SheetSummary();
+
+            Assert.Equal(first, second);
+        }
+
+        private string SheetSummary()
+        {
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                return string.Join("|", package.Workbook.Worksheets.Select(w =>
+                    w.Name + ":" + string.Join(",", w.Cells.Where(c => c.Value != null).Select(c => c.Text))));
+            }
         }
 
         [Fact]

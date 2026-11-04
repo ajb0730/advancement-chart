@@ -17,6 +17,11 @@ namespace advancementchart.Reports
 
         public List<TroopMember> Scouts { get; set; }
 
+        private static bool HasDateOfBirth(TroopMember scout)
+        {
+            return scout.DateOfBirth != default(DateTime);
+        }
+
         private CellAddress AddRank(ExcelWorksheet wks, CellAddress cell, Rank rank, DateTime lastStartDate)
         {
             wks.Cells[cell].Value = $"{rank.Name} Board of Review:";
@@ -124,7 +129,8 @@ namespace advancementchart.Reports
                 return;
             }
 
-            scouts = scouts.OrderBy(m => m.DateOfBirth).ToList();
+            // Scouts with no known DOB sort last; they cannot be placed on the age timeline.
+            scouts = scouts.OrderBy(m => HasDateOfBirth(m) ? m.DateOfBirth : DateTime.MaxValue).ToList();
 
             var fi = new FileInfo(outputFileName);
             using (var package = new ExcelPackage(fi))
@@ -146,20 +152,34 @@ namespace advancementchart.Reports
                     cell.ColumnNumber = 1;
                     cell.Row++;
                     cell.Row++;
-                    wks.Cells[cell].Value = "All Eagle requirements, except Board of Review, must be completed by:";
-                    wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                    cell.ColumnNumber++;
-                    DateTime doneBy = scout.DateOfBirth.AddYears(18).AddDays(-1);
-                    Console.WriteLine($"{scout.DisplayName} = {scout.DateOfBirth.ToShortDateString()} {doneBy.ToShortDateString()}");
-                    wks.Cells[cell].Value = $"{doneBy.ToShortDateString()}";
-                    wks.Cells[cell].Style.Font.Bold = true;
+                    bool hasDob = HasDateOfBirth(scout);
+                    DateTime doneBy = default(DateTime);
+                    if (hasDob)
+                    {
+                        wks.Cells[cell].Value = "All Eagle requirements, except Board of Review, must be completed by:";
+                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                        cell.ColumnNumber++;
+                        doneBy = scout.DateOfBirth.AddYears(18).AddDays(-1);
+                        Console.WriteLine($"{scout.DisplayName} = {scout.DateOfBirth.ToShortDateString()} {doneBy.ToShortDateString()}");
+                        wks.Cells[cell].Value = $"{doneBy.ToShortDateString()}";
+                        wks.Cells[cell].Style.Font.Bold = true;
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine($"WARNING: No date of birth for {scout.DisplayName}; Eagle deadlines not calculated");
+                        wks.Cells[cell].Value = "Date of birth unknown - deadlines cannot be calculated. Add it to birthdates.csv.";
+                        wks.Cells[cell].Style.Font.Bold = true;
+                    }
                     cell.ColumnNumber = 1;
                     cell.Row++;
                     cell.Row++;
 
-                    cell = this.AddRank(wks, cell, scout.FirstClass, doneBy.AddMonths(-(4 + 6 + 6)));
-                    cell = this.AddRank(wks, cell, scout.Star, doneBy.AddMonths(-(6 + 6)));
-                    cell = this.AddRank(wks, cell, scout.Life, doneBy.AddMonths(-6));
+                    if (hasDob)
+                    {
+                        cell = this.AddRank(wks, cell, scout.FirstClass, doneBy.AddMonths(-(4 + 6 + 6)));
+                        cell = this.AddRank(wks, cell, scout.Star, doneBy.AddMonths(-(6 + 6)));
+                        cell = this.AddRank(wks, cell, scout.Life, doneBy.AddMonths(-6));
+                    }
 
                     cell.Row++;
                     cell.Row++;
@@ -184,16 +204,19 @@ namespace advancementchart.Reports
                     cell = this.AddMeritBadge(wks, cell, required, "Camping");
                     cell = this.AddMeritBadge(wks, cell, required, "Family Life");
                     cell.Row++;
-                    cell = this.WarnAboutLongRequirement(wks, cell, required, "Personal Fitness", doneBy.AddDays(-12 * 7));
-                    cell = this.WarnAboutLongRequirement(wks, cell, required, "Personal Management", doneBy.AddDays(-13 * 7));
-                    cell = this.WarnAboutLongRequirement(wks, cell, required, "Family Life", doneBy.AddDays(-90));
+                    if (hasDob)
+                    {
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, "Personal Fitness", doneBy.AddDays(-12 * 7));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, "Personal Management", doneBy.AddDays(-13 * 7));
+                        cell = this.WarnAboutLongRequirement(wks, cell, required, "Family Life", doneBy.AddDays(-90));
+                    }
                     cell.Row++;
                     wks.Cells[cell].Value = "Elective merit badges earned:";
                     wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                     cell.ColumnNumber++;
                     wks.Cells[cell].Value = $"{elective.Count()} of {req.Elective}";
                     cell.ColumnNumber = 1;
-                    if (remaining > 0)
+                    if (remaining > 0 && hasDob)
                     {
                         cell.Row++;
                         wks.Cells[cell].Value = $"The {remaining} remaining elective badge{((remaining != 1) ? "s" : "")} must be earned by:";

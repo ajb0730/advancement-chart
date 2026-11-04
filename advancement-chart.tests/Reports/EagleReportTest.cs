@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 using advancementchart.Model;
 using advancementchart.Reports;
@@ -112,6 +113,51 @@ namespace advancement_chart.tests.Reports
                 // Older scout (earlier DOB) should be first sheet
                 Assert.Equal("Older S.", package.Workbook.Worksheets[0].Name);
                 Assert.Equal("Younger S.", package.Workbook.Worksheets[1].Name);
+            }
+        }
+
+        [Fact]
+        public void Run_UnknownDob_SortsLastAndShowsNoticeInsteadOfDeadlines()
+        {
+            var unknown = new TroopMember("1", "Unknown", "", "Dob");
+            unknown.Scout.DateEarned = new DateTime(2020, 1, 1);
+            unknown.Tenderfoot.DateEarned = new DateTime(2020, 3, 1);
+            unknown.SecondClass.DateEarned = new DateTime(2020, 5, 1);
+            unknown.FirstClass.DateEarned = new DateTime(2020, 7, 1);
+
+            var known = new TroopMember("2", "Known", "", "Dob");
+            known.Scout.DateEarned = new DateTime(2020, 1, 1);
+            known.Tenderfoot.DateEarned = new DateTime(2020, 3, 1);
+            known.SecondClass.DateEarned = new DateTime(2020, 5, 1);
+            known.FirstClass.DateEarned = new DateTime(2020, 7, 1);
+            known.DateOfBirth = new DateTime(2008, 6, 1);
+
+            var oldErr = Console.Error;
+            Console.SetError(new StringWriter());
+            try
+            {
+                new EagleReport(new List<TroopMember> { unknown, known }).Run(_tempFile);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                Assert.Equal("Known D.", package.Workbook.Worksheets[0].Name);
+                Assert.Equal("Unknown D.", package.Workbook.Worksheets[1].Name);
+
+                var text = string.Join("\n", package.Workbook.Worksheets[1].Cells
+                    .Where(c => c.Value != null).Select(c => c.Value.ToString()));
+                Assert.Contains("Date of birth unknown", text);
+                Assert.DoesNotContain("0018", text);
+                Assert.DoesNotContain("Board of Review", text);
+
+                var knownText = string.Join("\n", package.Workbook.Worksheets[0].Cells
+                    .Where(c => c.Value != null).Select(c => c.Value.ToString()));
+                Assert.DoesNotContain("Date of birth unknown", knownText);
+                Assert.Contains("Board of Review", knownText);
             }
         }
 
