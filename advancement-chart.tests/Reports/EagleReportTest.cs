@@ -155,7 +155,7 @@ namespace advancement_chart.tests.Reports
                 Assert.DoesNotContain("on or before", text);
                 // Earned ranks are still reported, just without deadlines.
                 Assert.Contains("First Class Board of Review:", text);
-                Assert.Contains("7/1/2020", text.Replace("07/01/2020", "7/1/2020"));
+                Assert.Contains(new DateTime(2020, 7, 1).ToShortDateString(), text);
                 Assert.Contains("not yet earned", text);
                 Assert.Contains("still need to be earned", text);
 
