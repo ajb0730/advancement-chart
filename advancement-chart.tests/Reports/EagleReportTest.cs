@@ -307,8 +307,8 @@ namespace advancement_chart.tests.Reports
 
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
-                var labels = package.Workbook.Worksheets[0].Cells["A1:A60"]
-                    .Where(c => c.Value != null)
+                var labels = package.Workbook.Worksheets[0].Cells[package.Workbook.Worksheets[0].Dimension.Address]
+                    .Where(c => c.Start.Column == 1 && c.Value != null)
                     .Select(c => c.Text.TrimEnd(':'))
                     .ToList();
                 var expected = TroopReport.EagleColumnsFor(MeritBadge.GetEagleRequired())
@@ -320,12 +320,8 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
-        public void Run_CitizenshipInSociety_ShownRequiredWhileItIsEagleRequired()
+        public void Run_CitizenshipInSociety_ListedExactlyWhileItIsEagleRequired()
         {
-            if (!MeritBadge.GetEagleRequired().Contains(MeritBadge.CitizenshipSociety))
-            {
-                return; // the Citizenship in Society window has closed
-            }
             var scout = TestFixtures.CreateScoutThroughFirstClass();
             scout.DateOfBirth = new DateTime(2008, 6, 15);
             new EagleReport(new List<TroopMember> { scout }).Run(_tempFile);
@@ -333,8 +329,18 @@ namespace advancement_chart.tests.Reports
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
                 var sheet = package.Workbook.Worksheets[0];
-                var label = sheet.Cells["A1:A60"].First(c => c.Text == $"{MeritBadge.CitizenshipSociety}:");
-                Assert.Equal("required", sheet.Cells[label.Start.Row, 2].Text);
+                var label = sheet.Cells[sheet.Dimension.Address]
+                    .FirstOrDefault(c => c.Start.Column == 1 && c.Text == $"{MeritBadge.CitizenshipSociety}:");
+
+                if (MeritBadge.GetEagleRequired().Contains(MeritBadge.CitizenshipSociety))
+                {
+                    Assert.NotNull(label);
+                    Assert.Equal("required", sheet.Cells[label.Start.Row, 2].Text);
+                }
+                else
+                {
+                    Assert.Null(label);
+                }
             }
         }
     }
