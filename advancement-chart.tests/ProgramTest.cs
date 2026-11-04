@@ -70,6 +70,25 @@ namespace advancement_chart.tests
         }
 
         [Fact]
+        public void ParseArgs_DoubleDashEndsOptions()
+        {
+            var options = Program.ParseArgs(new[] { "--output-dir", "-out", "--", "-weird.csv", "--patrol" });
+            Assert.Equal("-out", options.OutputDir);
+            Assert.Equal(new[] { "-weird.csv", "--patrol" }, options.InputFiles);
+            Assert.False(options.PatrolFileSpecified);
+        }
+
+        [Theory]
+        [InlineData("--patrol")]
+        [InlineData("--output-dir")]
+        public void ParseArgs_RepeatedOption_Throws(string option)
+        {
+            var ex = Assert.Throws<UsageException>(() =>
+                Program.ParseArgs(new[] { option, "x", option, "y", "a.csv" }));
+            Assert.Contains("more than once", ex.Message);
+        }
+
+        [Fact]
         public void ParseArgs_OptionValueLooksLikeOption_Throws()
         {
             var ex = Assert.Throws<UsageException>(() =>
@@ -146,13 +165,13 @@ namespace advancement_chart.tests
         }
 
         [Fact]
-        public void Execute_UnusableOutputDir_ReturnsTwo()
+        public void Execute_UnusableOutputDir_ReturnsOne()
         {
             var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
                                             "123,John,,Doe,Rank,Scout,2016,2023-02-01");
             var asFile = CreateTempCsv("not a directory");
             int code = ExecuteCapturingConsole(new[] { "--output-dir", asFile, advancement }, out _, out string err);
-            Assert.Equal(2, code);
+            Assert.Equal(1, code);
             Assert.Contains("Cannot use output directory", err);
         }
 
@@ -170,7 +189,10 @@ namespace advancement_chart.tests
         public void Execute_WritesReportsToOutputDir()
         {
             var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
-                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01");
+                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01\n" +
+                                            "123,John,,Doe,Rank,Tenderfoot,2016,2023-03-01\n" +
+                                            "123,John,,Doe,Rank,Second Class,2016,2023-04-01\n" +
+                                            "123,John,,Doe,Rank,First Class,2016,2023-05-01");
             var patrol = CreateTempCsv("BSA Member ID,Nickname,Patrol Name,DOB\n123,Johnny,Hawks,2010-06-15");
             var outDir = Path.Combine(Path.GetTempPath(), $"out_{Guid.NewGuid()}");
             try
@@ -179,6 +201,7 @@ namespace advancement_chart.tests
                 Assert.Equal(0, code);
                 Assert.True(File.Exists(Path.Combine(outDir, "TroopAdvancementChart.xlsx")));
                 Assert.True(File.Exists(Path.Combine(outDir, "IndividualReport.xlsx")));
+                Assert.True(File.Exists(Path.Combine(outDir, "EagleReport.xlsx")));
                 Assert.True(File.Exists(Path.Combine(outDir, "TroopGuideReport.xlsx")));
                 Assert.True(File.Exists(Path.Combine(outDir, "TroopCheckList.xlsx")));
                 Assert.True(File.Exists(Path.Combine(outDir, "AdvancementReport.docx")));

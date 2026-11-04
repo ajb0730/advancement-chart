@@ -70,7 +70,10 @@ advancement-chart [--patrol FILE] [--output-dir DIR] advancement.csv [advancemen
   current directory). It is created if needed.
 - `--help` - print usage.
 
-At least one advancement file is required, and each file named must exist.
+At least one advancement file is required, and each file named must exist; use
+`--` before a file whose name starts with `-`. If `--patrol` is not given and
+`./scouts.csv` is missing, the program only warns and produces reports without
+patrols, nicknames, or dates of birth.
 Exit codes: `0` success, `1` unusable input file, `2` bad command-line usage.
 
 ## TIPS

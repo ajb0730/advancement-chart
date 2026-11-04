@@ -49,7 +49,7 @@ namespace advancement_chart
     class Program
     {
         internal const string Usage =
-            "USAGE: advancement-chart [--patrol FILE] [--output-dir DIR] [--help] advancement.csv [advancement2.csv ...]\n" +
+            "USAGE: advancement-chart [--patrol FILE] [--output-dir DIR] [--help] [--] advancement.csv [advancement2.csv ...]\n" +
             "  --patrol FILE      patrol lookup file with DOBs (default: ./scouts.csv)\n" +
             "  --output-dir DIR   directory to write reports to (default: current directory)";
 
@@ -60,29 +60,51 @@ namespace advancement_chart
         internal static Options ParseArgs(string[] args)
         {
             var options = new Options();
+            bool optionsEnded = false;
+            bool patrolSeen = false;
+            bool outputDirSeen = false;
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
+                if (optionsEnded)
+                {
+                    options.InputFiles.Add(arg);
+                    continue;
+                }
                 switch (arg)
                 {
+                    case "--":
+                        // Everything after "--" is an input file, even if it starts with "-".
+                        optionsEnded = true;
+                        break;
                     case "-h":
                     case "--help":
                         options.ShowHelp = true;
                         break;
                     case "--patrol":
                     case "--output-dir":
-                        if (i + 1 >= args.Length || args[i + 1].StartsWith("-"))
+                        if (i + 1 >= args.Length || args[i + 1].StartsWith("--"))
                         {
                             throw new UsageException($"Option {arg} requires a value");
                         }
                         string value = args[++i];
                         if (arg == "--patrol")
                         {
+                            if (patrolSeen)
+                            {
+                                throw new UsageException("Option --patrol given more than once");
+                            }
+                            patrolSeen = true;
                             options.PatrolFile = value;
                             options.PatrolFileSpecified = true;
                         }
                         else
                         {
+                            if (outputDirSeen)
+                            {
+                                throw new UsageException("Option --output-dir given more than once");
+                            }
+                            outputDirSeen = true;
                             options.OutputDir = value;
                         }
                         break;
@@ -148,15 +170,6 @@ namespace advancement_chart
             {
                 throw new InputFileException($"Patrol lookup file not found: {options.PatrolFile}");
             }
-            try
-            {
-                Directory.CreateDirectory(options.OutputDir);
-            }
-            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is ArgumentException || e is NotSupportedException)
-            {
-                throw new UsageException($"Cannot use output directory '{options.OutputDir}': {e.Message}");
-            }
-
             var scouts = new List<TroopMember>();
             DateTime maxDate = DateTime.MinValue;
             foreach (string arg in options.InputFiles)
@@ -176,6 +189,14 @@ namespace advancement_chart
                 Console.Error.WriteLine("The Eagle Report will not show deadlines for scouts without a date of birth.");
             }
             LoadPatrolLookup(patrolFile, scouts);
+            try
+            {
+                Directory.CreateDirectory(options.OutputDir);
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is ArgumentException || e is NotSupportedException)
+            {
+                throw new InputFileException($"Cannot use output directory '{options.OutputDir}': {e.Message}");
+            }
             string Out(string name) => Path.Combine(options.OutputDir, name);
             {
                 var report = new TroopReport(scouts);
