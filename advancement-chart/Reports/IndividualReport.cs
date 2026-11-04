@@ -30,7 +30,7 @@ namespace advancementchart.Reports
             var fi = new FileInfo(outputFileName);
             using (var package = new ExcelPackage(fi))
             {
-                ExcelWorksheet wks = package.Workbook.Worksheets.Add("Troop Summary");
+                ExcelWorksheet wks = WorksheetNames.AddUnique(package.Workbook, "Troop Summary");
                 Dictionary<string, ExcelWorksheet> patrolSheets = new Dictionary<string, ExcelWorksheet>();
 
                 // Figure out Patrols
@@ -39,7 +39,7 @@ namespace advancementchart.Reports
                 {
                     foreach (string patrolName in patrols.Keys.OrderBy(s => s))
                     {
-                        patrolSheets.Add(patrolName, package.Workbook.Worksheets.Add(patrolName));
+                        patrolSheets.Add(patrolName, WorksheetNames.AddUnique(package.Workbook, patrolName));
                     }
                 }
 
@@ -123,7 +123,7 @@ namespace advancementchart.Reports
                 {
                     foreach (TroopMember scout in incomplete[key].OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {
-                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {scout.LastName.First()}*";
+                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}".Trim() + "*";
                         cell.Row += 1;
                     }
                 }
@@ -131,7 +131,7 @@ namespace advancementchart.Reports
                 {
                     foreach (TroopMember scout in notStarted[key].OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {
-                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {scout.LastName.First()}";
+                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}".Trim();
                         cell.Row += 1;
                     }
                 }
@@ -164,7 +164,7 @@ namespace advancementchart.Reports
 
         private void RunScoutReport(TroopMember scout, ExcelPackage package)
         {
-            var wks = package.Workbook.Worksheets.Add($"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {scout.LastName.First()}");
+            var wks = WorksheetNames.AddUnique(package.Workbook, $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}");
             CellAddress cell = new CellAddress("A1");
             wks.Cells[cell].Value = scout.DisplayName;
 
