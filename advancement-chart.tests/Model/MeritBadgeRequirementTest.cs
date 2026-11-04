@@ -9,7 +9,7 @@ namespace advancement_chart.tests.Model
     {
         private Rank CreateRank()
         {
-            return new Rank("TestRank", "", version: "2016");
+            return new Rank("TestRank", "");
         }
 
         [Fact]

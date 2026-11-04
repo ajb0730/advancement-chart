@@ -59,13 +59,6 @@ namespace advancement_chart.tests.Model.Ranks
         }
 
         [Fact]
-        public void Version_Is2016()
-        {
-            var rank = new Scout();
-            Assert.Equal("2016", rank.Version);
-        }
-
-        [Fact]
         public void Requirements_HaveCurriculumGroups()
         {
             var rank = new Scout();

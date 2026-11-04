@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace advancementchart.Model
 {
-    public class RankRequirement : VersionedEntity
+    public class RankRequirement : BaseEntity
     {
         protected RankRequirement()
             : base()
@@ -11,15 +11,10 @@ namespace advancementchart.Model
             Group = null;
         }
 
-        public RankRequirement(string name, string description, Rank rank, string version = "2016", string handbookPages = "", DateTime? earned = null, CurriculumGroup? curriculumGroup = null, int? timeRequirementMonths = null)
-            : base(name, description, version)
+        public RankRequirement(string name, string description, Rank rank, string handbookPages = "", DateTime? earned = null, CurriculumGroup? curriculumGroup = null, int? timeRequirementMonths = null)
+            : base(name, description)
         {
-            if (Version != rank.Version)
-            {
-                throw new ArgumentException(message: $"Version mismatch: RankRequirement.Version '{Version}' != Rank.Version '{rank.Version}'");
-            }
-
-            Rank = rank;
+            Rank = rank ?? throw new ArgumentNullException(nameof(rank));
             if (!string.IsNullOrWhiteSpace(handbookPages))
             {
                 HandbookPages = handbookPages;

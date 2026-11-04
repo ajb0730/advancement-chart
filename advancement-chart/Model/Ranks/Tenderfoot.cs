@@ -6,7 +6,7 @@ namespace advancementchart.Model.Ranks
     public class Tenderfoot : Rank
     {
         public Tenderfoot(DateTime? earned = null)
-            : base(name: "Tenderfoot", description: "", earned: earned, version: "2016")
+            : base(name: "Tenderfoot", description: "", earned: earned)
         {
             Requirements.Add(new RankRequirement(name: "1a", description: "Prepare for campout", rank: this, handbookPages: "267-273", curriculumGroup: CurriculumGroup.Camping1));
             Requirements.Add(new RankRequirement(name: "1b", description: "Spend one night on campout in tent", rank: this, handbookPages: "", curriculumGroup: CurriculumGroup.Camping2));

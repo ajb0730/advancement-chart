@@ -8,7 +8,7 @@ namespace advancement_chart.tests.Model
     {
         private Rank CreateRank(DateTime? earned = null)
         {
-            return new Rank("TestRank", "", earned: earned, version: "2016");
+            return new Rank("TestRank", "", earned: earned);
         }
 
         [Fact]
@@ -44,11 +44,9 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void Constructor_VersionMismatch_Throws()
+        public void Constructor_NullRank_Throws()
         {
-            var rank = new Rank("TestRank", "", version: "2020");
-            Assert.Throws<ArgumentException>(() =>
-                new RankRequirement("1a", "desc", rank, version: "2016"));
+            Assert.Throws<ArgumentNullException>(() => new RankRequirement("1a", "desc", null));
         }
 
         [Fact]

@@ -13,8 +13,8 @@ namespace advancementchart.Model
             : base()
         { }
 
-        public EagleMeritBadgeRequirement(string name, string description, Rank rank, string version = "2016", string handbookPages = "", DateTime? earned = null)
-            : base(name: name, description: description, rank: rank, required: 14, total: 21, version: version, handbookPages: handbookPages)
+        public EagleMeritBadgeRequirement(string name, string description, Rank rank, string handbookPages = "", DateTime? earned = null)
+            : base(name: name, description: description, rank: rank, required: 14, total: 21, handbookPages: handbookPages)
         {
             if (DateTime.Now >= CitSocietyCutover && DateTime.Now <= CitSocietyEnd)
             {
