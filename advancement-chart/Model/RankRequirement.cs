@@ -30,7 +30,7 @@ namespace advancementchart.Model
         }
 
         public Rank Rank { get; protected set; }
-        public DateTime? DateEarned { get; set; }
+        public virtual DateTime? DateEarned { get; set; }
         public string HandbookPages { get; protected set; }
         public CurriculumGroup? Group { get; protected set; }
         public int? TimeRequirementMonths { get; protected set; }

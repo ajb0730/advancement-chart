@@ -136,8 +136,6 @@ namespace advancementchart.Reports
 
                 Body body = mainPart.Document.AppendChild(new Body());
 
-                Paragraph para = body.AppendChild(new Paragraph());
-
                 // TODO: This should be in the header or footer
                 WriteLine(body, $"Report Generated: {DateTime.Now.ToShortDateString()}");
                 if (ReportDataTimestamp != DateTime.MinValue)

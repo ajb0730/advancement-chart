@@ -34,7 +34,7 @@ namespace advancementchart.Model
 
         public List<MeritBadge> MeritBadges { get; protected set; }
 
-        public new DateTime? DateEarned => Earned ? MeritBadges.Max(mb => mb.DateEarned) : null;
+        public override DateTime? DateEarned => Earned ? MeritBadges.Max(mb => mb.DateEarned) : null;
 
         public override bool Earned => MeritBadges.Where(x => x.Earned).Count() == Total;
 

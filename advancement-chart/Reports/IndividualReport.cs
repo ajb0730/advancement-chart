@@ -146,11 +146,14 @@ namespace advancementchart.Reports
         private decimal PercentComplete(List<RankRequirement> requirements)
         {
             decimal total = requirements.Count;
+            if (total == 0)
+            {
+                return 0m;
+            }
             decimal complete = requirements.Count(r => r.Earned);
             return complete / total;
         }
 
-        private readonly Dictionary<CurriculumGroup, List<TroopMember>> numberComplete = new Dictionary<CurriculumGroup, List<TroopMember>>();
         private readonly Dictionary<CurriculumGroup, List<TroopMember>> numberIncomplete = new Dictionary<CurriculumGroup, List<TroopMember>>();
         private readonly Dictionary<CurriculumGroup, List<TroopMember>> numberNotStarted = new Dictionary<CurriculumGroup, List<TroopMember>>();
 
@@ -171,12 +174,6 @@ namespace advancementchart.Reports
                 decimal percentComplete = PercentComplete(groups[key]);
                 if (percentComplete == 1m)
                 {
-                    if (!numberComplete.ContainsKey(key))
-                    {
-                        numberComplete.Add(key, new List<TroopMember>());
-                    }
-                    numberComplete[key].Add(scout);
-
                     continue;
                 }
                 else if (percentComplete == 0m)
