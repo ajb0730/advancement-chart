@@ -61,11 +61,20 @@ namespace advancement_chart.tests
 
         [Theory]
         [InlineData("--bogus")]
+        [InlineData("-patrol")]
         [InlineData("--patrol")]
         [InlineData("--output-dir")]
         public void ParseArgs_BadUsage_Throws(string bad)
         {
             Assert.Throws<UsageException>(() => Program.ParseArgs(new[] { "a.csv", bad }));
+        }
+
+        [Fact]
+        public void ParseArgs_OptionValueLooksLikeOption_Throws()
+        {
+            var ex = Assert.Throws<UsageException>(() =>
+                Program.ParseArgs(new[] { "--patrol", "--output-dir", "out", "a.csv" }));
+            Assert.Contains("--patrol requires a value", ex.Message);
         }
 
         [Fact]
@@ -137,6 +146,27 @@ namespace advancement_chart.tests
         }
 
         [Fact]
+        public void Execute_UnusableOutputDir_ReturnsTwo()
+        {
+            var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01");
+            var asFile = CreateTempCsv("not a directory");
+            int code = ExecuteCapturingConsole(new[] { "--output-dir", asFile, advancement }, out _, out string err);
+            Assert.Equal(2, code);
+            Assert.Contains("Cannot use output directory", err);
+        }
+
+        [Fact]
+        public void Execute_MissingPatrolFile_FailsBeforeLoadingInputs()
+        {
+            var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01");
+            int code = ExecuteCapturingConsole(new[] { "--patrol", "/nonexistent/scouts.csv", advancement }, out string stdout, out _);
+            Assert.Equal(1, code);
+            Assert.DoesNotContain("Reading data from", stdout);
+        }
+
+        [Fact]
         public void Execute_WritesReportsToOutputDir()
         {
             var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
@@ -149,6 +179,8 @@ namespace advancement_chart.tests
                 Assert.Equal(0, code);
                 Assert.True(File.Exists(Path.Combine(outDir, "TroopAdvancementChart.xlsx")));
                 Assert.True(File.Exists(Path.Combine(outDir, "IndividualReport.xlsx")));
+                Assert.True(File.Exists(Path.Combine(outDir, "TroopGuideReport.xlsx")));
+                Assert.True(File.Exists(Path.Combine(outDir, "TroopCheckList.xlsx")));
                 Assert.True(File.Exists(Path.Combine(outDir, "AdvancementReport.docx")));
             }
             finally
