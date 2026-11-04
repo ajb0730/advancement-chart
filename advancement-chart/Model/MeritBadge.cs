@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,7 +46,34 @@ namespace advancementchart.Model
             return IsMultiple(badge.Name);
         }
 
-        static public HashSet<string> GetEagleRequired()
+        private sealed class EagleRequiredSnapshot
+        {
+            public DateTime Day;
+            public IReadOnlySet<string> Badges;
+        }
+
+        private static volatile EagleRequiredSnapshot eagleRequiredCache;
+
+        /// <summary>
+        /// The set of Eagle-required badge names. The result depends on today's date (the Citizenship
+        /// in Society window) so it is cached per calendar day. The returned set is shared, so it is
+        /// exposed read-only.
+        /// </summary>
+        static public IReadOnlySet<string> GetEagleRequired()
+        {
+            var now = DateTime.Now;
+            var today = now.Date;
+            var cached = eagleRequiredCache;
+            if (cached != null && cached.Day == today)
+            {
+                return cached.Badges;
+            }
+            var badges = BuildEagleRequired(now).ToFrozenSet();
+            eagleRequiredCache = new EagleRequiredSnapshot { Day = today, Badges = badges };
+            return badges;
+        }
+
+        private static HashSet<string> BuildEagleRequired(DateTime now)
         {
             HashSet<string> eagleRequired = new HashSet<string>(){
                 "Camping",
@@ -66,8 +94,8 @@ namespace advancementchart.Model
                 "Hiking",
                 "Cycling"
             };
-            if (DateTime.Now >= EagleMeritBadgeRequirement.CitSocietyCutover
-                && DateTime.Now <= EagleMeritBadgeRequirement.CitSocietyEnd)
+            if (now >= EagleMeritBadgeRequirement.CitSocietyCutover
+                && now <= EagleMeritBadgeRequirement.CitSocietyEnd)
             {
                 eagleRequired.Add("Citizenship in Society");
             }

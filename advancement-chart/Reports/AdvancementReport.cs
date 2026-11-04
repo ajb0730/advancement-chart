@@ -194,21 +194,23 @@ namespace advancementchart.Reports
                                 }
 
                                 HashSet<string> skip = new HashSet<string>();
+                                var requiredNames = new HashSet<string>(required.Select(x => x.Name));
+                                var electiveNames = new HashSet<string>(elective.Select(x => x.Name));
                                 foreach (var badgeName in MeritBadge.GetEagleRequired())
                                 {
-                                    if (skip.Any(x => x == badgeName))
+                                    if (!skip.Add(badgeName))
                                     {
                                         continue;
                                     }
-                                    skip.Add(badgeName);
                                     bool haveStarted = mbReq.MeritBadges.Any(x => x.Name == badgeName && !x.Earned);
-                                    IEnumerable<MeritBadge> others = mbReq.MeritBadges.GetEagleEquivalents(badgeName);
+                                    string[] equivalentNames = MeritBadge.GetEagleEquivalents(badgeName);
+                                    List<MeritBadge> others = mbReq.MeritBadges.GetEagleEquivalents(badgeName).ToList();
                                     bool isMultiple = MeritBadge.IsMultiple(badgeName);
                                     bool haveEarnedOther = others.Any(x => x.Earned);
                                     bool haveStartedOther = others.Any(x => x.Started);
 
                                     // Eagle Required earned as an Eagle Required
-                                    if (required.Any(x => x.Name == badgeName))
+                                    if (requiredNames.Contains(badgeName))
                                     {
                                         WriteLine(body: body, line: $"Earned: {badgeName} *", indent: true);
                                     }
@@ -241,12 +243,12 @@ namespace advancementchart.Reports
                                         }
                                         else
                                         {
-                                            var stuffToList = MeritBadge.GetEagleEquivalents(badgeName).Prepend(badgeName);
+                                            var stuffToList = equivalentNames.Prepend(badgeName);
                                             WriteLine(body: body, line: $"Need: {String.Join(" * or ", stuffToList)} *", indent: true);
                                         }
-                                        foreach (var otherName in MeritBadge.GetEagleEquivalents(badgeName))
+                                        foreach (var otherName in equivalentNames)
                                         {
-                                            if (!elective.Any(x => x.Name == otherName))
+                                            if (!electiveNames.Contains(otherName))
                                             {
                                                 skip.Add(otherName);
                                             }

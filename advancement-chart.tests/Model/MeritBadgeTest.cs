@@ -98,6 +98,12 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
+        public void GetEagleRequired_RepeatedCalls_ReturnCachedSet()
+        {
+            Assert.Same(MeritBadge.GetEagleRequired(), MeritBadge.GetEagleRequired());
+        }
+
+        [Fact]
         public void GetEagleRequired_DoesNotContainElectives()
         {
             var required = MeritBadge.GetEagleRequired();
