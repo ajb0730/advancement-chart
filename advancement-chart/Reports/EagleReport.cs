@@ -130,7 +130,11 @@ namespace advancementchart.Reports
             }
 
             // Scouts with no known DOB sort last; they cannot be placed on the age timeline.
-            scouts = scouts.OrderBy(m => HasDateOfBirth(m) ? m.DateOfBirth : DateTime.MaxValue).ToList();
+            scouts = scouts
+                .OrderBy(m => HasDateOfBirth(m) ? m.DateOfBirth : DateTime.MaxValue)
+                .ThenBy(m => m.LastName)
+                .ThenBy(m => m.FirstName)
+                .ToList();
 
             var fi = new FileInfo(outputFileName);
             using (var package = new ExcelPackage(fi))
@@ -167,7 +171,7 @@ namespace advancementchart.Reports
                     else
                     {
                         Console.Error.WriteLine($"WARNING: No date of birth for {scout.DisplayName}; Eagle deadlines not calculated");
-                        wks.Cells[cell].Value = "Date of birth unknown - deadlines cannot be calculated. Add it to birthdates.csv.";
+                        wks.Cells[cell].Value = "Date of birth unknown - no deadlines shown";
                         wks.Cells[cell].Style.Font.Bold = true;
                     }
                     cell.ColumnNumber = 1;

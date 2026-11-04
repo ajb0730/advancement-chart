@@ -151,13 +151,14 @@ namespace advancement_chart.tests.Reports
                 var text = string.Join("\n", package.Workbook.Worksheets[1].Cells
                     .Where(c => c.Value != null).Select(c => c.Value.ToString()));
                 Assert.Contains("Date of birth unknown", text);
-                Assert.DoesNotContain("0018", text);
+                Assert.DoesNotContain("must be completed by", text);
                 Assert.DoesNotContain("Board of Review", text);
 
                 var knownText = string.Join("\n", package.Workbook.Worksheets[0].Cells
                     .Where(c => c.Value != null).Select(c => c.Value.ToString()));
                 Assert.DoesNotContain("Date of birth unknown", knownText);
                 Assert.Contains("Board of Review", knownText);
+                Assert.Contains("must be completed by", knownText);
             }
         }
 
