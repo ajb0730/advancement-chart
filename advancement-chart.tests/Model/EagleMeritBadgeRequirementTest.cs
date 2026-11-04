@@ -152,5 +152,19 @@ namespace advancement_chart.tests.Model
             // Total=21, Required=14 during Cit in Society window (2022-07-01 to 2026-12-31), so Elective=7
             Assert.Equal(7, req.Elective);
         }
+
+        [Theory]
+        [InlineData(2022, 6, 30, 23, 59, false)]
+        [InlineData(2022, 7, 1, 0, 0, true)]
+        [InlineData(2024, 3, 15, 12, 0, true)]
+        [InlineData(2026, 12, 30, 23, 59, true)]
+        [InlineData(2026, 12, 31, 0, 0, true)]
+        [InlineData(2026, 12, 31, 12, 30, true)]   // the whole last day counts
+        [InlineData(2026, 12, 31, 23, 59, true)]
+        [InlineData(2027, 1, 1, 0, 0, false)]
+        public void IsCitizenshipInSocietyRequired_CoversWholeDaysOfTheWindow(int y, int mo, int d, int h, int mi, bool expected)
+        {
+            Assert.Equal(expected, EagleMeritBadgeRequirement.IsCitizenshipInSocietyRequired(new DateTime(y, mo, d, h, mi, 0)));
+        }
     }
 }

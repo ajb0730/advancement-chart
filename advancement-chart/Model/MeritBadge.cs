@@ -136,8 +136,7 @@ namespace advancementchart.Model
                 Hiking,
                 Cycling
             };
-            if (now >= EagleMeritBadgeRequirement.CitSocietyCutover
-                && now <= EagleMeritBadgeRequirement.CitSocietyEnd)
+            if (EagleMeritBadgeRequirement.IsCitizenshipInSocietyRequired(now))
             {
                 eagleRequired.Add(CitizenshipSociety);
             }
