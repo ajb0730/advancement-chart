@@ -62,6 +62,7 @@ namespace advancement_chart.tests
         [Theory]
         [InlineData("--bogus")]
         [InlineData("-patrol")]
+        [InlineData("-")]
         [InlineData("--patrol")]
         [InlineData("--output-dir")]
         public void ParseArgs_BadUsage_Throws(string bad)
@@ -183,6 +184,26 @@ namespace advancement_chart.tests
             int code = ExecuteCapturingConsole(new[] { "--patrol", "/nonexistent/scouts.csv", advancement }, out string stdout, out _);
             Assert.Equal(1, code);
             Assert.DoesNotContain("Reading data from", stdout);
+        }
+
+        [Fact]
+        public void Execute_DuplicateInputFile_LoadedOnce()
+        {
+            var advancement = CreateTempCsv("BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                                            "123,John,,Doe,Rank,Scout,2016,2023-02-01");
+            var outDir = Path.Combine(Path.GetTempPath(), $"out_{Guid.NewGuid()}");
+            try
+            {
+                int code = ExecuteCapturingConsole(new[] { "--output-dir", outDir, advancement, advancement }, out string stdout, out string err);
+                Assert.Equal(0, code);
+                Assert.Contains("Ignoring duplicate input file", err);
+                Assert.Single(System.Text.RegularExpressions.Regex.Matches(stdout, "Reading data from"));
+            }
+            finally
+            {
+                if (Directory.Exists(outDir))
+                    Directory.Delete(outDir, true);
+            }
         }
 
         [Fact]

@@ -68,7 +68,7 @@ advancement-chart [--patrol FILE] [--output-dir DIR] advancement.csv [advancemen
   dates of birth (default: `./scouts.csv`). If given explicitly, the file must exist.
 - `--output-dir DIR` - the directory the reports are written to (default: the
   current directory). It is created if needed.
-- `--help` - print usage.
+- `-h`, `--help` - print usage.
 
 At least one advancement file is required, and each file named must exist; use
 `--` before a file whose name starts with `-`. If `--patrol` is not given and

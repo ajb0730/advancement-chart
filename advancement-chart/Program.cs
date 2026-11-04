@@ -49,7 +49,7 @@ namespace advancement_chart
     class Program
     {
         internal const string Usage =
-            "USAGE: advancement-chart [--patrol FILE] [--output-dir DIR] [--help] [--] advancement.csv [advancement2.csv ...]\n" +
+            "USAGE: advancement-chart [--patrol FILE] [--output-dir DIR] [-h|--help] [--] advancement.csv [advancement2.csv ...]\n" +
             "  --patrol FILE      patrol lookup file with DOBs (default: ./scouts.csv)\n" +
             "  --output-dir DIR   directory to write reports to (default: current directory)";
 
@@ -109,7 +109,7 @@ namespace advancement_chart
                         }
                         break;
                     default:
-                        if (arg.StartsWith("-") && arg != "-")
+                        if (arg.StartsWith("-"))
                         {
                             throw new UsageException($"Unknown option {arg}");
                         }
@@ -147,6 +147,12 @@ namespace advancement_chart
                 Console.Error.WriteLine(Usage);
                 return 2;
             }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                // e.g. a report could not be written to the output directory.
+                Console.Error.WriteLine($"ERROR: {e.Message}");
+                return 1;
+            }
         }
 
         private static void Run(string[] args)
@@ -158,9 +164,17 @@ namespace advancement_chart
                 return;
             }
 
-            // Validate everything named on the command line before reading any data.
+            // Validate everything named on the command line before reading any data. Naming the same
+            // file twice would load (and double-count) its records twice, so keep only the first.
+            var inputFiles = new List<string>();
             foreach (string input in options.InputFiles)
             {
+                if (inputFiles.Any(f => Path.GetFullPath(f) == Path.GetFullPath(input)))
+                {
+                    Console.Error.WriteLine($"WARNING: Ignoring duplicate input file '{input}'");
+                    continue;
+                }
+                inputFiles.Add(input);
                 if (!File.Exists(input))
                 {
                     throw new InputFileException($"Input file not found: {input}");
@@ -172,7 +186,7 @@ namespace advancement_chart
             }
             var scouts = new List<TroopMember>();
             DateTime maxDate = DateTime.MinValue;
-            foreach (string arg in options.InputFiles)
+            foreach (string arg in inputFiles)
             {
                 var fileMaxDate = LoadFile(arg, scouts);
                 maxDate = fileMaxDate > maxDate ? fileMaxDate : maxDate;
