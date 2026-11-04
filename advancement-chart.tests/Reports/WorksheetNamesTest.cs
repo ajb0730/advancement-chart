@@ -27,6 +27,8 @@ namespace advancement_chart.tests.Reports
         [InlineData("", "Sheet")]
         [InlineData("   ", "Sheet")]
         [InlineData("'quoted'", "quoted")]
+        [InlineData("History", "History (1)")]
+        [InlineData("history", "history (1)")]
         public void Sanitize_ProducesValidNames(string input, string expected)
         {
             Assert.Equal(expected, WorksheetNames.Sanitize(input));
@@ -36,6 +38,30 @@ namespace advancement_chart.tests.Reports
         public void Sanitize_TruncatesToExcelLimit()
         {
             Assert.Equal(WorksheetNames.MaxLength, WorksheetNames.Sanitize(new string('x', 80)).Length);
+        }
+
+        [Fact]
+        public void Sanitize_TruncationNeverLeavesTrailingApostropheOrSpace()
+        {
+            // The 31st character is an apostrophe, so cutting there must not leave one behind.
+            string name = new string('x', 30) + "'" + "tail";
+            string result = WorksheetNames.Sanitize(name);
+            Assert.DoesNotContain("'", result);
+            Assert.Equal(result.Trim(), result);
+        }
+
+        [Fact]
+        public void Abbreviated_OmitsInitialWhenNoLastName()
+        {
+            Assert.Equal("Pat", WorksheetNames.Abbreviated("Pat", ""));
+            Assert.Equal("Pat S.", WorksheetNames.Abbreviated("Pat", "Smith"));
+        }
+
+        [Fact]
+        public void Initial_KeepsSurrogatePairsWhole()
+        {
+            string emoji = char.ConvertFromUtf32(0x1F600);
+            Assert.Equal(emoji, WorksheetNames.Initial(emoji + "x"));
         }
 
         [Theory]
@@ -99,8 +125,29 @@ namespace advancement_chart.tests.Reports
 
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
-                Assert.Equal(3, package.Workbook.Worksheets.Count);
-                Assert.Equal(3, package.Workbook.Worksheets.Select(w => w.Name.ToLowerInvariant()).Distinct().Count());
+                Assert.Equal(new[] { "John S.", "John S. (2)", "Pat" },
+                    package.Workbook.Worksheets.Select(w => w.Name).OrderBy(n => n).ToArray());
+            }
+        }
+
+        [Fact]
+        public void IndividualReport_PatrolNamesThatCollideAfterSanitizing_GetUniqueSheets()
+        {
+            var a = TestFixtures.CreateScout("1", "Ann", "Able");
+            var b = TestFixtures.CreateScout("2", "Bob", "Baker");
+            var c = TestFixtures.CreateScout("3", "Cal", "Cook");
+            a.Patrol = "A:B";
+            b.Patrol = "A-B";
+            c.Patrol = "History";
+            new IndividualReport(new List<TroopMember> { a, b, c }).Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var names = package.Workbook.Worksheets.Select(w => w.Name).ToList();
+                Assert.Contains("A-B", names);
+                Assert.Contains("A-B (2)", names);
+                Assert.Contains("History (1)", names);
+                Assert.Equal(names.Count, names.Select(n => n.ToLowerInvariant()).Distinct().Count());
             }
         }
 
@@ -116,7 +163,8 @@ namespace advancement_chart.tests.Reports
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
                 // Troop Summary plus one sheet per scout.
-                Assert.Equal(4, package.Workbook.Worksheets.Count);
+                Assert.Equal(new[] { "John S", "John S (2)", "Pat", "Troop Summary" },
+                    package.Workbook.Worksheets.Select(w => w.Name).OrderBy(n => n).ToArray());
             }
         }
     }

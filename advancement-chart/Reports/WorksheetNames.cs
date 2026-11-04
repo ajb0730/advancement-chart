@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using OfficeOpenXml;
 
@@ -22,7 +23,7 @@ namespace advancementchart.Reports
             return workbook.Worksheets.Add(Unique(workbook, desiredName));
         }
 
-        internal static string Unique(ExcelWorkbook workbook, string desiredName)
+        private static string Unique(ExcelWorkbook workbook, string desiredName)
         {
             string baseName = Sanitize(desiredName);
             string candidate = baseName;
@@ -38,24 +39,47 @@ namespace advancementchart.Reports
         internal static string Sanitize(string name)
         {
             string cleaned = new string((name ?? string.Empty).Select(c => InvalidChars.Contains(c) ? '-' : c).ToArray()).Trim();
-            // Names may not begin or end with an apostrophe either.
-            cleaned = cleaned.Trim('\'').Trim();
+            cleaned = Truncate(cleaned, MaxLength);
             if (cleaned.Length == 0)
             {
                 cleaned = "Sheet";
             }
-            return Truncate(cleaned, MaxLength);
+            // Excel reserves "History" for its own use.
+            if (string.Equals(cleaned, "History", StringComparison.OrdinalIgnoreCase))
+            {
+                cleaned += " (1)";
+            }
+            return cleaned;
         }
 
+        /// <summary>Cuts to at most <paramref name="length"/> characters without leaving a leading/trailing apostrophe or space.</summary>
         private static string Truncate(string value, int length)
         {
-            return value.Length <= length ? value : value.Substring(0, length).TrimEnd();
+            if (value.Length > length)
+            {
+                value = value.Substring(0, length);
+                // Do not cut a surrogate pair in half.
+                if (char.IsHighSurrogate(value[value.Length - 1]))
+                {
+                    value = value.Substring(0, value.Length - 1);
+                }
+            }
+            return value.Trim().Trim('\'').Trim();
         }
 
         /// <summary>First letter of a last name for abbreviated sheet names, or empty if there is none.</summary>
         internal static string Initial(string lastName)
         {
-            return string.IsNullOrWhiteSpace(lastName) ? string.Empty : lastName.Trim().Substring(0, 1);
+            return string.IsNullOrWhiteSpace(lastName)
+                ? string.Empty
+                : StringInfo.GetNextTextElement(lastName.Trim());
+        }
+
+        /// <summary>"First L." for a scout, or just "First" when there is no last name.</summary>
+        internal static string Abbreviated(string firstName, string lastName)
+        {
+            string initial = Initial(lastName);
+            return initial.Length == 0 ? firstName : $"{firstName} {initial}.";
         }
     }
 }

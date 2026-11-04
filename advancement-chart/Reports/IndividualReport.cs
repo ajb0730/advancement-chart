@@ -123,7 +123,7 @@ namespace advancementchart.Reports
                 {
                     foreach (TroopMember scout in incomplete[key].OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {
-                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}*";
+                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}".Trim() + "*";
                         cell.Row += 1;
                     }
                 }
@@ -131,7 +131,7 @@ namespace advancementchart.Reports
                 {
                     foreach (TroopMember scout in notStarted[key].OrderBy(s => s.LastName).ThenBy(s => s.FirstName))
                     {
-                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}";
+                        excelWorksheet.Cells[cell].Value = $"{(string.IsNullOrWhiteSpace(scout.NickName) ? scout.FirstName : scout.NickName)} {WorksheetNames.Initial(scout.LastName)}".Trim();
                         cell.Row += 1;
                     }
                 }
