@@ -80,16 +80,19 @@ namespace advancementchart.Reports
             for (int i = ladder.Length - 1; i > 0; i--)
             {
                 Rank higher = ladder[i];
-                Rank lower = ladder[i - 1];
                 if (!higher.Earned)
                 {
                     continue;
                 }
-                if (!lower.Earned)
+                if (!ladder[i - 1].Earned)
                 {
-                    issues.Add(new AdvancementIssue(IssueSeverity.Error, name, $"has earned {higher.Name} but not {lower.Name}"));
+                    issues.Add(new AdvancementIssue(IssueSeverity.Error, name, $"has earned {higher.Name} but not {ladder[i - 1].Name}"));
                 }
-                else if (higher.DateEarned.Value.Date < lower.DateEarned.Value.Date)
+
+                // Compare dates against the nearest earned rank below, so a missing rung in between
+                // does not hide a date inversion.
+                Rank lower = ladder.Take(i).LastOrDefault(r => r.Earned);
+                if (lower != null && higher.DateEarned.Value.Date < lower.DateEarned.Value.Date)
                 {
                     // Scoutbook is authoritative and dates are sometimes backfilled out of order,
                     // so this is a heads-up rather than an error.

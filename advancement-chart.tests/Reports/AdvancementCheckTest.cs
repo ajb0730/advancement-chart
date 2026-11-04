@@ -77,6 +77,17 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
+        public void Validate_DateInversionAcrossMissingRank_IsStillReported()
+        {
+            var scout = TestFixtures.CreateScoutThroughFirstClass();
+            scout.Star.DateEarned = new DateTime(2022, 6, 1);
+            scout.Eagle.DateEarned = new DateTime(2020, 1, 1); // Life is missing; Eagle predates Star
+            var issues = new AdvancementCheck(new List<TroopMember> { scout }).Validate();
+            Assert.Contains(issues, i => i.Message == "has earned Eagle but not Life");
+            Assert.Contains(issues, i => i.Severity == IssueSeverity.Warning && i.Message.Contains("earned Eagle") && i.Message.Contains("before Star"));
+        }
+
+        [Fact]
         public void Validate_PastTheRank_NoTimeRequirementWarning()
         {
             // Life is earned although Star is not (a data gap); the "check Star #1" nudge is moot.
