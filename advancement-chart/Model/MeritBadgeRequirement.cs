@@ -34,7 +34,15 @@ namespace advancementchart.Model
 
         public List<MeritBadge> MeritBadges { get; protected set; }
 
-        public override DateTime? DateEarned => Earned ? MeritBadges.Max(mb => mb.DateEarned) : null;
+        /// <summary>
+        /// Derived from the allocated merit badges. Assignments are ignored: this requirement is
+        /// earned only when its badges are, so a stored date would contradict <see cref="Earned"/>.
+        /// </summary>
+        public override DateTime? DateEarned
+        {
+            get => Earned ? MeritBadges.Max(mb => mb.DateEarned) : null;
+            set { }
+        }
 
         public override bool Earned => MeritBadges.Where(x => x.Earned).Count() == Total;
 

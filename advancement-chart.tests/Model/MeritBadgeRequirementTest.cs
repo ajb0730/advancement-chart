@@ -103,6 +103,17 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
+        public void DateEarned_AssignmentIsIgnored()
+        {
+            var rank = CreateRank();
+            var req = new MeritBadgeRequirement("3", "desc", rank, required: 2, total: 3);
+
+            req.DateEarned = new DateTime(2023, 5, 5);
+            Assert.Null(req.DateEarned);
+            Assert.False(req.Earned);
+        }
+
+        [Fact]
         public void DateEarned_NullWhenNotAllEarned()
         {
             var rank = CreateRank();
