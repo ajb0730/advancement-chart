@@ -298,7 +298,7 @@ namespace advancementchart.Reports
                         else if (nextRank.Name == "Tenderfoot" && requirement.Name == "6a")
                         {
                             var matchedReq = nextRank.Requirements.First(x => x.Name == "6c");
-                            if (!matchedReq.Earned && DateTime.Now.Subtract(requirement.DateEarned.Value).Days > 45)
+                            if (!matchedReq.Earned && DateTime.Now.Subtract(requirement.DateEarned.Value).Days > ScoutingConstants.Tenderfoot6cWarningDays)
                             {
                                 WriteLine(body, $"{requirement.Name}. {requirement.Description}");
                                 WriteLine(body: body, line: $"=> !!! Requirement 6c has not been earned ({DateTime.Now.Subtract(requirement.DateEarned.Value).Days} days)", indent: true);

@@ -109,9 +109,9 @@ namespace advancementchart.Reports
             }
 
             // The "active for N months" requirement of the next rank is due once the time has passed.
-            CheckTimeRequirement(issues, name, ladder, nextIndex: 4, months: 4);
-            CheckTimeRequirement(issues, name, ladder, nextIndex: 5, months: 6);
-            CheckTimeRequirement(issues, name, ladder, nextIndex: 6, months: 6);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 4, months: ScoutingConstants.StarActiveMonths);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 5, months: ScoutingConstants.LifeActiveMonths);
+            CheckTimeRequirement(issues, name, ladder, nextIndex: 6, months: ScoutingConstants.EagleActiveMonths);
         }
 
         /// <summary>
