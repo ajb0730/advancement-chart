@@ -200,19 +200,14 @@ namespace advancementchart.Reports
 
                     int remaining = req.Elective - elective.Count();
 
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.FirstAid);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.CitizenshipCommunity);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.CitizenshipNation);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.CitizenshipWorld);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.Communication);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.Cooking);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.PersonalFitness);
-                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { MeritBadge.EmergencyPreparedness, MeritBadge.Lifesaving });
-                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { MeritBadge.EnvironmentalScience, MeritBadge.Sustainability });
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.PersonalManagement);
-                    cell = this.AddMeritBadge(wks, cell, required, new List<string>() { MeritBadge.Swimming, MeritBadge.Hiking, MeritBadge.Cycling });
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.Camping);
-                    cell = this.AddMeritBadge(wks, cell, required, MeritBadge.FamilyLife);
+                    // Same columns, in the same order, as the troop advancement chart; this includes
+                    // Citizenship in Society while it is Eagle-required.
+                    foreach (var column in TroopReport.EagleColumnsFor(MeritBadge.GetEagleRequired()))
+                    {
+                        cell = column.Length == 1
+                            ? this.AddMeritBadge(wks, cell, required, column[0])
+                            : this.AddMeritBadge(wks, cell, required, column.ToList());
+                    }
                     cell.Row++;
                     if (hasDob)
                     {
