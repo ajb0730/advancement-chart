@@ -20,7 +20,7 @@ namespace advancementchart.Model.Ranks
             }
             Type = type;
 
-            Requirements.Add(new RankRequirement(name: "1", description: "Be active 3 months since earning Eagle Scout or previous Eagle Palm", rank: this, handbookPages: "", timeRequirementMonths: 3));
+            Requirements.Add(new RankRequirement(name: "1", description: $"Be active {ScoutingConstants.PalmActiveMonths} months since earning Eagle Scout or previous Eagle Palm", rank: this, handbookPages: "", timeRequirementMonths: ScoutingConstants.PalmActiveMonths));
             Requirements.Add(new RankRequirement(name: "2", description: "Demonstrate Scout spirit since earning Eagle Scout or previous Eagle Palm", rank: this, handbookPages: ""));
             Requirements.Add(new RankRequirement(name: "3", description: "Demonstrate leadership or responsibility since earning Eagle Scout or previous Eagle Palm", rank: this, handbookPages: ""));
             Requirements.Add(new MeritBadgeRequirement(name: "4", description: "Earn 5 more merit badges", total: 5, required: 0, rank: this, handbookPages: ""));

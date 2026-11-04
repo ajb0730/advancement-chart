@@ -35,7 +35,7 @@ namespace advancementchart.Reports
                     desc.Row--;
 
                     {
-                        wks.Cells[desc].Value = "First Aid";
+                        wks.Cells[desc].Value = MeritBadge.FirstAid;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -43,7 +43,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Citizenship in the Community";
+                        wks.Cells[desc].Value = MeritBadge.CitizenshipCommunity;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -51,7 +51,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Citizenship in the Nation";
+                        wks.Cells[desc].Value = MeritBadge.CitizenshipNation;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -59,7 +59,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
 		    {
-                        wks.Cells[desc].Value = "Citizenship in Society";
+                        wks.Cells[desc].Value = MeritBadge.CitizenshipSociety;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -67,7 +67,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Citizenship in the World";
+                        wks.Cells[desc].Value = MeritBadge.CitizenshipWorld;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -75,7 +75,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Communication";
+                        wks.Cells[desc].Value = MeritBadge.Communication;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -83,7 +83,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Cooking";
+                        wks.Cells[desc].Value = MeritBadge.Cooking;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -91,7 +91,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Personal Fitness";
+                        wks.Cells[desc].Value = MeritBadge.PersonalFitness;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -99,7 +99,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Emergency Preparedness / Lifesaving";
+                        wks.Cells[desc].Value = $"{MeritBadge.EmergencyPreparedness} / {MeritBadge.Lifesaving}";
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -107,7 +107,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Environmental Science / Sustainability";
+                        wks.Cells[desc].Value = $"{MeritBadge.EnvironmentalScience} / {MeritBadge.Sustainability}";
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -115,7 +115,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Personal Management";
+                        wks.Cells[desc].Value = MeritBadge.PersonalManagement;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -123,7 +123,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Swimming / Hiking / Cycling";
+                        wks.Cells[desc].Value = $"{MeritBadge.Swimming} / {MeritBadge.Hiking} / {MeritBadge.Cycling}";
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -131,7 +131,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Camping";
+                        wks.Cells[desc].Value = MeritBadge.Camping;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -139,7 +139,7 @@ namespace advancementchart.Reports
                         desc.ColumnNumber++;
                     }
                     {
-                        wks.Cells[desc].Value = "Family Life";
+                        wks.Cells[desc].Value = MeritBadge.FamilyLife;
                         wks.Cells[desc].Style.TextRotation = 90;
                         wks.Cells[desc].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                         wks.Cells[desc].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom;
@@ -257,7 +257,7 @@ namespace advancementchart.Reports
                     //           Swimming or Hiking or Cycling, Camping, Fam Life
 
                     cell.ColumnNumber++;
-                    var selected = required.Where(mb => mb.Name == "First Aid");
+                    var selected = required.Where(mb => mb.Name == MeritBadge.FirstAid);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -265,7 +265,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Citizenship in the Community");
+                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipCommunity);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -273,7 +273,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Citizenship in the Nation");
+                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipNation);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -281,7 +281,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Citizenship in Society");
+                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipSociety);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -289,7 +289,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Citizenship in the World");
+                    selected = required.Where(mb => mb.Name == MeritBadge.CitizenshipWorld);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -297,7 +297,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Communication");
+                    selected = required.Where(mb => mb.Name == MeritBadge.Communication);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -305,7 +305,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Cooking");
+                    selected = required.Where(mb => mb.Name == MeritBadge.Cooking);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -313,7 +313,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Personal Fitness");
+                    selected = required.Where(mb => mb.Name == MeritBadge.PersonalFitness);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -321,20 +321,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Emergency Preparedness" || mb.Name == "Lifesaving");
-                    if (selected.Any())
-                    {
-                        wks.Cells[cell].Value = selected.First().BsaId;
-                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                        if (selected.Count() > 1)
-                        {
-                            elective.Add(selected.Last());
-                            elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
-                        }
-                    }
-
-                    cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Environmental Science" || mb.Name == "Sustainability");
+                    selected = required.Where(mb => mb.Name == MeritBadge.EmergencyPreparedness || mb.Name == MeritBadge.Lifesaving);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -347,7 +334,20 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Personal Management");
+                    selected = required.Where(mb => mb.Name == MeritBadge.EnvironmentalScience || mb.Name == MeritBadge.Sustainability);
+                    if (selected.Any())
+                    {
+                        wks.Cells[cell].Value = selected.First().BsaId;
+                        wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        if (selected.Count() > 1)
+                        {
+                            elective.Add(selected.Last());
+                            elective = elective.OrderBy(mb => mb.DateEarned).ThenBy(mb => mb.BsaId).ToList();
+                        }
+                    }
+
+                    cell.ColumnNumber++;
+                    selected = required.Where(mb => mb.Name == MeritBadge.PersonalManagement);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -355,7 +355,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Swimming" || mb.Name == "Hiking" || mb.Name == "Cycling");
+                    selected = required.Where(mb => mb.Name == MeritBadge.Swimming || mb.Name == MeritBadge.Hiking || mb.Name == MeritBadge.Cycling);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -372,7 +372,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Camping");
+                    selected = required.Where(mb => mb.Name == MeritBadge.Camping);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;
@@ -380,7 +380,7 @@ namespace advancementchart.Reports
                     }
 
                     cell.ColumnNumber++;
-                    selected = required.Where(mb => mb.Name == "Family Life");
+                    selected = required.Where(mb => mb.Name == MeritBadge.FamilyLife);
                     if (selected.Any())
                     {
                         wks.Cells[cell].Value = selected.First().BsaId;

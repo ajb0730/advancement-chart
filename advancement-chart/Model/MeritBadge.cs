@@ -16,11 +16,31 @@ namespace advancementchart.Model
 
     public class MeritBadge : BaseEntity
     {
+        // Names of the Eagle-required merit badges, shared so a typo is a compile error.
+        public const string FirstAid = "First Aid";
+        public const string CitizenshipCommunity = "Citizenship in the Community";
+        public const string CitizenshipNation = "Citizenship in the Nation";
+        public const string CitizenshipSociety = "Citizenship in Society";
+        public const string CitizenshipWorld = "Citizenship in the World";
+        public const string Communication = "Communication";
+        public const string Cooking = "Cooking";
+        public const string PersonalFitness = "Personal Fitness";
+        public const string EmergencyPreparedness = "Emergency Preparedness";
+        public const string Lifesaving = "Lifesaving";
+        public const string EnvironmentalScience = "Environmental Science";
+        public const string Sustainability = "Sustainability";
+        public const string PersonalManagement = "Personal Management";
+        public const string Swimming = "Swimming";
+        public const string Hiking = "Hiking";
+        public const string Cycling = "Cycling";
+        public const string Camping = "Camping";
+        public const string FamilyLife = "Family Life";
+
         public static readonly string[][] MutuallyExclusiveGroups = new[]
         {
-            new[] { "Emergency Preparedness", "Lifesaving" },
-            new[] { "Environmental Science", "Sustainability" },
-            new[] { "Swimming", "Hiking", "Cycling" }
+            new[] { EmergencyPreparedness, Lifesaving },
+            new[] { EnvironmentalScience, Sustainability },
+            new[] { Swimming, Hiking, Cycling }
         };
 
         static public string[] GetEagleEquivalents(string badgeName)
@@ -76,48 +96,48 @@ namespace advancementchart.Model
         private static HashSet<string> BuildEagleRequired(DateTime now)
         {
             HashSet<string> eagleRequired = new HashSet<string>(){
-                "Camping",
-                "Citizenship in the Community",
-                "Citizenship in the Nation",
-                "Citizenship in the World",
-                "Communication",
-                "Cooking",
-                "Lifesaving",
-                "Emergency Preparedness",
-                "Environmental Science",
-                "Sustainability",
-                "Family Life",
-                "First Aid",
-                "Personal Fitness",
-                "Personal Management",
-                "Swimming",
-                "Hiking",
-                "Cycling"
+                Camping,
+                CitizenshipCommunity,
+                CitizenshipNation,
+                CitizenshipWorld,
+                Communication,
+                Cooking,
+                Lifesaving,
+                EmergencyPreparedness,
+                EnvironmentalScience,
+                Sustainability,
+                FamilyLife,
+                FirstAid,
+                PersonalFitness,
+                PersonalManagement,
+                Swimming,
+                Hiking,
+                Cycling
             };
             if (now >= EagleMeritBadgeRequirement.CitSocietyCutover
                 && now <= EagleMeritBadgeRequirement.CitSocietyEnd)
             {
-                eagleRequired.Add("Citizenship in Society");
+                eagleRequired.Add(CitizenshipSociety);
             }
             return eagleRequired;
         }
 
         static public readonly Dictionary<string, string> BsaMeritBadgeIds = new Dictionary<string, string>()
         {
-            {"Camping", "001"},
-            {"Citizenship in the Community", "002"},
-            {"Citizenship in the Nation", "003"},
-            {"Citizenship in the World", "004"},
-            {"Communication", "005"},
-            {"Emergency Preparedness", "006"},
-            {"Environmental Science", "007"},
-            {"First Aid", "008"},
-            {"Lifesaving", "009"},
-            {"Personal Fitness", "010"},
-            {"Personal Management", "011"},
+            {Camping, "001"},
+            {CitizenshipCommunity, "002"},
+            {CitizenshipNation, "003"},
+            {CitizenshipWorld, "004"},
+            {Communication, "005"},
+            {EmergencyPreparedness, "006"},
+            {EnvironmentalScience, "007"},
+            {FirstAid, "008"},
+            {Lifesaving, "009"},
+            {PersonalFitness, "010"},
+            {PersonalManagement, "011"},
             {"Safety", "012"},
             {"Sports", "013"},
-            {"Swimming", "014"},
+            {Swimming, "014"},
             {"American Business", "015"},
             {"American Heritage", "016"},
             {"American Cultures", "017"},
@@ -141,8 +161,8 @@ namespace advancementchart.Model
             {"Coin Collecting", "035"},
             {"Computers", "036"},
             {"Consumer Buying", "037"},
-            {"Cooking", "038"},
-            {"Cycling", "039"},
+            {Cooking, "038"},
+            {Cycling, "039"},
             {"Dentistry", "040"},
             {"Dog Care", "041"},
             {"Drafting", "042"},
@@ -164,7 +184,7 @@ namespace advancementchart.Model
             {"Geology", "058"},
             {"Golf", "059"},
             {"Disabilities Awareness", "060"},
-            {"Hiking", "061"},
+            {Hiking, "061"},
             {"Home Repairs", "062"},
             {"Horsemanship", "063"},
             {"American Indian Culture", "064"},
@@ -232,7 +252,7 @@ namespace advancementchart.Model
             {"Cinematography", "126"},
             {"Auto Mechanics", "127"},
             {"Collections", "128"},
-            {"Family Life", "129"},
+            {FamilyLife, "129"},
             {"Medicine", "130"},
             {"Crime Prevention", "131"},
             {"Archaeology", "132"},
@@ -255,7 +275,7 @@ namespace advancementchart.Model
             {"Kayaking", "149"},
             {"Search and Rescue", "150"},
             {"Game Design", "151"},
-            {"Sustainability", "152"},
+            {Sustainability, "152"},
             {"Programming", "153"},
             {"Digital Technology", "154"},
             {"Mining in Society", "155"},
@@ -263,7 +283,7 @@ namespace advancementchart.Model
             {"Signs, Signals, and Codes", "157"},
             {"Animation", "158"},
             {"Exploration", "159"},
-            {"Citizenship in Society", "160"},
+            {CitizenshipSociety, "160"},
             {"Healthcare Professions", "161"},
             {"Automotive Maintenance", "162"},
             {"Multisport", "163"},
