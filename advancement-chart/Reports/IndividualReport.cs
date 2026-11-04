@@ -30,7 +30,7 @@ namespace advancementchart.Reports
             var fi = new FileInfo(outputFileName);
             using (var package = new ExcelPackage(fi))
             {
-                ExcelWorksheet wks = package.Workbook.Worksheets.Add("Troop Summary");
+                ExcelWorksheet wks = WorksheetNames.AddUnique(package.Workbook, "Troop Summary");
                 Dictionary<string, ExcelWorksheet> patrolSheets = new Dictionary<string, ExcelWorksheet>();
 
                 // Figure out Patrols

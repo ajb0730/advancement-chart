@@ -126,7 +126,7 @@ namespace advancement_chart.tests.Reports
             using (var package = new ExcelPackage(new FileInfo(_tempFile)))
             {
                 Assert.Equal(new[] { "John S.", "John S. (2)", "Pat" },
-                    package.Workbook.Worksheets.Select(w => w.Name).OrderBy(n => n).ToArray());
+                    package.Workbook.Worksheets.Select(w => w.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray());
             }
         }
 
@@ -164,7 +164,7 @@ namespace advancement_chart.tests.Reports
             {
                 // Troop Summary plus one sheet per scout.
                 Assert.Equal(new[] { "John S", "John S (2)", "Pat", "Troop Summary" },
-                    package.Workbook.Worksheets.Select(w => w.Name).OrderBy(n => n).ToArray());
+                    package.Workbook.Worksheets.Select(w => w.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray());
             }
         }
     }
