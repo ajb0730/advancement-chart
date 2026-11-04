@@ -230,6 +230,11 @@ namespace advancement_chart
                                 // New exports suffix the badge name with " MB" and replace commas in
                                 // the name with semicolons (e.g. "Signs; Signals; and Codes MB").
                                 var badgeName = StripSuffix(subtype, " MB").Replace("; ", ", ");
+                                if (string.IsNullOrWhiteSpace(badgeName))
+                                {
+                                    warnings.Add($"Skipped merit badge row with no badge name: version={version} date={date.ToShortDateString()}");
+                                    continue;
+                                }
                                 MeritBadge badge = new MeritBadge(name: badgeName, description: version, earned: date);
                                 scout.Add(badge);
                             }

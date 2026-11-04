@@ -648,6 +648,29 @@ namespace advancement_chart.tests
         }
 
         [Fact]
+        public void LoadFile_MeritBadgeRowWithNoName_LogsWarningAndAddsNothing()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge,,2016,2023-01-15";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Empty(_scouts[0].MeritBadges);
+            Assert.Contains("no badge name", errWriter.ToString());
+        }
+
+        [Fact]
         public void LoadPatrolLookup_ValidDob_NoWarning()
         {
             _scouts.Add(new TroopMember("123", "John", "", "Doe"));
