@@ -49,7 +49,9 @@ namespace advancementchart.Model
         public string MiddleName { get; protected set; }
         public string LastName { get; protected set; }
         public string NickName { get; set; }
-        public string DisplayName => $"{(string.IsNullOrWhiteSpace(NickName) ? FirstName : NickName)} {LastName}";
+        /// <summary>The nickname if one is set, otherwise the first name.</summary>
+        public string PreferredFirstName => string.IsNullOrWhiteSpace(NickName) ? FirstName : NickName;
+        public string DisplayName => $"{PreferredFirstName} {LastName}";
         public string Patrol { get; set; }
         public DateTime DateOfBirth { get; set; }
 

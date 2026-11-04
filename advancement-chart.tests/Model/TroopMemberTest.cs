@@ -660,5 +660,17 @@ namespace advancement_chart.tests.Model
             Assert.True(hasScoutReq);
             Assert.True(hasTenderfootReq);
         }
+
+        [Theory]
+        [InlineData(null, "John")]
+        [InlineData("", "John")]
+        [InlineData("  ", "John")]
+        [InlineData("Johnny", "Johnny")]
+        public void PreferredFirstName_UsesNicknameWhenPresent(string nickname, string expected)
+        {
+            var scout = new TroopMember("1", "John", "", "Doe") { NickName = nickname };
+            Assert.Equal(expected, scout.PreferredFirstName);
+            Assert.Equal($"{expected} Doe", scout.DisplayName);
+        }
     }
 }

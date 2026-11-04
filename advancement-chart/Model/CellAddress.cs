@@ -131,9 +131,9 @@ namespace advancementchart.Model
 
         public override bool Equals(object obj)
         {
-            if (null == obj) { return false; }
+            if (obj is null) { return false; }
             var other = obj as CellAddress;
-            if (null == other) { return false; }
+            if (other is null) { return false; }
             return this.ToString() == other.ToString();
         }
 
