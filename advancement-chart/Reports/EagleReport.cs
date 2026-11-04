@@ -150,7 +150,7 @@ namespace advancementchart.Reports
             {
                 foreach (var scout in scouts)
                 {
-                    ExcelWorksheet wks = package.Workbook.Worksheets.Add($"{scout.FirstName} {scout.LastName.First()}.");
+                    ExcelWorksheet wks = WorksheetNames.AddUnique(package.Workbook, $"{scout.FirstName} {WorksheetNames.Initial(scout.LastName)}.");
                     CellAddress cell = new CellAddress("A1");
                     wks.Cells[cell].Value = "Trail to Eagle Progress Report for:";
                     wks.Cells[cell].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
