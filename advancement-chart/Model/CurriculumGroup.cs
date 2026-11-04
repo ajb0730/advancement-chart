@@ -30,7 +30,7 @@ namespace advancementchart.Model
 
     /// <summary>
     /// The topics the Troop Guide handbook groups rank requirements into (Camping, First Aid, ...).
-    /// <see cref="advancementchart.Reports.IndividualReport"/> and <see cref="advancementchart.Reports.TroopGuideReport"/> use them to show progress by topic rather than by rank.
+    /// <see cref="advancementchart.Reports.IndividualReport"/> uses them to show progress by topic rather than by rank.
     /// </summary>
     public enum CurriculumGroup
     {

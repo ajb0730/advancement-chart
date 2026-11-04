@@ -10,7 +10,7 @@ using OfficeOpenXml.Style;
 namespace advancementchart.Reports
 {
     /// <summary>
-    /// A printable landscape checklist of scouts by patrol, with empty checkbox columns.
+    /// A printable portrait checklist of active scouts by patrol, with empty checkbox columns and a comments column sized to fill the page.
     /// </summary>
     public class TroopCheckList : IReport
     {

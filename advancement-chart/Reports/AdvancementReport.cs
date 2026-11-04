@@ -11,7 +11,7 @@ namespace advancementchart.Reports
 {
 
     /// <summary>
-    /// Word document summarizing the advancement each scout has earned, and what is outstanding, as of the latest completion date in the export.
+    /// Word document summarizing the advancement each scout has earned, and what is outstanding. When a data date is supplied (the latest completion date in the export) it is printed as "Data as of".
     /// </summary>
     public class AdvancementReport : IReport
     {

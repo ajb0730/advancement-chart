@@ -10,7 +10,7 @@ using System.Drawing;
 namespace advancementchart.Reports
 {
     /// <summary>
-    /// Summarizes each scout's progress through the Troop Guide curriculum groups, in one worksheet.
+    /// A single-sheet chart of the requirements for Scout through First Class, with a row per active scout who has not yet earned First Class (by patrol, then name). It reuses the troop chart's column layout.
     /// </summary>
     public class TroopGuideReport : TroopReport
     {

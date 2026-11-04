@@ -8,7 +8,7 @@ using OfficeOpenXml;
 namespace advancementchart.Reports
 {
     /// <summary>
-    /// Workbook with a sheet for the troop, one per patrol, and one per scout below First Class, showing remaining rank requirements by Troop Guide topic.
+    /// Workbook with a troop summary sheet, one sheet per patrol (only when the troop has more than one active patrol), and one per active scout below First Class, showing remaining rank requirements by Troop Guide topic.
     /// </summary>
     public class IndividualReport : IReport
     {

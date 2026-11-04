@@ -52,7 +52,7 @@ see [below](#generating-the-reports-with-the-utils-makefile).
    (based on birthdate).
    1. TroopGuideReport.xlsx - this is an Excel workbook that summarizes each
    Scout's progress through the Troop Guide curriculum groups.
-   1. TroopCheckList.xlsx - this is a landscape Excel workbook listing Scouts
+   1. TroopCheckList.xlsx - this is a portrait Excel workbook listing Scouts
    by Patrol (alphabetically), with empty checkbox columns for use as a
    printable attendance or activity checklist.
    1. AdvancementReport.docx - this is a Word document summarizing the

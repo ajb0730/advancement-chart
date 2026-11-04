@@ -37,7 +37,7 @@ namespace advancementchart.Model
         }
 
         /// <summary>
-        /// Converts column letters ("A", "AB"; any trailing row digits are ignored) to a 1-based column number.
+        /// Converts column letters ("A", "AB"; any trailing row digits are ignored) to a 1-based column number. The letters are not validated: input other than A-Z yields a meaningless number.
         /// </summary>
         public static int ColumnNameToIndex(string address)
         {

@@ -7,15 +7,16 @@ namespace advancementchart.Model
     /// <summary>
     /// The Eagle rank's merit badge requirement: 21 badges, of which 13 or 14 are Eagle-required (14 while
     /// Citizenship in Society is required, between <see cref="CitSocietyCutover"/> and <see cref="CitSocietyEnd"/>).
+        /// The count is fixed when the requirement is constructed; <see cref="MeritBadge.EagleRequired"/> is evaluated per day.
     /// </summary>
     public class EagleMeritBadgeRequirement : MeritBadgeRequirement
     {
         /// <summary>
-        /// First date on which Citizenship in Society counts as Eagle-required.
+        /// First day on which Citizenship in Society counts as Eagle-required.
         /// </summary>
         public static readonly DateTime CitSocietyCutover = new DateTime(2022, 7, 1);
         /// <summary>
-        /// Last date of the window in which Citizenship in Society counts as Eagle-required.
+        /// Last day (inclusive) of the window in which Citizenship in Society counts as Eagle-required.
         /// </summary>
         public static readonly DateTime CitSocietyEnd = new DateTime(2026, 12, 31);
 
@@ -51,7 +52,8 @@ namespace advancementchart.Model
         /// <summary>
         /// Adds the badge, except that an Eagle-required badge is rejected when a mutually exclusive alternative
         /// is already counted (e.g. Lifesaving when Emergency Preparedness is already there). See
-        /// <see cref="MeritBadge.MutuallyExclusiveGroups"/>. Such a badge can still count as an elective elsewhere.
+        /// <see cref="MeritBadge.MutuallyExclusiveGroups"/>. A rejected badge is not counted toward Eagle at all;
+        /// <see cref="TroopMember.AllocateMeritBadges"/> places it in Star, Life, or a Palm instead.
         /// </summary>
         /// <returns>True if the badge was added.</returns>
         public override bool Add(MeritBadge badge, bool forceElective = false)
