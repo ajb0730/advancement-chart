@@ -240,5 +240,16 @@ namespace advancement_chart.tests.Model
             // Every elective slot is taken, so the extra Lifesaving has nowhere to go.
             Assert.False(req.Add(new MeritBadge("Lifesaving", "2016", new DateTime(2023, 3, 1))));
         }
+
+        [Fact]
+        public void Add_StartedExtraOfEitherOrGroup_IsNotAdded()
+        {
+            var req = new EagleMeritBadgeRequirement("3", "desc", CreateRank());
+            req.Add(new MeritBadge("Swimming", "2016", new DateTime(2023, 1, 1)));
+            var started = new MeritBadge("Hiking", "2016") { Started = true };
+
+            Assert.False(req.Add(started));
+            Assert.Single(req.MeritBadges);
+        }
     }
 }

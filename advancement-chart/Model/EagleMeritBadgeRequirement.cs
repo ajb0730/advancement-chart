@@ -122,7 +122,9 @@ namespace advancementchart.Model
                 var equivalents = MeritBadge.GetEagleEquivalents(badge.Name);
                 if (equivalents.Length > 0 && MeritBadges.Any(mb => equivalents.Contains(mb.Name)))
                 {
-                    if (MeritBadges.Count < Total && MeritBadges.Count - RequiredSlotsUsed() < Elective)
+                    // Only an earned badge can count as an elective; a merely started one is not a
+                    // placeholder worth reserving a slot for (the reports only count earned electives).
+                    if (badge.Earned && MeritBadges.Count < Total && MeritBadges.Count - RequiredSlotsUsed() < Elective)
                     {
                         MeritBadges.Add(badge);
                         return true;
