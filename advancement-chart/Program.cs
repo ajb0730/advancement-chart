@@ -147,7 +147,11 @@ namespace advancement_chart
                         if (!string.IsNullOrWhiteSpace(dob))
                         {
                             DateTime dobDate;
-                            if (DateTime.TryParse(dob, out dobDate))
+                            if (!DateTime.TryParse(dob, out dobDate))
+                            {
+                                Console.Error.WriteLine($"WARNING: Unparseable DOB '{dob}' for {scout.DisplayName}, ignoring it");
+                            }
+                            else
                             {
                                 if (dobDate.Year < 1990 || dobDate > DateTime.Now)
                                 {
@@ -198,6 +202,9 @@ namespace advancement_chart
                         string type = csvReader.GetField("Advancement Type")?.Trim();
                         string subtype = csvReader.GetField("Advancement")?.Trim();
                         string version = csvReader.GetField("Version")?.Trim();
+                        // A blank Advancement field can come back null; treat it as empty so the
+                        // '#' parsing below reports it as malformed instead of throwing.
+                        subtype = subtype ?? string.Empty;
                         // Rows without a parseable completion date carry no advancement signal we
                         // can use (and would otherwise throw); skip them rather than crash the load.
                         if (!csvReader.TryGetField<DateTime>("Date Completed", out DateTime date))

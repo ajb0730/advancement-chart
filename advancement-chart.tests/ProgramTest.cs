@@ -598,6 +598,56 @@ namespace advancement_chart.tests
         }
 
         [Fact]
+        public void LoadPatrolLookup_UnparseableDob_WarnsAndIgnores()
+        {
+            _scouts.Add(new TroopMember("123", "John", "", "Doe"));
+
+            string csv = "BSA Member ID,Nickname,Patrol Name,DOB\n" +
+                          "123,Johnny,Hawks,not-a-date";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadPatrolLookup(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.Equal(default(DateTime), _scouts[0].DateOfBirth);
+            Assert.Contains("Unparseable DOB", errWriter.ToString());
+        }
+
+        [Fact]
+        public void LoadFile_BlankAdvancementOnRequirementRow_LogsWarningAndContinues()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge Requirement,,2016,2023-01-15\n" +
+                          "123,John,,Doe,Award Requirement,,2016,2023-01-15\n" +
+                          "123,John,,Doe,Rank,Scout,2016,2023-02-01";
+            var path = CreateTempCsv(csv);
+
+            var oldErr = Console.Error;
+            var errWriter = new StringWriter();
+            Console.SetError(errWriter);
+            try
+            {
+                Program.LoadFile(path, _scouts);
+            }
+            finally
+            {
+                Console.SetError(oldErr);
+            }
+
+            Assert.True(_scouts[0].Scout.Earned);
+            Assert.Contains("malformed", errWriter.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
         public void LoadPatrolLookup_ValidDob_NoWarning()
         {
             _scouts.Add(new TroopMember("123", "John", "", "Doe"));
