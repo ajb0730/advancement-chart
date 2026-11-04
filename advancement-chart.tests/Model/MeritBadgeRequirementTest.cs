@@ -89,6 +89,31 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
+        public void DateEarned_ThroughBaseReference_ReturnsComputedDate()
+        {
+            var rank = CreateRank();
+            var req = new MeritBadgeRequirement("3", "desc", rank, required: 2, total: 3);
+
+            req.Add(new MeritBadge("Camping", "2016", new DateTime(2023, 1, 1)));
+            req.Add(new MeritBadge("First Aid", "2016", new DateTime(2023, 2, 1)));
+            req.Add(new MeritBadge("Art", "2016", new DateTime(2023, 3, 1)));
+
+            RankRequirement baseRef = req;
+            Assert.Equal(new DateTime(2023, 3, 1), baseRef.DateEarned);
+        }
+
+        [Fact]
+        public void DateEarned_AssignmentIsIgnored()
+        {
+            var rank = CreateRank();
+            var req = new MeritBadgeRequirement("3", "desc", rank, required: 2, total: 3);
+
+            req.DateEarned = new DateTime(2023, 5, 5);
+            Assert.Null(req.DateEarned);
+            Assert.False(req.Earned);
+        }
+
+        [Fact]
         public void DateEarned_NullWhenNotAllEarned()
         {
             var rank = CreateRank();

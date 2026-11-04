@@ -36,6 +36,33 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
+        public void Run_ThroughIReport_UsesGuideImplementation()
+        {
+            var scout = TestFixtures.CreateScout();
+            IReport report = new TroopGuideReport(new List<TroopMember> { scout });
+            report.Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                Assert.Single(package.Workbook.Worksheets);
+                Assert.NotNull(package.Workbook.Worksheets["Troop Guide Report"]);
+            }
+        }
+
+        [Fact]
+        public void Run_ThroughTroopReportReference_UsesGuideImplementation()
+        {
+            var scout = TestFixtures.CreateScout();
+            TroopReport report = new TroopGuideReport(new List<TroopMember> { scout });
+            report.Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                Assert.NotNull(package.Workbook.Worksheets["Troop Guide Report"]);
+            }
+        }
+
+        [Fact]
         public void Run_HasOneWorksheet()
         {
             var scout = TestFixtures.CreateScout();

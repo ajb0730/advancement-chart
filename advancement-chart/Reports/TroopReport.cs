@@ -437,7 +437,7 @@ namespace advancementchart.Reports
             return cell;
         }
 
-        public void Run(string outputFilename)
+        public virtual void Run(string outputFilename)
         {
             Console.WriteLine("Running Troop Report");
 

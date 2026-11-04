@@ -15,7 +15,7 @@ namespace advancementchart.Reports
         {
         }
 
-        new public void Run(string outputFilename)
+        public override void Run(string outputFilename)
         {
             Console.WriteLine("Running Troop Guide Report");
 
