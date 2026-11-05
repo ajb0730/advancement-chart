@@ -23,7 +23,19 @@ birthdates.csv : scouts-merged.csv
 	  rm -f one two; \
 	fi
 
-advancement.csv: Troop0201F_Advancement_*.csv
+# Exactly one Scoutbook advancement export may be present: the rule below reads only the first one it
+# finds, so a leftover older export would be silently used (or the new one silently ignored). Run
+# `make clean` before copying in the new export. This is an order-only prerequisite so it runs on every
+# build, even when advancement.csv looks up to date, but never forces a rebuild. (It is deliberately not a
+# parse-time $(error), which would also break `make clean` while two exports are present.)
+.PHONY: check-inputs
+check-inputs:
+	@[ $(words $(wildcard Troop0201F_Advancement_*.csv)) -eq 1 ] || { \
+	  echo "ERROR: expected exactly one Troop0201F_Advancement_*.csv, found $(words $(wildcard Troop0201F_Advancement_*.csv)): $(wildcard Troop0201F_Advancement_*.csv)" >&2; \
+	  echo "Run 'make clean' and then copy in only the new export." >&2; \
+	  exit 1; }
+
+advancement.csv: Troop0201F_Advancement_*.csv | check-inputs
 	tr -d '\r' < $< | awk 'NR==1 {gsub(/ *, */, ","); gsub(/^ +/, ""); gsub(/ +$$/, ""); print; next} {print}' > $@
 
 EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx TroopCheckList.xlsx AdvancementReport.docx : advancement.csv scouts.csv
