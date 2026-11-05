@@ -230,13 +230,10 @@ namespace advancementchart.Model
         /// </summary>
         public void AddPartial(string badgeName, string version)
         {
-            var currentName = MeritBadge.CurrentName(badgeName);
-            if (!MeritBadges.Any(x => x.Name == currentName))
-            {
-                MeritBadge partial = new MeritBadge(name: currentName, description: version, earned: null);
-                partial.Started = true;
-                this.Add(partial);
-            }
+            // Add keeps an existing badge, so a started copy never replaces one the scout already has.
+            MeritBadge partial = new MeritBadge(name: badgeName, description: version, earned: null);
+            partial.Started = true;
+            this.Add(partial);
         }
 
         private bool runOnce = false;
