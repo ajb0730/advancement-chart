@@ -228,7 +228,7 @@ namespace advancement_chart.tests.Model
             var req = new EagleMeritBadgeRequirement("3", "desc", CreateRank());
             req.Add(new MeritBadge("Emergency Preparedness", "2016", new DateTime(2023, 1, 1)));
             var electives = MeritBadge.BsaMeritBadgeIds.Keys
-                .Where(n => !MeritBadge.GetEagleRequired().Contains(n) && n != "Citizenship in Society")
+                .Where(n => !MeritBadge.GetEagleRequired().Contains(n))
                 .Take(req.Elective)
                 .ToList();
             Assert.Equal(req.Elective, electives.Count);
