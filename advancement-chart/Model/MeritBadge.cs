@@ -183,7 +183,6 @@ namespace advancementchart.Model
             {"Canoeing", "033"},
             {"Chemistry", "034"},
             {"Coin Collecting", "035"},
-            {"Computers", "036"},
             {"Consumer Buying", "037"},
             {Cooking, "038"},
             {Cycling, "039"},
@@ -249,7 +248,6 @@ namespace advancementchart.Model
             {"Salesmanship", "099"},
             {"Scholarship", "100"},
             {"Sculpture", "101"},
-            {"Signalling", "102"},
             {"Skating", "103"},
             {"Skiing", "104"},
             {"Small-Boat Sailing", "105"},
@@ -273,7 +271,6 @@ namespace advancementchart.Model
             {"Rifle Shooting", "123"},
             {"Shotgun Shooting", "124"},
             {"Whitewater", "125"},
-            {"Cinematography", "126"},
             {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; see LegacyNames
             {"Collections", "128"},
             {FamilyLife, "129"},
@@ -321,18 +318,33 @@ namespace advancementchart.Model
         /// <summary>
         /// Former names of renamed badges, mapped to the current name. Older Scoutbook exports still use them.
         /// </summary>
-        static public readonly Dictionary<string, string> LegacyNames = new Dictionary<string, string>()
+        static public readonly Dictionary<string, string> LegacyNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             {"Auto Mechanics", "Automotive Maintenance"},
-            {"Healthcare Professions", "Health Care Professions"}
+            {"Healthcare Professions", "Health Care Professions"},
+            {"Cinematography", "Moviemaking"},
+            {"Computers", "Digital Technology"},
+            {"Signalling", "Signaling"}
         };
 
+        private static readonly Dictionary<string, string> CanonicalNames = BsaMeritBadgeIds.Keys.ToDictionary(k => k, StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
-        /// Returns the current name for a badge name, mapping a legacy name to its replacement; other names are returned unchanged.
+        /// Returns the canonical name for a badge name: surrounding whitespace is trimmed, case is ignored, and a legacy name
+        /// maps to its replacement. A name that is not recognized is returned unchanged.
         /// </summary>
         public static string CurrentName(string name)
         {
-            return name is not null && LegacyNames.TryGetValue(name, out var current) ? current : name;
+            if (name is null)
+            {
+                return null;
+            }
+            var trimmed = name.Trim();
+            if (LegacyNames.TryGetValue(trimmed, out var current) || CanonicalNames.TryGetValue(trimmed, out current))
+            {
+                return current;
+            }
+            return name;
         }
 
         protected MeritBadge()

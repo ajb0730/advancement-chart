@@ -233,7 +233,7 @@ namespace advancementchart.Model
             var currentName = MeritBadge.CurrentName(badgeName);
             if (!MeritBadges.Any(x => x.Name == currentName))
             {
-                MeritBadge partial = new MeritBadge(name: badgeName, description: version, earned: null);
+                MeritBadge partial = new MeritBadge(name: currentName, description: version, earned: null);
                 partial.Started = true;
                 this.Add(partial);
             }

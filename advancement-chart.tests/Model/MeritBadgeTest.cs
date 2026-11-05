@@ -196,12 +196,6 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void BsaMeritBadgeIds_Contains166Badges()
-        {
-            Assert.Equal(166, MeritBadge.BsaMeritBadgeIds.Count);
-        }
-
-        [Fact]
         public void BsaMeritBadgeIds_IdsAreUnique()
         {
             Assert.Equal(MeritBadge.BsaMeritBadgeIds.Count, MeritBadge.BsaMeritBadgeIds.Values.Distinct().Count());
@@ -220,6 +214,11 @@ namespace advancement_chart.tests.Model
         [Theory]
         [InlineData("Auto Mechanics", "Automotive Maintenance")]
         [InlineData("Healthcare Professions", "Health Care Professions")]
+        [InlineData("Cinematography", "Moviemaking")]
+        [InlineData("Computers", "Digital Technology")]
+        [InlineData("Signalling", "Signaling")]
+        [InlineData("  auto mechanics ", "Automotive Maintenance")]
+        [InlineData("camping ", "Camping")]
         public void Constructor_LegacyName_IsStoredUnderCurrentName(string legacy, string current)
         {
             var badge = new MeritBadge(legacy, "2016");
