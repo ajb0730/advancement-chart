@@ -225,11 +225,34 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void CurrentName_NullIsNull_UnknownIsNormalized_NbspAndTabsCollapse()
+        public void CurrentName_Null_ReturnsNull()
         {
             Assert.Null(MeritBadge.CurrentName(null));
-            Assert.Equal("Not  A Badge".Replace("  ", " "), MeritBadge.CurrentName(" Not  A Badge "));
+        }
+
+        [Fact]
+        public void CurrentName_UnknownName_ReturnsTrimmedAndCollapsed()
+        {
+            Assert.Equal("Not A Badge", MeritBadge.CurrentName(" Not   A Badge "));
+        }
+
+        [Fact]
+        public void CurrentName_NonBreakingSpaceAndTab_AreCollapsed()
+        {
             Assert.Equal("Health Care Professions", MeritBadge.CurrentName("Health\u00A0Care\tProfessions"));
+        }
+
+        [Fact]
+        public void BsaMeritBadgeIds_NamesAreUniqueIgnoringCase()
+        {
+            Assert.Equal(MeritBadge.BsaMeritBadgeIds.Count, MeritBadge.BsaMeritBadgeIds.Keys.Select(k => k.ToLowerInvariant()).Distinct().Count());
+        }
+
+        [Fact]
+        public void BsaMeritBadgeIds_HasExpectedBadgeCount()
+        {
+            // Update when a badge is deliberately added or removed.
+            Assert.Equal(166, MeritBadge.BsaMeritBadgeIds.Count);
         }
 
         [Fact]
