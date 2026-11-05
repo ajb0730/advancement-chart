@@ -329,6 +329,8 @@ namespace advancementchart.Model
             {"Healthcare Professions", "Health Care Professions"}
         });
 
+        private static readonly Regex Whitespace = new Regex(@"\s+", RegexOptions.Compiled);
+
         private static readonly IReadOnlyDictionary<string, string> CanonicalNames;
 
         static MeritBadge()
@@ -338,8 +340,9 @@ namespace advancementchart.Model
         }
 
         /// <summary>
-        /// Returns the canonical name for a badge name: surrounding whitespace is trimmed, case is ignored, and a legacy name
-        /// maps to its replacement. A name that is not recognized is returned trimmed. A badge keeps its current id, so historical badges under a legacy name report the current badge's id.
+        /// Returns the canonical name for a badge name, ignoring case and collapsing whitespace; a legacy name maps to its
+        /// replacement. A name that is not recognized is returned trimmed and whitespace-collapsed.
+        /// A badge always reports the current badge's id, so records under a legacy name show the replacement's id.
         /// </summary>
         public static string CurrentName(string name)
         {
@@ -347,7 +350,7 @@ namespace advancementchart.Model
             {
                 return null;
             }
-            var trimmed = Regex.Replace(name.Trim(), @"\s+", " ");
+            var trimmed = Whitespace.Replace(name.Trim(), " ");
             if (LegacyNames.TryGetValue(trimmed, out var current) || CanonicalNames.TryGetValue(trimmed, out current))
             {
                 return current;

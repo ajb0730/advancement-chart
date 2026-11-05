@@ -225,6 +225,14 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
+        public void CurrentName_NullIsNull_UnknownIsNormalized_NbspAndTabsCollapse()
+        {
+            Assert.Null(MeritBadge.CurrentName(null));
+            Assert.Equal("Not  A Badge".Replace("  ", " "), MeritBadge.CurrentName(" Not  A Badge "));
+            Assert.Equal("Health Care Professions", MeritBadge.CurrentName("Health\u00A0Care\tProfessions"));
+        }
+
+        [Fact]
         public void AddPartial_LegacyAndCurrentName_DoNotDuplicate()
         {
             var scout = TestFixtures.CreateScout();
