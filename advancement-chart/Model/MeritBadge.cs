@@ -146,7 +146,7 @@ namespace advancementchart.Model
         /// <summary>
         /// Every merit badge name known to this program, mapped to its BSA id (used for compact display and sorting).
         /// </summary>
-        static public readonly Dictionary<string, string> BsaMeritBadgeIds = new Dictionary<string, string>()
+        static public readonly IReadOnlyDictionary<string, string> BsaMeritBadgeIds = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>()
         {
             {Camping, "001"},
             {CitizenshipCommunity, "002"},
@@ -313,25 +313,25 @@ namespace advancementchart.Model
             // 166+ are locally assigned, not BSA numbers: the ids only need to be unique.
             {"Competitive Gaming", "166"},
             {"Wildland Fire Management", "167"}
-        };
+        });
 
         /// <summary>
         /// Former names of renamed badges, mapped to the current name. Older Scoutbook exports still use them.
         /// </summary>
-        static public readonly Dictionary<string, string> LegacyNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        static public readonly IReadOnlyDictionary<string, string> LegacyNames = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             {"Auto Mechanics", "Automotive Maintenance"},
             {"Healthcare Professions", "Health Care Professions"},
             {"Cinematography", "Moviemaking"},
             {"Computers", "Digital Technology"},
             {"Signalling", "Signaling"}
-        };
+        });
 
-        private static readonly Dictionary<string, string> CanonicalNames = BsaMeritBadgeIds.Keys.ToDictionary(k => k, StringComparer.OrdinalIgnoreCase);
+        private static readonly IReadOnlyDictionary<string, string> CanonicalNames = BsaMeritBadgeIds.Keys.ToFrozenDictionary(k => k, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Returns the canonical name for a badge name: surrounding whitespace is trimmed, case is ignored, and a legacy name
-        /// maps to its replacement. A name that is not recognized is returned unchanged.
+        /// maps to its replacement. A name that is not recognized is returned trimmed. A badge keeps its current id, so historical badges under a legacy name report the current badge's id.
         /// </summary>
         public static string CurrentName(string name)
         {
@@ -344,7 +344,7 @@ namespace advancementchart.Model
             {
                 return current;
             }
-            return name;
+            return trimmed;
         }
 
         protected MeritBadge()
