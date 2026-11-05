@@ -18,7 +18,7 @@ namespace advancementchart.Model
         /// <summary>
         /// Last day (inclusive) of the window in which Citizenship in Society counts as Eagle-required.
         /// </summary>
-        public static readonly DateTime CitSocietyEnd = new DateTime(2026, 12, 31);
+        public static readonly DateTime CitSocietyEnd = new DateTime(2026, 2, 26);
 
         /// <summary>
         /// Whether Citizenship in Society counts as Eagle-required on the given day: from the cutover

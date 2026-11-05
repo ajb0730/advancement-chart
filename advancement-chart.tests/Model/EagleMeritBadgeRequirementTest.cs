@@ -21,12 +21,12 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void Constructor_Required14_DuringCitSocietyWindow()
+        public void Constructor_Required13_AfterCitSocietyWindow()
         {
-            // Required is 14 while Citizenship in Society is active (2022-07-01 to 2026-12-31)
+            // Citizenship in Society was Eagle-required 2022-07-01 to 2026-02-26; it is an elective now
             var rank = CreateRank();
             var req = new EagleMeritBadgeRequirement("3", "desc", rank);
-            Assert.Equal(14, req.Required);
+            Assert.Equal(13, req.Required);
         }
 
         [Fact]
@@ -162,23 +162,23 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void Elective_Is7_DuringCitSocietyWindow()
+        public void Elective_Is8_AfterCitSocietyWindow()
         {
             var rank = CreateRank();
             var req = new EagleMeritBadgeRequirement("3", "desc", rank);
-            // Total=21, Required=14 during Cit in Society window (2022-07-01 to 2026-12-31), so Elective=7
-            Assert.Equal(7, req.Elective);
+            // Total=21, Required=13 after the Cit in Society window (2022-07-01 to 2026-02-26), so Elective=8
+            Assert.Equal(8, req.Elective);
         }
 
         [Theory]
         [InlineData(2022, 6, 30, 23, 59, false)]
         [InlineData(2022, 7, 1, 0, 0, true)]
         [InlineData(2024, 3, 15, 12, 0, true)]
-        [InlineData(2026, 12, 30, 23, 59, true)]
-        [InlineData(2026, 12, 31, 0, 0, true)]
-        [InlineData(2026, 12, 31, 12, 30, true)]   // the whole last day counts
-        [InlineData(2026, 12, 31, 23, 59, true)]
-        [InlineData(2027, 1, 1, 0, 0, false)]
+        [InlineData(2026, 2, 25, 23, 59, true)]
+        [InlineData(2026, 2, 26, 0, 0, true)]
+        [InlineData(2026, 2, 26, 12, 30, true)]   // the whole last day counts
+        [InlineData(2026, 2, 26, 23, 59, true)]
+        [InlineData(2026, 2, 27, 0, 0, false)]
         public void IsCitizenshipInSocietyRequired_CoversWholeDaysOfTheWindow(int y, int mo, int d, int h, int mi, bool expected)
         {
             Assert.Equal(expected, EagleMeritBadgeRequirement.IsCitizenshipInSocietyRequired(new DateTime(y, mo, d, h, mi, 0)));
