@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace advancementchart.Model
 {
@@ -184,6 +185,7 @@ namespace advancementchart.Model
             {"Canoeing", "033"},
             {"Chemistry", "034"},
             {"Coin Collecting", "035"},
+            {"Computers", "036"},
             {"Consumer Buying", "037"},
             {Cooking, "038"},
             {Cycling, "039"},
@@ -249,6 +251,7 @@ namespace advancementchart.Model
             {"Salesmanship", "099"},
             {"Scholarship", "100"},
             {"Sculpture", "101"},
+            {"Signalling", "102"},
             {"Skating", "103"},
             {"Skiing", "104"},
             {"Small-Boat Sailing", "105"},
@@ -272,6 +275,7 @@ namespace advancementchart.Model
             {"Rifle Shooting", "123"},
             {"Shotgun Shooting", "124"},
             {"Whitewater", "125"},
+            {"Cinematography", "126"},
             {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; see LegacyNames
             {"Collections", "128"},
             {FamilyLife, "129"},
@@ -322,14 +326,16 @@ namespace advancementchart.Model
         static public readonly IReadOnlyDictionary<string, string> LegacyNames = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             {"Auto Mechanics", "Automotive Maintenance"},
-            {"Healthcare Professions", "Health Care Professions"},
-            {"Cinematography", "Moviemaking"},
-            {"Computers", "Digital Technology"},
-            {"Signalling", "Signaling"}
+            {"Healthcare Professions", "Health Care Professions"}
         });
 
-        // Static initializers run in textual order: this must stay below BsaMeritBadgeIds.
-        private static readonly IReadOnlyDictionary<string, string> CanonicalNames = BsaMeritBadgeIds.Keys.ToFrozenDictionary(k => k, StringComparer.OrdinalIgnoreCase);
+        private static readonly IReadOnlyDictionary<string, string> CanonicalNames;
+
+        static MeritBadge()
+        {
+            // Runs after every static field initializer, so declaration order does not matter.
+            CanonicalNames = BsaMeritBadgeIds.Keys.ToFrozenDictionary(k => k, StringComparer.OrdinalIgnoreCase);
+        }
 
         /// <summary>
         /// Returns the canonical name for a badge name: surrounding whitespace is trimmed, case is ignored, and a legacy name
@@ -341,7 +347,7 @@ namespace advancementchart.Model
             {
                 return null;
             }
-            var trimmed = name.Trim();
+            var trimmed = Regex.Replace(name.Trim(), @"\s+", " ");
             if (LegacyNames.TryGetValue(trimmed, out var current) || CanonicalNames.TryGetValue(trimmed, out current))
             {
                 return current;

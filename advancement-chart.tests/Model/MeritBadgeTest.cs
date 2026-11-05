@@ -214,11 +214,9 @@ namespace advancement_chart.tests.Model
         [Theory]
         [InlineData("Auto Mechanics", "Automotive Maintenance")]
         [InlineData("Healthcare Professions", "Health Care Professions")]
-        [InlineData("Cinematography", "Moviemaking")]
-        [InlineData("Computers", "Digital Technology")]
-        [InlineData("Signalling", "Signaling")]
         [InlineData("  auto mechanics ", "Automotive Maintenance")]
         [InlineData("camping ", "Camping")]
+        [InlineData("Health  Care   Professions", "Health Care Professions")]
         public void Constructor_LegacyName_IsStoredUnderCurrentName(string legacy, string current)
         {
             var badge = new MeritBadge(legacy, "2016");
