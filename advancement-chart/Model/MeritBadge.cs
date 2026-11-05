@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace advancementchart.Model
 {
@@ -146,7 +148,7 @@ namespace advancementchart.Model
         /// <summary>
         /// Every merit badge name known to this program, mapped to its BSA id (used for compact display and sorting).
         /// </summary>
-        static public readonly Dictionary<string, string> BsaMeritBadgeIds = new Dictionary<string, string>()
+        static public readonly IReadOnlyDictionary<string, string> BsaMeritBadgeIds = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>()
         {
             {Camping, "001"},
             {CitizenshipCommunity, "002"},
@@ -274,7 +276,7 @@ namespace advancementchart.Model
             {"Shotgun Shooting", "124"},
             {"Whitewater", "125"},
             {"Cinematography", "126"},
-            {"Auto Mechanics", "127"},
+            {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; see LegacyNames
             {"Collections", "128"},
             {FamilyLife, "129"},
             {"Medicine", "130"},
@@ -309,14 +311,52 @@ namespace advancementchart.Model
             {"Exploration", "159"},
             {CitizenshipSociety, "160"},
             {"Health Care Professions", "161"},
-            {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; same BSA id
+            // 162 is unused (the old Automotive Maintenance id; the badge kept Auto Mechanics' id 127).
             {"Multisport", "163"},
             {"Artificial Intelligence", "164"},
             {"Cybersecurity", "165"},
-            // 166+ are locally assigned (not BSA numbers): the ids only need to be unique and compact.
+            // 166+ are locally assigned, not BSA numbers: the ids only need to be unique.
             {"Competitive Gaming", "166"},
             {"Wildland Fire Management", "167"}
-        };
+        });
+
+        /// <summary>
+        /// Former names of renamed badges, mapped to the current name. Older Scoutbook exports still use them.
+        /// </summary>
+        static public readonly IReadOnlyDictionary<string, string> LegacyNames = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"Auto Mechanics", "Automotive Maintenance"},
+            {"Healthcare Professions", "Health Care Professions"}
+        });
+
+        private static readonly Regex Whitespace = new Regex(@"\s+", RegexOptions.Compiled);
+
+        private static readonly IReadOnlyDictionary<string, string> CanonicalNames;
+
+        static MeritBadge()
+        {
+            // Runs after every static field initializer, so declaration order does not matter.
+            CanonicalNames = BsaMeritBadgeIds.Keys.ToFrozenDictionary(k => k, StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Returns the canonical name for a badge name, ignoring case and collapsing whitespace; a legacy name maps to its
+        /// replacement. A name that is not recognized is returned trimmed and whitespace-collapsed.
+        /// A badge always reports the current badge's id, so records under a legacy name show the replacement's id.
+        /// </summary>
+        public static string CurrentName(string name)
+        {
+            if (name is null)
+            {
+                return null;
+            }
+            var trimmed = Whitespace.Replace(name.Trim(), " ");
+            if (LegacyNames.TryGetValue(trimmed, out var current) || CanonicalNames.TryGetValue(trimmed, out current))
+            {
+                return current;
+            }
+            return trimmed;
+        }
 
         protected MeritBadge()
             : base()
@@ -325,15 +365,15 @@ namespace advancementchart.Model
         /// <summary>
         /// Creates a merit badge.
         /// </summary>
-        /// <param name="name">The badge name; must be a key of <see cref="BsaMeritBadgeIds"/>.</param>
+        /// <param name="name">The badge name; must be a key of <see cref="BsaMeritBadgeIds"/> or of <see cref="LegacyNames"/> (stored under the current name).</param>
         /// <param name="description">Free text; the importer stores the requirements version here.</param>
         /// <param name="earned">When it was earned; null for a badge that is only started.</param>
         /// <exception cref="ArgumentException"><paramref name="name"/> is not a known merit badge.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
         public MeritBadge(string name, string description, DateTime? earned = null)
-            : base(name, description)
+            : base(CurrentName(name), description)
         {
-            if (!BsaMeritBadgeIds.ContainsKey(name))
+            if (!BsaMeritBadgeIds.ContainsKey(Name))
             {
                 throw new ArgumentException(message: $"Merit Badge name '{name}' not found.");
             }

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Xunit;
 using advancementchart.Model;
+using advancement_chart.tests.Helpers;
 
 namespace advancement_chart.tests.Model
 {
@@ -195,9 +196,72 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void BsaMeritBadgeIds_Contains167Badges()
+        public void BsaMeritBadgeIds_IdsAreUnique()
         {
-            Assert.Equal(167,MeritBadge.BsaMeritBadgeIds.Count);
+            Assert.Equal(MeritBadge.BsaMeritBadgeIds.Count, MeritBadge.BsaMeritBadgeIds.Values.Distinct().Count());
+        }
+
+        [Fact]
+        public void LegacyNames_MapToCurrentBadges()
+        {
+            Assert.All(MeritBadge.LegacyNames, p =>
+            {
+                Assert.False(MeritBadge.BsaMeritBadgeIds.ContainsKey(p.Key), p.Key);
+                Assert.True(MeritBadge.BsaMeritBadgeIds.ContainsKey(p.Value), p.Value);
+            });
+        }
+
+        [Theory]
+        [InlineData("Auto Mechanics", "Automotive Maintenance")]
+        [InlineData("Healthcare Professions", "Health Care Professions")]
+        [InlineData("  auto mechanics ", "Automotive Maintenance")]
+        [InlineData("camping ", "Camping")]
+        [InlineData("Health  Care   Professions", "Health Care Professions")]
+        public void Constructor_LegacyName_IsStoredUnderCurrentName(string legacy, string current)
+        {
+            var badge = new MeritBadge(legacy, "2016");
+            Assert.Equal(current, badge.Name);
+            Assert.Equal(MeritBadge.BsaMeritBadgeIds[current], badge.BsaId);
+        }
+
+        [Fact]
+        public void CurrentName_Null_ReturnsNull()
+        {
+            Assert.Null(MeritBadge.CurrentName(null));
+        }
+
+        [Fact]
+        public void CurrentName_UnknownName_ReturnsTrimmedAndCollapsed()
+        {
+            Assert.Equal("Not A Badge", MeritBadge.CurrentName(" Not   A Badge "));
+        }
+
+        [Fact]
+        public void CurrentName_NonBreakingSpaceAndTab_AreCollapsed()
+        {
+            Assert.Equal("Health Care Professions", MeritBadge.CurrentName("Health\u00A0Care\tProfessions"));
+        }
+
+        [Fact]
+        public void BsaMeritBadgeIds_NamesAreUniqueIgnoringCase()
+        {
+            Assert.Equal(MeritBadge.BsaMeritBadgeIds.Count, MeritBadge.BsaMeritBadgeIds.Keys.Select(k => k.ToLowerInvariant()).Distinct().Count());
+        }
+
+        [Fact]
+        public void BsaMeritBadgeIds_HasExpectedBadgeCount()
+        {
+            // Update when a badge is deliberately added or removed.
+            Assert.Equal(166, MeritBadge.BsaMeritBadgeIds.Count);
+        }
+
+        [Fact]
+        public void AddPartial_LegacyAndCurrentName_DoNotDuplicate()
+        {
+            var scout = TestFixtures.CreateScout();
+            scout.AddPartial("Auto Mechanics", "2016");
+            scout.AddPartial("Automotive Maintenance", "2016");
+            Assert.Single(scout.MeritBadges, b => b.Name == "Automotive Maintenance");
         }
 
         [Fact]

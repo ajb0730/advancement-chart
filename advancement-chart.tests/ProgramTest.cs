@@ -987,6 +987,33 @@ namespace advancement_chart.tests
         }
 
         [Fact]
+        public void LoadFile_NewFormat_LegacyMeritBadgeName_StoredUnderCurrentName()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badges,Auto Mechanics MB,2014,2023-03-15";
+            var path = CreateTempCsv(csv);
+
+            Program.LoadFile(path, _scouts);
+
+            Assert.Single(_scouts[0].MeritBadges);
+            Assert.Equal("Automotive Maintenance", _scouts[0].MeritBadges[0].Name);
+        }
+
+        [Fact]
+        public void LoadFile_NewFormat_LegacyAndCurrentBadgeName_AreOneBadge()
+        {
+            string csv = "BSA Member ID,First Name,Middle Name,Last Name,Advancement Type,Advancement,Version,Date Completed\n" +
+                          "123,John,,Doe,Merit Badge Requirements,Auto Mechanics Merit Badge Requirements #1a,2014,2023-01-15\n" +
+                          "123,John,,Doe,Merit Badges,Automotive Maintenance MB,2014,2023-03-15";
+            var path = CreateTempCsv(csv);
+
+            Program.LoadFile(path, _scouts);
+
+            Assert.Single(_scouts[0].MeritBadges);
+            Assert.True(_scouts[0].MeritBadges[0].Earned);
+        }
+
+        [Fact]
         public void LoadFile_NewFormat_RankRequirements_SetsDateOnRequirement()
         {
             // New format: rank name is in the (pluralized) type column, requirement
