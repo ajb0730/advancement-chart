@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace advancementchart.Model
@@ -146,7 +147,7 @@ namespace advancementchart.Model
         /// <summary>
         /// Every merit badge name known to this program, mapped to its BSA id (used for compact display and sorting).
         /// </summary>
-        static public readonly IReadOnlyDictionary<string, string> BsaMeritBadgeIds = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>()
+        static public readonly IReadOnlyDictionary<string, string> BsaMeritBadgeIds = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>()
         {
             {Camping, "001"},
             {CitizenshipCommunity, "002"},
@@ -318,7 +319,7 @@ namespace advancementchart.Model
         /// <summary>
         /// Former names of renamed badges, mapped to the current name. Older Scoutbook exports still use them.
         /// </summary>
-        static public readonly IReadOnlyDictionary<string, string> LegacyNames = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        static public readonly IReadOnlyDictionary<string, string> LegacyNames = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             {"Auto Mechanics", "Automotive Maintenance"},
             {"Healthcare Professions", "Health Care Professions"},
@@ -327,6 +328,7 @@ namespace advancementchart.Model
             {"Signalling", "Signaling"}
         });
 
+        // Static initializers run in textual order: this must stay below BsaMeritBadgeIds.
         private static readonly IReadOnlyDictionary<string, string> CanonicalNames = BsaMeritBadgeIds.Keys.ToFrozenDictionary(k => k, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
