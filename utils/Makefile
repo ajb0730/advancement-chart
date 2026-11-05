@@ -28,7 +28,6 @@ advancement.csv: Troop0201F_Advancement_*.csv
 
 EagleReport.xlsx TroopAdvancementChart.xlsx IndividualReport.xlsx TroopGuideReport.xlsx TroopCheckList.xlsx AdvancementReport.docx : advancement.csv scouts.csv
 	dotnet $$HOME/src/advancement-chart/advancement-chart/bin/Debug/net8.0/advancement-chart.dll $<
-	cp -f $^ ~/Dropbox/Scouts/Troop\ Committee/
 
 clean :
 	rm -f advancement.csv Troop0201F_Advancement_*.csv
