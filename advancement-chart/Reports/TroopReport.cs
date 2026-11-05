@@ -339,7 +339,6 @@ namespace advancementchart.Reports
                     {
                         taCell.Row++;
                         taCell.ColumnNumber = 1;
-                        taLastRow = taCell.Row;
 
                         if (!taFrozen)
                         {
@@ -366,6 +365,8 @@ namespace advancementchart.Reports
                                 ta.Row(taCell.Row).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                             }
                         }
+
+                        taLastRow = taCell.Row;
 
                         scout.AllocateMeritBadges();
 
