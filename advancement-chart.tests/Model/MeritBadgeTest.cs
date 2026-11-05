@@ -91,11 +91,11 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void GetEagleRequired_ContainsCitSociety_DuringWindow()
+        public void GetEagleRequired_OmitsCitSociety_AfterWindow()
         {
-            // Citizenship in Society is Eagle-required between 2022-07-01 and 2026-12-31
+            // Citizenship in Society was Eagle-required 2022-07-01 to 2026-02-26 only
             var required = MeritBadge.GetEagleRequired();
-            Assert.Contains("Citizenship in Society", required);
+            Assert.DoesNotContain("Citizenship in Society", required);
         }
 
         [Fact]

@@ -5,8 +5,9 @@ using System.Linq;
 namespace advancementchart.Model
 {
     /// <summary>
-    /// The Eagle rank's merit badge requirement: 21 badges, of which 13 or 14 are Eagle-required (14 while
-    /// Citizenship in Society is required, between <see cref="CitSocietyCutover"/> and <see cref="CitSocietyEnd"/>).
+    /// The Eagle rank's merit badge requirement: 21 badges, of which 13 are Eagle-required. Citizenship in Society
+    /// was a 14th required badge from <see cref="CitSocietyCutover"/> through <see cref="CitSocietyEnd"/>; outside
+    /// that window it is an ordinary elective, including for scouts who earned it while it was required.
     /// The count is fixed when the requirement is constructed; <see cref="MeritBadge.EagleRequired"/> is evaluated per day.
     /// </summary>
     public class EagleMeritBadgeRequirement : MeritBadgeRequirement
@@ -17,8 +18,10 @@ namespace advancementchart.Model
         public static readonly DateTime CitSocietyCutover = new DateTime(2022, 7, 1);
         /// <summary>
         /// Last day (inclusive) of the window in which Citizenship in Society counts as Eagle-required.
+        /// The badge stopped being Eagle-required on 2026-02-27 (Eagle: 13 required + 8 elective), per the
+        /// Cascade Pacific Council notice; not confirmed against scouting.org.
         /// </summary>
-        public static readonly DateTime CitSocietyEnd = new DateTime(2026, 12, 31);
+        public static readonly DateTime CitSocietyEnd = new DateTime(2026, 2, 26);
 
         /// <summary>
         /// Whether Citizenship in Society counts as Eagle-required on the given day: from the cutover
@@ -37,17 +40,8 @@ namespace advancementchart.Model
         /// Creates the Eagle merit badge requirement for <paramref name="rank"/>.
         /// </summary>
         public EagleMeritBadgeRequirement(string name, string description, Rank rank, string handbookPages = "", DateTime? earned = null)
-            : base(name: name, description: description, rank: rank, required: 14, total: 21, handbookPages: handbookPages)
-        {
-            if (IsCitizenshipInSocietyRequired(DateTime.Now))
-            {
-                this.Required = 14;
-            }
-            else
-            {
-                this.Required = 13;
-            }
-        }
+            : base(name: name, description: description, rank: rank, required: IsCitizenshipInSocietyRequired(DateTime.Now) ? 14 : 13, total: 21, handbookPages: handbookPages)
+        { }
 
         /// <summary>
         /// True if the badge at <paramref name="index"/> belongs to a mutually exclusive group (e.g. Lifesaving
