@@ -230,7 +230,8 @@ namespace advancementchart.Model
         /// </summary>
         public void AddPartial(string badgeName, string version)
         {
-            if (!MeritBadges.Any(x => x.Name == badgeName))
+            var currentName = MeritBadge.CurrentName(badgeName);
+            if (!MeritBadges.Any(x => x.Name == currentName))
             {
                 MeritBadge partial = new MeritBadge(name: badgeName, description: version, earned: null);
                 partial.Started = true;

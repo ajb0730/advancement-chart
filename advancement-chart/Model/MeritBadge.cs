@@ -274,7 +274,7 @@ namespace advancementchart.Model
             {"Shotgun Shooting", "124"},
             {"Whitewater", "125"},
             {"Cinematography", "126"},
-            {"Auto Mechanics", "127"},
+            {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; see LegacyNames
             {"Collections", "128"},
             {FamilyLife, "129"},
             {"Medicine", "130"},
@@ -309,14 +309,31 @@ namespace advancementchart.Model
             {"Exploration", "159"},
             {CitizenshipSociety, "160"},
             {"Health Care Professions", "161"},
-            {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; same BSA id
+            // 162 is unused (the old Automotive Maintenance id; the badge kept Auto Mechanics' id 127).
             {"Multisport", "163"},
             {"Artificial Intelligence", "164"},
             {"Cybersecurity", "165"},
-            // 166+ are locally assigned (not BSA numbers): the ids only need to be unique and compact.
+            // 166+ are locally assigned, not BSA numbers: the ids only need to be unique.
             {"Competitive Gaming", "166"},
             {"Wildland Fire Management", "167"}
         };
+
+        /// <summary>
+        /// Former names of renamed badges, mapped to the current name. Older Scoutbook exports still use them.
+        /// </summary>
+        static public readonly Dictionary<string, string> LegacyNames = new Dictionary<string, string>()
+        {
+            {"Auto Mechanics", "Automotive Maintenance"},
+            {"Healthcare Professions", "Health Care Professions"}
+        };
+
+        /// <summary>
+        /// Returns the current name for a badge name, mapping a legacy name to its replacement; other names are returned unchanged.
+        /// </summary>
+        public static string CurrentName(string name)
+        {
+            return name is not null && LegacyNames.TryGetValue(name, out var current) ? current : name;
+        }
 
         protected MeritBadge()
             : base()
@@ -325,15 +342,15 @@ namespace advancementchart.Model
         /// <summary>
         /// Creates a merit badge.
         /// </summary>
-        /// <param name="name">The badge name; must be a key of <see cref="BsaMeritBadgeIds"/>.</param>
+        /// <param name="name">The badge name; must be a key of <see cref="BsaMeritBadgeIds"/> or of <see cref="LegacyNames"/> (stored under the current name).</param>
         /// <param name="description">Free text; the importer stores the requirements version here.</param>
         /// <param name="earned">When it was earned; null for a badge that is only started.</param>
         /// <exception cref="ArgumentException"><paramref name="name"/> is not a known merit badge.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
         public MeritBadge(string name, string description, DateTime? earned = null)
-            : base(name, description)
+            : base(CurrentName(name), description)
         {
-            if (!BsaMeritBadgeIds.ContainsKey(name))
+            if (!BsaMeritBadgeIds.ContainsKey(Name))
             {
                 throw new ArgumentException(message: $"Merit Badge name '{name}' not found.");
             }

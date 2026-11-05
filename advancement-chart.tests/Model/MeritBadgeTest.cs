@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Xunit;
 using advancementchart.Model;
+using advancement_chart.tests.Helpers;
 
 namespace advancement_chart.tests.Model
 {
@@ -195,9 +196,44 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void BsaMeritBadgeIds_Contains167Badges()
+        public void BsaMeritBadgeIds_Contains166Badges()
         {
-            Assert.Equal(167,MeritBadge.BsaMeritBadgeIds.Count);
+            Assert.Equal(166, MeritBadge.BsaMeritBadgeIds.Count);
+        }
+
+        [Fact]
+        public void BsaMeritBadgeIds_IdsAreUnique()
+        {
+            Assert.Equal(MeritBadge.BsaMeritBadgeIds.Count, MeritBadge.BsaMeritBadgeIds.Values.Distinct().Count());
+        }
+
+        [Fact]
+        public void LegacyNames_MapToCurrentBadges()
+        {
+            Assert.All(MeritBadge.LegacyNames, p =>
+            {
+                Assert.False(MeritBadge.BsaMeritBadgeIds.ContainsKey(p.Key), p.Key);
+                Assert.True(MeritBadge.BsaMeritBadgeIds.ContainsKey(p.Value), p.Value);
+            });
+        }
+
+        [Theory]
+        [InlineData("Auto Mechanics", "Automotive Maintenance")]
+        [InlineData("Healthcare Professions", "Health Care Professions")]
+        public void Constructor_LegacyName_IsStoredUnderCurrentName(string legacy, string current)
+        {
+            var badge = new MeritBadge(legacy, "2016");
+            Assert.Equal(current, badge.Name);
+            Assert.Equal(MeritBadge.BsaMeritBadgeIds[current], badge.BsaId);
+        }
+
+        [Fact]
+        public void AddPartial_LegacyAndCurrentName_DoNotDuplicate()
+        {
+            var scout = TestFixtures.CreateScout();
+            scout.AddPartial("Auto Mechanics", "2016");
+            scout.AddPartial("Automotive Maintenance", "2016");
+            Assert.Single(scout.MeritBadges, b => b.Name == "Automotive Maintenance");
         }
 
         [Fact]
