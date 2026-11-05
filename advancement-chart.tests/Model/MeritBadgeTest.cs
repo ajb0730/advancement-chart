@@ -195,9 +195,9 @@ namespace advancement_chart.tests.Model
         }
 
         [Fact]
-        public void BsaMeritBadgeIds_Contains165Badges()
+        public void BsaMeritBadgeIds_Contains167Badges()
         {
-            Assert.Equal(165, MeritBadge.BsaMeritBadgeIds.Count);
+            Assert.Equal(167,MeritBadge.BsaMeritBadgeIds.Count);
         }
 
         [Fact]
