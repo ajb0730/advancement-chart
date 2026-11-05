@@ -308,11 +308,14 @@ namespace advancementchart.Model
             {"Animation", "158"},
             {"Exploration", "159"},
             {CitizenshipSociety, "160"},
-            {"Healthcare Professions", "161"},
-            {"Automotive Maintenance", "162"},
+            {"Health Care Professions", "161"},
+            {"Automotive Maintenance", "127"}, // renamed from Auto Mechanics; same BSA id
             {"Multisport", "163"},
             {"Artificial Intelligence", "164"},
-            {"Cybersecurity", "165"}
+            {"Cybersecurity", "165"},
+            // 166+ are locally assigned (not BSA numbers): the ids only need to be unique and compact.
+            {"Competitive Gaming", "166"},
+            {"Wildland Fire Management", "167"}
         };
 
         protected MeritBadge()
