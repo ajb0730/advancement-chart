@@ -325,6 +325,25 @@ namespace advancement_chart.tests.Reports
         }
 
         [Fact]
+        public void Run_SectionBoxesExtendThroughLastScoutRow()
+        {
+            // A single-member final patrol: its header row sits between the previous scout and the last scout.
+            var scout1 = new TroopMember("1", "A", "", "Smith", "Hawks");
+            var scout2 = new TroopMember("2", "B", "", "Jones", "Unassigned");
+
+            new TroopReport(new List<TroopMember> { scout1, scout2 }).Run(_tempFile);
+
+            using (var package = new ExcelPackage(new FileInfo(_tempFile)))
+            {
+                var ta = package.Workbook.Worksheets["Troop Advancement"];
+                int lastRow = ta.Dimension.End.Row;
+                Assert.Contains("Jones", ta.Cells[lastRow, 1].Value?.ToString());
+                // Column B is the first requirement column; its section box (thick left edge) must reach the last scout row.
+                Assert.Equal(OfficeOpenXml.Style.ExcelBorderStyle.Thick, ta.Cells[lastRow, 2].Style.Border.Left.Style);
+            }
+        }
+
+        [Fact]
         public void Run_StarScoutWithEarnedBadges_WritesStarMbReqColumns()
         {
             // Exercise the MeritBadgeRequirement (non-Eagle) branch in AddContent
