@@ -255,7 +255,7 @@ namespace advancement_chart.tests.Reports
             scout.Star.DateEarned = new DateTime(2021, 11, 1);
             scout.Life.DateEarned = new DateTime(2022, 5, 1);
 
-            // Add all 14 eagle-required badges + electives
+            // Add all eagle-required badges + electives
             scout.Add(TestFixtures.EarnedBadge("First Aid", new DateTime(2021, 1, 1)));
             scout.Add(TestFixtures.EarnedBadge("Citizenship in the Community", new DateTime(2021, 1, 2)));
             scout.Add(TestFixtures.EarnedBadge("Citizenship in the Nation", new DateTime(2021, 1, 3)));

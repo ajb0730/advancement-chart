@@ -604,7 +604,7 @@ namespace advancement_chart.tests.Model
             // We need enough badges to fill Star(6) + Life(7) + Eagle(21) = 34, then overflow
             // Palm takes 5 each: Bronze(5) + Gold(5) + Silver(5) = 15 more
             string[] allBadges = {
-                // Eagle required (14)
+                // Eagle required (13, plus Citizenship in Society during its window)
                 "Camping", "First Aid", "Communication", "Cooking",
                 "Personal Fitness", "Environmental Science", "Family Life",
                 "Citizenship in the Community", "Citizenship in the Nation",

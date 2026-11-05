@@ -18,6 +18,8 @@ namespace advancementchart.Model
         public static readonly DateTime CitSocietyCutover = new DateTime(2022, 7, 1);
         /// <summary>
         /// Last day (inclusive) of the window in which Citizenship in Society counts as Eagle-required.
+        /// The badge stopped being Eagle-required on 2026-02-27 (Eagle: 13 required + 8 elective), per the
+        /// Cascade Pacific Council notice; not confirmed against scouting.org.
         /// </summary>
         public static readonly DateTime CitSocietyEnd = new DateTime(2026, 2, 26);
 

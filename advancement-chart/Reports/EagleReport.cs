@@ -216,7 +216,7 @@ namespace advancementchart.Reports
                     int remaining = req.Elective - elective.Count();
 
                     // Same columns, in the same order, as the troop advancement chart; this includes
-                    // Citizenship in Society while it is Eagle-required.
+                    // Citizenship in Society only while it is Eagle-required (it is not now).
                     foreach (var column in TroopReport.EagleColumnsFor(MeritBadge.GetEagleRequired()))
                     {
                         cell = column.Length == 1
